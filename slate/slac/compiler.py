@@ -141,7 +141,8 @@ def compile_expression(slate_expr, tsfc_parameters=None):
         elif it_type == "interior_facet_horiz":
             # The infamous interior horizontal facet
             # will have two SplitKernels: one top,
-            # one bottom
+            # one bottom. The mesh level will determine
+            # which kernels we call.
             builder.require_mesh_levels()
             top_sks = [k for k in cxt_kernel.tsfc_kernels
                        if k.kinfo.integral_type == "exterior_facet_top"]
@@ -150,7 +151,10 @@ def compile_expression(slate_expr, tsfc_parameters=None):
             assert len(top_sks) == len(bottom_sks), (
                 "Number of top and bottom kernels should be equal"
             )
-
+            # Top and bottom kernels need to be sorted by kinfo.indices
+            # if the space is mixed to ensure indices match.
+            top_sks = sorted(top_sks, key=lambda x: x.indices)
+            bottom_sks = sorted(bottom_sks, key=lambda x: x.indices)
             stmt, cl, incl = extruded_int_horiz_facet(exp,
                                                       builder,
                                                       top_sks,
@@ -163,6 +167,8 @@ def compile_expression(slate_expr, tsfc_parameters=None):
             statements.append(stmt)
 
         elif it_type in ["exterior_facet_bottom", "exterior_facet_top"]:
+            # These kernels will only be called if we are on
+            # the top or bottom layers of the extruded mesh.
             builder.require_mesh_levels()
             stmt, cl, incl = extruded_top_bottom_facet(exp,
                                                        builder,
@@ -177,8 +183,11 @@ def compile_expression(slate_expr, tsfc_parameters=None):
         else:
             raise ValueError("Kernel type not recognized: %s" % it_type)
 
-    context_temps = builder.temps.copy()
     # Now we handle any terms that require auxiliary data (if any)
+    # and update our temporaries and code statements.
+    # In particular, if we need to apply the action of a
+    # Slate tensor on an already assembled coefficient.
+    context_temps = builder.temps.copy()
     if bool(builder.aux_exprs):
         aux_temps, aux_statements = auxiliary_information(builder)
         context_temps.update(aux_temps)
@@ -208,7 +217,7 @@ def compile_expression(slate_expr, tsfc_parameters=None):
         args.extend([ast.Decl(ctype, csym) for csym in builder.coefficient(c)])
 
     if builder.needs_mesh_levels:
-        args.append(ast.Decl("char *", mesh_level_sym))
+        args.append(ast.Decl("int", mesh_level_sym))
 
     if builder.needs_cell_facets:
         args.append(ast.Decl("char *", cellfacetsym))
@@ -237,7 +246,8 @@ def compile_expression(slate_expr, tsfc_parameters=None):
                        subdomain_id="otherwise",
                        domain_number=0,
                        coefficient_map=range(len(slate_expr.coefficients())),
-                       needs_cell_facets=builder.needs_cell_facets)
+                       needs_cell_facets=builder.needs_cell_facets,
+                       pass_layer_arg=builder.needs_mesh_levels)
     idx = tuple([0]*slate_expr.rank)
 
     return (SplitKernel(idx, kinfo),)
@@ -245,35 +255,45 @@ def compile_expression(slate_expr, tsfc_parameters=None):
 
 def extruded_int_horiz_facet(exp, builder, top_sks, bottom_sks,
                              clist, coordsym, mesh_level_sym):
-    """
+    """Generates a code statement for evaluating interior horizontal
+    facet integrals.
+
+    :arg exp: A :class:`TensorBase` expression.
+    :arg builder: A :class:`KernelBuilder` containing the expression context.
+    :arg top_sks: An iterable of index ordered TSFC kernels for the top
+                  kernels.
+    :arg bottom_sks: An iterable of index ordered TSFC kernels for the bottom
+                     kernels.
+    :arg clist: A `list` of coefficient information to pass into the kernel
+                arguments. (This ensures any outside data is passed when
+                appropriate.)
+    :arg coordsym: An `ast.Symbol` object representing coordinate arguments
+                   for the kernel.
+    :arg mesh_level_sym: An `ast.Symbol` representing the mesh level.
+
+    Returns: A COFFEE code statement, updated coefficient info and updated
+             include_dirs
     """
     t = builder.get_temporary(exp)
     coeff_map = builder.coefficient_map
     incl = []
     cl = clist
     stmt = []
-    nlevels = exp.ufl_domain().topological.layers
+    nlevels = exp.ufl_domain().topological.layers - 1
 
     top_calls = []
     bottom_calls = []
     for top, bottom in zip(top_sks, bottom_sks):
-        # TODO: I am relying on order preservation here...
-        # need to think about the mixed fs case, where there
-        # is more than one splitkernel for both top and bottom.
-        # In the non-mixed setting, this should work just fine.
-        # Top and bottom kernels need to be sorted by kinfo.indices
         assert top.indices == bottom.indices, (
             "Top and bottom kernels must have the same indices"
         )
         index = top.indices
 
-        # TODO: Check if this logic is sufficient
         for cindex in set(bottom.kinfo.coefficient_map
                           + top.kinfo.coefficient_map):
             c = exp.coefficients()[cindex]
             cl.extend(coeff_map(c))
 
-        # TODO: Check if this logic is sufficient
         incl.extend(set(bottom.kinfo.kernel._include_dirs +
                         top.kinfo.kernel._include_dirs))
 
@@ -295,14 +315,30 @@ def extruded_int_horiz_facet(exp, builder, top_sks, bottom_sks,
 
 def extruded_top_bottom_facet(exp, builder, cxt_kernel,
                               clist, coordsym, mesh_level_sym):
-    """
+    """Generates a code statement for evaluating exterior top/bottom
+    facet integrals.
+
+    :arg exp: A :class:`TensorBase` expression.
+    :arg builder: A :class:`KernelBuilder` containing the expression context.
+    :arg cxt_kernel: A :namedtuple:`ContextKernel` containing all relevant
+                     integral types and TSFC kernels associated with the
+                     form nested in the expression.
+    :arg clist: A `list` of coefficient information to pass into the kernel
+                arguments. (This ensures any outside data is passed when
+                appropriate.)
+    :arg coordsym: An `ast.Symbol` object representing coordinate arguments
+                   for the kernel.
+    :arg mesh_level_sym: An `ast.Symbol` representing the mesh level.
+
+    Returns: A COFFEE code statement, updated coefficient info and updated
+             include_dirs
     """
     t = builder.get_temporary(exp)
     coeff_map = builder.coefficient_map
     incl = []
     cl = clist
     stmt = []
-    nlevels = exp.ufl_domain().topological.layers
+    nlevels = exp.ufl_domain().topological.layers - 1
 
     body = []
     for splitkernel in cxt_kernel.tsfc_kernels:
@@ -311,7 +347,6 @@ def extruded_top_bottom_facet(exp, builder, cxt_kernel,
 
         for cindex in kinfo.coefficient_map:
             c = exp.coefficients()[cindex]
-            # Handles both mixed and non-mixed coefficient cases
             cl.extend(coeff_map(c))
 
         incl.extend(kinfo.kernel._include_dirs)
@@ -329,7 +364,22 @@ def extruded_top_bottom_facet(exp, builder, cxt_kernel,
 
 
 def facet_integral_loop(cxt_kernel, builder, clist, coordsym, cellfacetsym):
-    """
+    """Generates a code statement for evaluating exterior/interior facet
+    integrals.
+
+    :arg cxt_kernel: A :namedtuple:`ContextKernel` containing all relevant
+                     integral types and TSFC kernels associated with the
+                     form nested in the expression.
+    :arg builder: A :class:`KernelBuilder` containing the expression context.
+    :arg clist: A `list` of coefficient information to pass into the kernel
+                arguments. (This ensures any outside data is passed when
+                appropriate.)
+    :arg coordsym: An `ast.Symbol` object representing coordinate arguments
+                   for the kernel.
+    :arg cellfacetsym: An `ast.Symbol` representing the cell facets.
+
+    Returns: A COFFEE code statement, updated coefficient info and updated
+             include_dirs
     """
     cl = clist
     exp = cxt_kernel.tensor
@@ -390,7 +440,7 @@ def auxiliary_information(builder):
     handling of expressions that do not have any integral forms or subkernels
     associated with it.
 
-    :arg builder: a :class:`SlateKernelBuilder` object that contains all the
+    :arg builder: a :class:`KernelBuilder` object that contains all the
                   necessary temporary and expression information.
 
     Returns: a mapping of the form ``{aux_node: aux_temp}``, where `aux_node`
@@ -505,8 +555,8 @@ def metaphrase_slate_to_cpp(expr, temps, prec=None):
                                                         expr.prec), temps[c])
 
         return parenthesize(result, expr.prec, prec)
+
     else:
-        # If expression is not recognized, throw a NotImplementedError.
         raise NotImplementedError("Type %s not supported.", type(expr))
 
 
