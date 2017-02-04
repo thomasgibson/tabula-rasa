@@ -1,10 +1,8 @@
 from __future__ import absolute_import, print_function, division
 
-import collections
-
 from coffee import base as ast
 
-from firedrake.slate.slate import TensorBase, Tensor, UnaryOp, BinaryOp, Action
+from firedrake.slate.slate import TensorBase, Tensor, TensorOp, Action
 from firedrake.slate.slac.utils import Transformer
 from firedrake.utils import cached_property
 
@@ -12,15 +10,15 @@ from ufl import MixedElement
 
 
 class KernelBuilder(object):
-    """A helper class for constructing SLATE kernels.
+    """A helper class for constructing Slate kernels.
 
     This class provides access to all temporaries and subkernels associated
-    with a SLATE expression. If the SLATE expression contains nodes that
+    with a Slate expression. If the Slate expression contains nodes that
     require operations on already assembled data (such as the action of a
     slate tensor on a `ufl.Coefficient`), this class provides access to the
     expression which needs special handling.
 
-    Instructions for assembling the full kernel AST of a SLATE expression is
+    Instructions for assembling the full kernel AST of a Slate expression is
     provided by the method `construct_ast`.
     """
     def __init__(self, expression, tsfc_parameters=None):
@@ -35,7 +33,7 @@ class KernelBuilder(object):
         self.expression = expression
         self.tsfc_parameters = tsfc_parameters
         self.needs_cell_facets = False
-        self.needs_mesh_levels = False
+        self.needs_mesh_layers = False
         self.oriented = False
         self.finalized_ast = None
 
@@ -62,11 +60,11 @@ class KernelBuilder(object):
         """
         self.needs_cell_facets = True
 
-    def require_mesh_levels(self):
-        """Assigns `self.needs_mesh_levels` to be `True` if mesh levels are
+    def require_mesh_layers(self):
+        """Assigns `self.needs_mesh_layers` to be `True` if mesh levels are
         needed.
         """
-        self.needs_mesh_levels = True
+        self.needs_mesh_layers = True
 
     def get_temporary(self, expr):
         """Extracts a temporary given a particular terminal expression."""
@@ -93,8 +91,9 @@ class KernelBuilder(object):
         """
         from firedrake.slate.slac.tsfc_driver import compile_terminal_form
 
-        cxt_list = [compile_terminal_form(expr, self.tsfc_parameters)
-                    for expr in self.temps]
+        cxt_list = [compile_terminal_form(expr, prefix="subkernel%d_" % i,
+                                          tsfc_parameters=self.tsfc_parameters)
+                    for i, expr in enumerate(self.temps)]
 
         cxt_kernels = [cxt_k for cxt_tuple in cxt_list
                        for cxt_k in cxt_tuple]
@@ -119,7 +118,7 @@ class KernelBuilder(object):
         :arg statements: a `coffee.base.Block` of instructions, which contains
                          declarations of temporaries, function calls to all
                          subkernels and any auxilliary information needed to
-                         evaulate the SLATE expression.
+                         evaulate the Slate expression.
                          E.g. facet integral loops and action loops.
         """
         # all kernel body statements must be wrapped up as a coffee.base.Block
@@ -205,27 +204,27 @@ def generate_expr_data(expr, temps=None, aux_exprs=None):
                 as an empty `dict` before recursion starts.
     :arg aux_exprs: a list that becomes populated recursively and is later
                     returned as the list of auxiliary expressions that require
-                    special handling in SLATE's linear algebra compiler
+                    special handling in Slate's linear algebra compiler
 
     Returns: the arguments temps and aux_exprs.
     """
     # Prepare temporaries map and auxiliary expressions list
     if temps is None:
-        temps = collections.defaultdict()
+        temps = {}
 
     if aux_exprs is None:
         aux_exprs = []
 
     if isinstance(expr, Tensor):
-        if expr not in temps:
-            temps[expr] = ast.Symbol("T%d" % len(temps))
+        temps.setdefault(expr, ast.Symbol("T%d" % len(temps)))
 
-    elif isinstance(expr, Action):
-        aux_exprs.append(expr)
-        # Pass in the acting tensor to extract any necessary temporaries
-        generate_expr_data(expr.operands[0], temps=temps, aux_exprs=aux_exprs)
+    elif isinstance(expr, TensorOp):
+        # If we have an Action instance, store expr in aux_exprs for
+        # special handling in the compiler
+        if isinstance(expr, Action):
+            aux_exprs.append(expr)
 
-    elif isinstance(expr, (UnaryOp, BinaryOp)):
+        # Send operands through recursively
         map(lambda x: generate_expr_data(x, temps=temps,
                                          aux_exprs=aux_exprs), expr.operands)
     else:
