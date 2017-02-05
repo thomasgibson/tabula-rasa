@@ -14,21 +14,20 @@ All Slate expressions are handled by a specialized linear algebra
 compiler, which interprets expressions and produces C++ kernel
 functions to be executed within the Firedrake architecture.
 """
-from __future__ import absolute_import, print_function, division
-from six import with_metaclass, iteritems
 
-from abc import ABCMeta, abstractproperty, abstractmethod
+from __future__ import absolute_import, print_function, division
+from six import iteritems
 
 from collections import OrderedDict
 
 from firedrake.function import Function
+from firedrake.slate.base import TensorBase as Base
 from firedrake.utils import cached_property
 
 from itertools import chain
 
 from ufl.algorithms.map_integrands import map_integrand_dags
 from ufl.algorithms.multifunction import MultiFunction
-from ufl.coefficient import Coefficient
 from ufl.form import Form
 
 
@@ -46,45 +45,8 @@ class CheckRestrictions(MultiFunction):
         raise ValueError("Must contain only positive restrictions!")
 
 
-class TensorBase(with_metaclass(ABCMeta)):
-    """An abstract Slate node class.
-
-    .. warning::
-
-       Do not instantiate this class on its own. This is an abstract
-       node class; is not meant to be worked with directly. Only use
-       the appropriate subclasses.
-    """
-
-    id = 0
-
-    def __init__(self):
-        """Constructor for the TensorBase abstract class."""
-        self._kernels = None
-        self.id = TensorBase.id
-        TensorBase.id += 1
-
-    @cached_property
-    def shapes(self):
-        """Computes the internal shape information of its components.
-        This is particularly useful to know if the tensor comes from a
-        mixed form.
-        """
-        shapes = {}
-        for i, arg in enumerate(self.arguments()):
-            shapes[i] = tuple(fs.fiat_element.space_dimension() * fs.dim
-                              for fs in arg.function_space())
-        return shapes
-
-    @cached_property
-    def shape(self):
-        """Computes the shape information of the local tensor."""
-        return tuple(sum(shapelist) for shapelist in self.shapes.values())
-
-    @cached_property
-    def rank(self):
-        """Returns the rank information of the tensor object."""
-        return len(self.arguments())
+class TensorBase(Base):
+    """An abstract Slate node class."""
 
     @property
     def inv(self):
@@ -127,8 +89,8 @@ class TensorBase(with_metaclass(ABCMeta)):
             other.__sub__(self)
 
     def __mul__(self, other):
-        # if other is a ufl.Coefficient, return action
-        if isinstance(other, Coefficient):
+        # if other is a firedrake.Function, return action
+        if isinstance(other, Function):
             return Action(self, other)
         return Mul(self, other)
 
@@ -143,76 +105,6 @@ class TensorBase(with_metaclass(ABCMeta)):
 
     def __neg__(self):
         return Negative(self)
-
-    def __eq__(self, other):
-        """Determines whether two TensorBase objects are equal using their
-        associated keys.
-        """
-        return self._key == other._key
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
-    @abstractmethod
-    def arguments(self):
-        """Returns a tuple of arguments associated with the tensor."""
-
-    @abstractmethod
-    def coefficients(self):
-        """Returns a tuple of coefficients associated with the tensor."""
-
-    def ufl_domain(self):
-        """This function returns a single domain of integration occuring
-        in the tensor.
-
-        The function will fail if multiple domains are found.
-        """
-        domains = self.ufl_domains()
-        assert all(domain == domains[0] for domain in domains), (
-            "All integrals must share the same domain of integration."
-        )
-        return domains[0]
-
-    @abstractmethod
-    def ufl_domains(self):
-        """Returns the integration domains of the integrals associated with
-        the tensor.
-        """
-
-    @abstractmethod
-    def subdomain_data(self):
-        """Returns a mapping on the tensor:
-        ``{domain:{integral_type: subdomain_data}}``.
-        """
-
-    def __str__(self):
-        """Returns a string representation."""
-        return self._output_string(self.prec)
-
-    @cached_property
-    def _hash_id(self):
-        """Returns a hash id for use in dictionary objects."""
-        return hash(self._key)
-
-    @abstractproperty
-    def _key(self):
-        """Returns a key for hash and equality.
-
-        This is used to generate a unique id associated with the
-        TensorBase object.
-        """
-
-    @abstractmethod
-    def _output_string(self):
-        """Creates a string representation of the tensor.
-
-        This is used when calling the `__str__` method on
-        TensorBase objects.
-        """
-
-    def __hash__(self):
-        """Generates a hash for the TensorBase object."""
-        return self._hash_id
 
 
 class Tensor(TensorBase):
@@ -564,26 +456,26 @@ class Action(TensorOp):
     rather than a Slate object.
 
     :arg tensor: a :class:`TensorBase` object.
-    :arg coefficient: a :class:`firedrake.Function` object.
+    :arg function: a :class:`firedrake.Function` object.
     """
 
     prec = 2
 
-    def __init__(self, tensor, coefficient):
+    def __init__(self, tensor, function):
         """Constructor for the Action class."""
-        assert isinstance(coefficient, Function), (
+        assert isinstance(function, Function), (
             "Action can only be performed on a firedrake.Function object."
         )
         assert isinstance(tensor, TensorBase), (
             "The tensor must be a Slate `TensorBase` object."
         )
-        V = coefficient.function_space()
+        V = function.function_space()
         assert tensor.arguments()[-1].function_space() == V, (
             "Argument function space must be the same as the "
             "coefficient function space."
         )
         super(Action, self).__init__(tensor)
-        self.actee = coefficient,
+        self.actee = function,
 
     def arguments(self):
         """Returns a tuple of arguments associated with the tensor."""
@@ -606,14 +498,14 @@ class Action(TensorOp):
     def _output_string(self, prec=None):
         """Creates a string representation."""
         tensor, = self.operands
-        coefficient, = self.actee
-        return "(%s) * %s" % (tensor, coefficient)
+        function, = self.actee
+        return "(%s) * %s" % (tensor, function)
 
     def __repr__(self):
         """Slate representation of the action of a tensor on a coefficient."""
         tensor, = self.operands
-        coefficient, = self.actee
-        return "Action(%r, %r)" % (tensor, coefficient)
+        function, = self.actee
+        return "Action(%r, %r)" % (tensor, function)
 
     @cached_property
     def _key(self):
