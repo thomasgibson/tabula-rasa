@@ -14,7 +14,6 @@ The Eigen C++ library (http://eigen.tuxfamily.org/) is required, as
 all low-level numerical linear algebra operations are performed using
 this templated function library.
 """
-
 from __future__ import absolute_import, print_function, division
 from six.moves import range
 
@@ -486,7 +485,7 @@ def auxiliary_information(builder):
             aux_statements.append(ast.Decl(typ, temp))
             aux_statements.append(ast.FlatBlock("%s.setZero();\n" % temp))
 
-            # Now we unpack the coefficient and insert its entries into a
+            # Now we unpack the function and insert its entries into a
             # 1D vector temporary
             isym = ast.Symbol("i1")
             jsym = ast.Symbol("j1")
