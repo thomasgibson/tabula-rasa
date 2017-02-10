@@ -6,7 +6,7 @@ from firedrake import *
 def test_3d_poisson_hybridization(degree, resolution, layers):
     base = UnitSquareMesh(2 ** resolution, 2 ** resolution,
                           quadrilateral=False)
-    mesh = ExtrudedMesh(base, layers=layers, layer_height=0.25)
+    mesh = ExtrudedMesh(base, layers=layers, layer_height=0.125)
 
     RT_elt = FiniteElement("RT", triangle, degree + 1)
     DG = FiniteElement("DG", interval, degree)
@@ -78,4 +78,4 @@ def test_3d_poisson_hybridization(degree, resolution, layers):
 
     File("Poisson-3D-hybrid.pvd").write(new_sigma_h, u_h)
 
-test_3d_poisson_hybridization(degree=0, resolution=6, layers=1)
+test_3d_poisson_hybridization(degree=0, resolution=10, layers=1)
