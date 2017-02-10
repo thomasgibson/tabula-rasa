@@ -6,7 +6,7 @@ from firedrake import *
 def test_slate_hybridization_extr(degree, resolution, layers):
     base = UnitSquareMesh(2 ** resolution, 2 ** resolution,
                           quadrilateral=False)
-    mesh = ExtrudedMesh(base, layers=layers, layer_height=0.25)
+    mesh = ExtrudedMesh(base, layers=layers, layer_height=0.025)
 
     RT_elt = FiniteElement("RT", triangle, degree + 1)
     DG = FiniteElement("DG", interval, degree)
@@ -79,4 +79,4 @@ def test_slate_hybridization_extr(degree, resolution, layers):
 
     File("3D-hybrid.pvd").write(new_sigma_h, u_h)
 
-test_slate_hybridization_extr(degree=0, resolution=8, layers=1)
+test_slate_hybridization_extr(degree=0, resolution=4, layers=4)
