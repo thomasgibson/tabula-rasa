@@ -59,7 +59,9 @@ def test_slate_hybridization(degree, resolution, quads=False):
     # Define the source function
     f = Function(DG)
     x, y = SpatialCoordinate(mesh)
-    f.interpolate((1+8*pi*pi)*sin(x*pi*2)*sin(y*pi*2))
+    # expr = sin(10*(x*x + y*y))/10
+    expr = (1+8*pi*pi)*sin(x*pi*2)*sin(y*pi*2)
+    f.interpolate(expr)
 
     # Define finite element variational forms
     Mass_v = dot(sigma, tau) * dx
@@ -108,11 +110,11 @@ def test_slate_hybridization(degree, resolution, quads=False):
     F = Tensor(f * v * dx)
 
     # SLATE expression for pressure recovery:
-    u_sol = (B * A_v.inv * B.T + A_p).inv * (F + B * A_v.inv * K.T * lambda_sol)
+    u_sol = (B * A_v.inv * B.T + A_p).solve(F + B * A_v.inv * K.T * lambda_sol)
     u_h = assemble(u_sol)
 
     # SLATE expression for velocity recovery
-    sigma_sol = A_v.inv * (B.T * u_h - K.T * lambda_sol)
+    sigma_sol = A_v.solve(B.T * u_h - K.T * lambda_sol)
     sigma_h = assemble(sigma_sol)
 
     new_sigma_h = project(sigma_h, FunctionSpace(mesh, RT))
