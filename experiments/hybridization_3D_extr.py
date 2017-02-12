@@ -23,7 +23,8 @@ def test_slate_hybridization_extr(degree, resolution, layers):
     x, y, z = SpatialCoordinate(mesh)
 
     f = Function(U)
-    f.interpolate((1+12*pi*pi)*cos(2*pi*x)*cos(2*pi*y)*cos(2*pi*z))
+    expr = (1+12*pi*pi)*cos(2*pi*x)*cos(2*pi*y)*cos(2*pi*z)
+    f.interpolate(expr)
 
     sigma, u = TrialFunctions(W)
     tau, v = TestFunctions(W)
@@ -79,4 +80,4 @@ def test_slate_hybridization_extr(degree, resolution, layers):
 
     File("3D-hybrid.pvd").write(new_sigma_h, u_h)
 
-test_slate_hybridization_extr(degree=0, resolution=4, layers=4)
+test_slate_hybridization_extr(degree=0, resolution=4, layers=1)
