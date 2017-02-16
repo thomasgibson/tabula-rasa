@@ -1,0 +1,8 @@
+op2.par_loop(op2.Kernel("""
+        static inline void copy(double **out, double **in) {
+             for ( int i = 0; i < 8; i++ ) {
+                        out[i][0] = in[i][0];
+                                              }}""", "copy"),
+    field0.ufl_domain().cell_set, bfield0.dat(op2.WRITE,
+    bfield0.cell_node_map()),
+    field0.dat(op2.READ, field0.cell_node_map()))
