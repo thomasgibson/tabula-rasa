@@ -36,25 +36,20 @@ def test_slate_hybridization(degree, resolution, quads=False):
     mesh = UnitSquareMesh(2 ** resolution, 2 ** resolution,
                           quadrilateral=quads)
 
-    # Create mesh normal
-    n = FacetNormal(mesh)
-
     # Define relevant function spaces
     if quads:
-        RT = FiniteElement("RTCF", quadrilateral, degree + 1)
+        eRT = FiniteElement("RTCF", quadrilateral, degree + 1)
     else:
-        RT = FiniteElement("RT", triangle, degree + 1)
+        eRT = FiniteElement("RT", triangle, degree + 1)
 
-    BRT = FunctionSpace(mesh, BrokenElement(RT))
+    RT = FunctionSpace(mesh, eRT)
     DG = FunctionSpace(mesh, "DG", degree)
-    T = FunctionSpace(mesh, "HDiv Trace", degree)
 
-    W = BRT * DG
+    W = RT * DG
 
     # Define the trial and test functions
     sigma, u = TrialFunctions(W)
     tau, v = TestFunctions(W)
-    gammar = TestFunction(T)
 
     # Define the source function
     f = Function(DG)
@@ -68,56 +63,20 @@ def test_slate_hybridization(degree, resolution, quads=False):
     Mass_p = u * v * dx
     Div = div(sigma) * v * dx
     Div_adj = div(tau) * u * dx
-    local_trace = gammar('+') * dot(sigma, n) * dS
+    a = Mass_v - Div_adj + Div + Mass_p
     L = f * v * dx
 
-    # Trace variables are 0 on the boundary of the domain
-    # so we remove their contribution on all exterior edges
-    bcs = DirichletBC(T, Constant(0.0), (1, 2, 3, 4))
+    solver_parameters = {'mat_type': 'matfree',
+                         'pc_type': 'python',
+                         'pc_python_type': 'firedrake.HybridizationPC',
+                         'trace_ksp_rtol': 1e-8,
+                         'trace_pc_type': 'lu',
+                         'trace_ksp_type': 'preonly',
+                         'ksp_monitor': True}
+    w = Function(W)
+    solve(a == L, w, solver_parameters=solver_parameters)
+    sigma_h, u_h = w.split()
 
-    # Perform the Schur-complement with SLATE expressions
-    A = Tensor(Mass_v + Mass_p + Div - Div_adj)
-    K = Tensor(local_trace)
-    Schur = -K * A.inv * K.T
+    File("hybrid-2d.pvd").write(sigma_h, u_h)
 
-    F = Tensor(L)
-    RHS = -K * A.inv * F
-
-    S = assemble(Schur, bcs=bcs)
-    E = assemble(RHS)
-
-    # Solve the reduced system for the Lagrange multipliers
-    lambda_sol = Function(T)
-    solve(S, lambda_sol, E, solver_parameters={'pc_type': 'lu',
-                                               'ksp_type': 'cg'})
-
-    # Currently, SLATE can only assemble one expression at a time.
-    # However, we may still write out the pressure and velocity
-    # reconstructions in SLATE and obtain our solutions by assembling
-    # the SLATE tensor expressions.
-    # NOTE: SLATE cannot assemble expressions that result in a tensor
-    # with arguments in a mixed function space (yet). Therefore we have
-    # to separate the arguments from the mixed space:
-    sigma = TrialFunction(BRT)
-    tau = TestFunction(BRT)
-    u = TrialFunction(DG)
-    v = TestFunction(DG)
-
-    A_v = Tensor(dot(sigma, tau) * dx)
-    A_p = Tensor(u * v * dx)
-    B = Tensor(div(sigma) * v * dx)
-    K = Tensor(dot(sigma, n) * gammar('+') * dS)
-    F = Tensor(f * v * dx)
-
-    # SLATE expression for pressure recovery:
-    u_sol = (B * A_v.inv * B.T + A_p).inv*(F + B * A_v.inv * K.T * lambda_sol)
-    u_h = assemble(u_sol)
-
-    # SLATE expression for velocity recovery
-    sigma_sol = A_v.inv*(B.T * u_h - K.T * lambda_sol)
-    sigma_h = assemble(sigma_sol)
-
-    new_sigma_h = project(sigma_h, FunctionSpace(mesh, RT))
-    File("hybrid-2d.pvd").write(new_sigma_h, u_h)
-
-test_slate_hybridization(degree=0, resolution=6, quads=False)
+test_slate_hybridization(degree=0, resolution=6, quads=True)
