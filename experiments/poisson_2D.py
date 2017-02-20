@@ -2,10 +2,10 @@ from __future__ import absolute_import, print_function, division
 
 from firedrake import *
 
-mesh = UnitSquareMesh(10, 10, quadrilateral=True)
+mesh = UnitSquareMesh(2 ** 8, 2 ** 8, quadrilateral=False)
 
 degree = 0
-V = FunctionSpace(mesh, "RTCF", degree + 1)
+V = FunctionSpace(mesh, "RT", degree + 1)
 U = FunctionSpace(mesh, "DG", degree)
 W = V * U
 
@@ -27,7 +27,8 @@ solver_parameters = {'mat_type': 'matfree',
                      'trace_ksp_rtol': 1e-10,
                      'trace_pc_type': 'lu',
                      'trace_ksp_type': 'preonly',
-                     'ksp_monitor': True}
+                     'ksp_monitor': True,
+                     'trace_ksp_monitor': True}
 
 # nullspace = MixedVectorSpaceBasis(W, [W[0], VectorSpaceBasis(constant=True)])
 # solver_parameters = {'pc_type': 'fieldsplit',

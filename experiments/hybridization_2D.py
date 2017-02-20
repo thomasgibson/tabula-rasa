@@ -72,11 +72,12 @@ def test_slate_hybridization(degree, resolution, quads=False):
                          'trace_ksp_rtol': 1e-8,
                          'trace_pc_type': 'lu',
                          'trace_ksp_type': 'preonly',
-                         'ksp_monitor': True}
+                         'ksp_monitor': True,
+                         'trace_ksp_monitor': True}
     w = Function(W)
     solve(a == L, w, solver_parameters=solver_parameters)
     sigma_h, u_h = w.split()
 
     File("hybrid-2d.pvd").write(sigma_h, u_h)
 
-test_slate_hybridization(degree=0, resolution=6, quads=True)
+test_slate_hybridization(degree=0, resolution=8, quads=True)
