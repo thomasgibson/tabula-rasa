@@ -2,12 +2,11 @@ from __future__ import absolute_import, print_function, division
 
 from firedrake import *
 
-mesh = UnitCubedSphereMesh(refinement_level=6)
+mesh = UnitIcosahedralSphereMesh(refinement_level=8)
 mesh.init_cell_orientations(Expression(("x[0]", "x[1]", "x[2]")))
 
 degree = 0
-RT_elt = FiniteElement("RTCF", quadrilateral, degree + 1)
-V = FunctionSpace(mesh, RT_elt)
+V = FunctionSpace(mesh, "RT", degree + 1)
 U = FunctionSpace(mesh, "DG", degree)
 W = V * U
 
@@ -28,7 +27,8 @@ solver_parameters = {'mat_type': 'matfree',
                      'trace_ksp_rtol': 1e-13,
                      'trace_pc_type': 'lu',
                      'trace_ksp_type': 'preonly',
-                     'trace_ksp_monitor_true_residual': True}
+                     'trace_ksp_monitor_true_residual': True,
+                     'ksp_monitor': True}
 
 solve(a == L, w, solver_parameters=solver_parameters)
 sigma_h, u_h = w.split()

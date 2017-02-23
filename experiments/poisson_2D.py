@@ -2,10 +2,10 @@ from __future__ import absolute_import, print_function, division
 
 from firedrake import *
 
-mesh = UnitSquareMesh(2 ** 8, 2 ** 8, quadrilateral=False)
+mesh = UnitSquareMesh(2 ** 9, 2 ** 9, quadrilateral=False)
 
 degree = 0
-V = FunctionSpace(mesh, "RT", degree + 1)
+V = FunctionSpace(mesh, "BDM", degree + 1)
 U = FunctionSpace(mesh, "DG", degree)
 W = V * U
 
@@ -29,16 +29,7 @@ solver_parameters = {'mat_type': 'matfree',
                      'trace_ksp_type': 'preonly',
                      'ksp_monitor': True,
                      'trace_ksp_monitor': True}
-
-# nullspace = MixedVectorSpaceBasis(W, [W[0], VectorSpaceBasis(constant=True)])
-# solver_parameters = {'pc_type': 'fieldsplit',
-#                      'pc_fieldsplit_type': 'schur',
-#                      'fieldsplit_0_pc_type': 'bjacobi',
-#                      'fieldsplit_0_sub_pc_type': 'ilu',
-#                      'fieldsplit_1_pc_type': 'none',
-#                      'pc_fieldsplit_schur_fact_type': 'FULL',
-#                      'fieldsplit_0_ksp_max_it': 100}
 solve(a == L, w, solver_parameters=solver_parameters)
 sigma_h, u_h = w.split()
 
-File("Poisson2D.pvd").write(sigma_h, u_h)
+File("Poisson2D.pvd").write(simga_h, u_h)
