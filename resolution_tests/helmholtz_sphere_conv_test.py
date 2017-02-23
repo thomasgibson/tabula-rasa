@@ -3,6 +3,7 @@ from __future__ import absolute_import, print_function, division
 import matplotlib.pyplot as plt
 import numpy as np
 
+from math import *
 from firedrake import *
 
 
@@ -77,13 +78,37 @@ def BDM1DGO0(res):
     error = errornorm(true_u, u_h, degree_rise=0)
     return error
 
-ref_levels = range(2, 7)
+ref_levels = range(1, 8)
 l2errorsRT = np.asarray([RT0DGO0(r) for r in ref_levels])
 l2errorsBDM = np.asarray([BDM1DGO0(r) for r in ref_levels])
+conv_rate_RT = np.log2(l2errorsRT[:-1]/l2errorsRT[1:])[-1]
+conv_rate_BDM = np.log2(l2errorsBDM[:-1]/l2errorsBDM[1:])[-1]
+text_RT = "Rate for RT0-DG0: %f" % conv_rate_RT
+text_BDM = "Rate for BDM1-DG0: %f" % conv_rate_BDM
 
 print(np.log2(l2errorsRT[:-1]/l2errorsRT[1:]))
 print(np.log2(l2errorsBDM[:-1]/l2errorsBDM[1:]))
 
-plt.semilogy(ref_levels, l2errorsRT)
-plt.semilogy(ref_levels, l2errorsBDM)
+fig = plt.figure()
+ax = fig.add_subplot(111)
+Mesh = UnitIcosahedralSphereMesh
+
+# cell_widths = [((1.0/(sin(2*pi/5)))/Mesh(i).topological.num_cells())
+#               for i in ref_levels]
+
+ax.semilogy(ref_levels, l2errorsRT, color="r", marker="o",
+            linestyle="-", linewidth="2",
+            label="RT0-DG0")
+ax.semilogy(ref_levels, l2errorsBDM, color="b", marker="^",
+            linestyle="-", linewidth="2",
+            label="BDM1-DG0")
+ax.grid(True)
+ax.annotate(text_RT + '\n' + text_BDM, xy=(ref_levels[-1]+0.75, 1e-2))
+plt.title("Resolution Test for RT0-DG0 and BDM1-DG0")
+plt.xlabel("Sphere mesh refinement level $r$")
+plt.ylabel("$L_2$ error in pressure approximation")
+plt.xlim(ref_levels[0] - 1, ref_levels[-1] + 1)
+plt.ylim(1e-7, 1e-1)
+plt.gca().invert_xaxis()
+plt.legend(loc=1)
 plt.show()
