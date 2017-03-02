@@ -6,10 +6,9 @@ import numpy as np
 from firedrake import *
 
 
-def RT0DGO0(res):
+def RT0DGO0(res, degree):
     mesh = UnitSquareMesh(2 ** res, 2 ** res, quadrilateral=False)
 
-    degree = 0
     V = FunctionSpace(mesh, "RT", degree + 1)
     U = FunctionSpace(mesh, "DG", degree)
     W = V * U
@@ -43,10 +42,9 @@ def RT0DGO0(res):
     return error
 
 
-def BDM1DGO0(res):
+def BDM1DGO0(res, degree):
     mesh = UnitSquareMesh(2 ** res, 2 ** res, quadrilateral=False)
 
-    degree = 0
     V = FunctionSpace(mesh, "BDM", degree + 1)
     U = FunctionSpace(mesh, "DG", degree)
     W = V * U
@@ -80,9 +78,10 @@ def BDM1DGO0(res):
     return error
     return error
 
-ref_levels = range(1, 10)
-l2errorsRT = np.asarray([RT0DGO0(r) for r in ref_levels])
-l2errorsBDM = np.asarray([BDM1DGO0(r) for r in ref_levels])
+ref_levels = range(1, 5)
+degree = 0
+l2errorsRT = np.asarray([RT0DGO0(r, degree) for r in ref_levels])
+l2errorsBDM = np.asarray([BDM1DGO0(r, degree) for r in ref_levels])
 conv_rate_RT = np.log2(l2errorsRT[:-1]/l2errorsRT[1:])[-1]
 conv_rate_BDM = np.log2(l2errorsBDM[:-1]/l2errorsBDM[1:])[-1]
 text_RT = "Rate for RT0-DG0: %f" % conv_rate_RT
