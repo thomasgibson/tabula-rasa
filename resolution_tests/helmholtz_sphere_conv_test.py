@@ -75,7 +75,7 @@ def BDM1DGO0(res, degree):
     error = errornorm(true_u, u_h, degree_rise=0)
     return error
 
-ref_levels = range(1, 6)
+ref_levels = range(1, 8)
 degree = 0
 l2errorsRT = np.asarray([RT0DGO0(r, degree) for r in ref_levels])
 l2errorsBDM = np.asarray([BDM1DGO0(r, degree) for r in ref_levels])

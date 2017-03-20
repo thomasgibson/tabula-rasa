@@ -33,51 +33,37 @@ from firedrake import *
 
 def test_slate_hybridization(degree, resolution, quads=False):
     # Create a mesh
-    mesh = UnitSquareMesh(2 ** resolution, 2 ** resolution,
-                          quadrilateral=quads)
-
-    # Define relevant function spaces
-    if quads:
-        eRT = FiniteElement("RTCF", quadrilateral, degree + 1)
-    else:
-        eRT = FiniteElement("RT", triangle, degree + 1)
-
-    RT = FunctionSpace(mesh, eRT)
-    DG = FunctionSpace(mesh, "DG", degree)
-
+    mesh = UnitSquareMesh(2 ** resolution, 2 ** resolution)
+    RT = FunctionSpace(mesh, "RT", degree)
+    DG = FunctionSpace(mesh, "DG", degree - 1)
     W = RT * DG
-
-    # Define the trial and test functions
     sigma, u = TrialFunctions(W)
     tau, v = TestFunctions(W)
+    n = FacetNormal(mesh)
 
     # Define the source function
     f = Function(DG)
     x, y = SpatialCoordinate(mesh)
-    expr = sin(10*(x*x + y*y))/10
-    # expr = (1+8*pi*pi)*sin(x*pi*2)*sin(y*pi*2)
-    f.interpolate(expr)
+    f.interpolate((1+8*pi*pi)*sin(x*pi*2)*sin(y*pi*2))
 
-    # Define finite element variational forms
-    Mass_v = dot(sigma, tau) * dx
-    Mass_p = u * v * dx
-    Div = div(sigma) * v * dx
-    Div_adj = div(tau) * u * dx
-    a = Mass_v - Div_adj + Div + Mass_p
-    L = f * v * dx
+    # Define the variational forms
+    a = (dot(sigma, tau) - div(tau) * u + u * v + v * div(sigma)) * dx
+    L = f * v * dx - 42 * dot(tau, n)*ds
 
-    solver_parameters = {'mat_type': 'matfree',
-                         'pc_type': 'python',
-                         'pc_python_type': 'firedrake.HybridizationPC',
-                         'trace_ksp_rtol': 1e-8,
-                         'trace_pc_type': 'lu',
-                         'trace_ksp_type': 'preonly',
-                         'ksp_monitor': True,
-                         'trace_ksp_monitor': True}
+    # Compare hybridized solution with non-hybridized
+    # (Hybrid) Python preconditioner, pc_type slate.HybridizationPC
     w = Function(W)
-    solve(a == L, w, solver_parameters=solver_parameters)
+    solve(a == L, w,
+          solver_parameters={'mat_type': 'matfree',
+                             'pc_type': 'python',
+                             'pc_python_type': 'firedrake.HybridizationPC',
+                             'hybridization_fieldsplit_schur_fact_type': 'lower',
+                             'hybridization_ksp_rtol': 1e-8,
+                             'hybridization_pc_type': 'lu',
+                             'hybridization_ksp_type': 'preonly',
+                             'hybridization_projector_tolerance': 1e-14})
     sigma_h, u_h = w.split()
 
     File("hybrid-2d.pvd").write(sigma_h, u_h)
 
-test_slate_hybridization(degree=0, resolution=8, quads=True)
+test_slate_hybridization(degree=1, resolution=5)
