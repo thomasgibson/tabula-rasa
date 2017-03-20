@@ -33,7 +33,7 @@ from ufl.form import Form
 
 
 __all__ = ['Tensor', 'Inverse', 'Transpose', 'Negative',
-           'Add', 'Sub', 'Mul', 'Action', 'Solve']
+           'Add', 'Sub', 'Mul', 'Action']
 
 
 class CheckRestrictions(MultiFunction):
@@ -128,9 +128,6 @@ class TensorBase(with_metaclass(ABCMeta)):
     @property
     def T(self):
         return Transpose(self)
-
-    def solve(self, rhs):
-        return Solve(self, rhs)
 
     def __add__(self, other):
         if isinstance(other, TensorBase):
@@ -613,46 +610,12 @@ class Action(TensorOp):
         return (type(self), self.operands, self.actee)
 
 
-class Solve(TensorOp):
-    """
-    """
-
-    def __init__(self, A, b):
-        """Constructor for the Solve class."""
-        assert A.rank == 2, (
-            "Left hand side operator needs to be a matrix."
-        )
-        assert A.shape[0] == A.shape[1], (
-            "Can only solve square matrix systems for now."
-        )
-        assert A.shape[1] == b.shape[0], (
-            "Dimension mismatch!"
-        )
-        super(Solve, self).__init__(A, b)
-
-    def arguments(self):
-        """Returns a tuple of arguments associated with the tensor."""
-        A, b = self.operands
-        symbolic = A.inv * b
-        return symbolic.arguments()
-
-    def _output_string(self, prec=None):
-        """Creates a string representation."""
-        A, b = self.operands
-        return "Solve(%s, %s)" % (A, b)
-
-    def __repr__(self):
-        """Slate representation of the action of a tensor on a coefficient."""
-        A, b = self.operands
-        return "Solve(%r, %r)" % (A, b)
-
-
 # Establishes levels of precedence for Slate tensors
 precedences = [
+    [Tensor],
     [UnaryOp],
     [Add, Sub],
-    [Mul, Action],
-    [Solve]
+    [Mul, Action]
 ]
 
 # Here we establish the precedence class attribute for a given
