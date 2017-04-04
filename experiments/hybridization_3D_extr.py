@@ -3,81 +3,61 @@ from __future__ import absolute_import, print_function, division
 from firedrake import *
 
 
-def test_slate_hybridization_extr(degree, resolution, layers):
-    base = UnitSquareMesh(2 ** resolution, 2 ** resolution,
-                          quadrilateral=False)
-    mesh = ExtrudedMesh(base, layers=layers, layer_height=0.025)
+def run_hybrid_extr_helmholtz(degree, res, quads):
+    nx = 2 ** res
+    ny = 2 ** res
+    nz = 2 ** res
+    base = UnitSquareMesh(nx, ny, quadrilateral=quads)
+    mesh = ExtrudedMesh(base, layers=nz, layer_height=1.0/nz)
 
-    RT_elt = FiniteElement("RT", triangle, degree + 1)
-    DG = FiniteElement("DG", interval, degree)
-    DGh = FiniteElement("DG", triangle, degree)
-    CG = FiniteElement("CG", interval, degree + 1)
-    elem = EnrichedElement(HDiv(TensorProductElement(RT_elt, DG)),
-                           HDiv(TensorProductElement(DGh, CG)))
-    product_elt = BrokenElement(elem)
-    V = FunctionSpace(mesh, product_elt)
+    if quads:
+        RT = FiniteElement("RTCF", quadrilateral, degree + 1)
+        DG_v = FiniteElement("DG", interval, degree)
+        DG_h = FiniteElement("DQ", quadrilateral, degree)
+        CG = FiniteElement("CG", interval, degree + 1)
+
+    else:
+        RT = FiniteElement("RT", triangle, degree + 1)
+        DG_v = FiniteElement("DG", interval, degree)
+        DG_h = FiniteElement("DG", triangle, degree)
+        CG = FiniteElement("CG", interval, degree + 1)
+
+    HDiv_ele = EnrichedElement(HDiv(TensorProductElement(RT, DG_v)),
+                               HDiv(TensorProductElement(DG_h, CG)))
+    V = FunctionSpace(mesh, HDiv_ele)
     U = FunctionSpace(mesh, "DG", degree)
-    T = FunctionSpace(mesh, "HDiv Trace", (degree, degree))
     W = V * U
-    n = FacetNormal(mesh)
-    x, y, z = SpatialCoordinate(mesh)
 
+    x, y, z = SpatialCoordinate(mesh)
     f = Function(U)
     expr = (1+12*pi*pi)*cos(2*pi*x)*cos(2*pi*y)*cos(2*pi*z)
     f.interpolate(expr)
 
     sigma, u = TrialFunctions(W)
     tau, v = TestFunctions(W)
-    gammar = TestFunction(T)
 
-    mass_v = dot(sigma, tau) * dx
-    mass_p = u * v * dx
-    divgrad = div(sigma) * v * dx
-    divgrad_adj = div(tau) * u * dx
-    local_trace = (gammar('+') * dot(sigma, n) * dS_h +
-                   gammar('+') * dot(sigma, n) * dS_v)
+    a = dot(sigma, tau)*dx + u*v*dx + div(sigma)*v*dx - div(tau)*u*dx
     L = f*v*dx
+    w = Function(W)
+    params = {'mat_type': 'matfree',
+              'pc_type': 'python',
+              'pc_python_type': 'firedrake.HybridizationPC',
+              'hybridization_ksp_type': 'cg',
+              'hybridization_projector_tolerance': 1e-14}
+    solve(a == L, w, solver_parameters=params)
+    sigma_h, u_h = w.split()
 
-    bcs = [DirichletBC(T, Constant(0.0), "on_boundary"),
-           DirichletBC(T, Constant(0.0), "top"),
-           DirichletBC(T, Constant(0.0), "bottom")]
+    nh_w = Function(W)
+    nh_params = {'pc_type': 'fieldsplit',
+                 'pc_fieldsplit_type': 'schur',
+                 'ksp_type': 'cg',
+                 'ksp_rtol': 1e-14,
+                 'pc_fieldsplit_schur_fact_type': 'FULL',
+                 'fieldsplit_0_ksp_type': 'cg',
+                 'fieldsplit_1_ksp_type': 'cg'}
+    solve(a == L, nh_w, solver_parameters=nh_params)
+    s_nh, u_nh = nh_w.split()
 
-    A = Tensor(mass_v + mass_p + divgrad - divgrad_adj)
-    K = Tensor(local_trace)
-    Schur = -K * A.inv * K.T
+    File("3D-hybrid.pvd").write(sigma_h, u_h, s_nh, u_nh)
 
-    F = Tensor(L)
-    RHS = - K * A.inv * F
-
-    S = assemble(Schur, bcs=bcs)
-    E = assemble(RHS)
-
-    lambda_sol = Function(T)
-    solve(S, lambda_sol, E, solver_parameters={'pc_type': 'lu',
-                                               'ksp_type': 'cg'})
-
-    sigma = TrialFunction(V)
-    tau = TestFunction(V)
-    u = TrialFunction(U)
-    v = TestFunction(U)
-
-    A_v = Tensor(dot(sigma, tau) * dx)
-    A_p = Tensor(u * v * dx)
-    B = Tensor(div(sigma) * v * dx)
-    K = Tensor(dot(sigma, n) * gammar('+') * dS_h +
-               dot(sigma, n) * gammar('+') * dS_v)
-    F = Tensor(f * v * dx)
-
-    # SLATE expression for pressure recovery:
-    u_sol = (B * A_v.inv * B.T + A_p).inv * (F + B * A_v.inv * K.T * lambda_sol)
-    u_h = assemble(u_sol)
-
-    # SLATE expression for velocity recovery
-    sigma_sol = A_v.inv * (B.T * u_h - K.T * lambda_sol)
-    sigma_h = assemble(sigma_sol)
-
-    new_sigma_h = project(sigma_h, FunctionSpace(mesh, elem))
-
-    File("3D-hybrid.pvd").write(new_sigma_h, u_h)
-
-test_slate_hybridization_extr(degree=0, resolution=4, layers=1)
+run_hybrid_extr_helmholtz(0, 5, quads=False)
