@@ -1,39 +1,61 @@
 from firedrake import *
 from matplotlib.pyplot import figure, show, title
-import numpy
 
-mesh = UnitSquareMesh(2, 2)
-degree = 2
-RT = FiniteElement("RT", triangle, degree)
-V = FunctionSpace(mesh, BrokenElement(RT))
-U = FunctionSpace(mesh, "DG", degree - 1)
-T = FunctionSpace(mesh, "HDiv Trace", degree - 1)
-W = V * U
-n = FacetNormal(mesh)
+res = 1
+nx = 2 ** res
+ny = 2 ** res
+nz = 2 ** res
 
-u, p = TrialFunctions(W)
-w, v = TestFunctions(W)
-gammar = TestFunction(T)
+quads = False
+broken = True
 
-form = dot(w, u)*dx - div(w)*p*dx +\
-       v*div(u)*dx + p*v*dx
-local_trace = gammar('+')*dot(u, n)*dS
-l = v*dx
+base = UnitSquareMesh(nx, ny, quadrilateral=quads)
+mesh = ExtrudedMesh(base, layers=nz, layer_height=1.0/nz)
 
-A = Tensor(form)
-K = Tensor(local_trace)
-F = Tensor(l)
-S = K * A.inv * K.T
-E = K * A.inv * F
+degree = 0
 
-sigma = TrialFunction(V)
-tau = TestFunction(V)
-q = TrialFunction(U)
-r = TestFunction(U)
-M = assemble(S)
+if quads:
+    RT = FiniteElement("RTCF", quadrilateral, degree + 1)
+    DG_v = FiniteElement("DG", interval, degree)
+    DG_h = FiniteElement("DQ", quadrilateral, degree)
+    CG = FiniteElement("CG", interval, degree + 1)
+
+else:
+    RT = FiniteElement("RT", triangle, degree + 1)
+    DG_v = FiniteElement("DG", interval, degree)
+    DG_h = FiniteElement("DG", triangle, degree)
+    CG = FiniteElement("CG", interval, degree + 1)
+
+HDiv_ele = EnrichedElement(HDiv(TensorProductElement(RT, DG_v)),
+                           HDiv(TensorProductElement(DG_h, CG)))
+if broken:
+    V = FunctionSpace(mesh, BrokenElement(HDiv_ele))
+    U = FunctionSpace(mesh, "DG", degree)
+    T = FunctionSpace(mesh, "HDiv Trace",
+                      HDiv_ele.degree())
+    W = V * U * T
+    u, p, lambdar = TrialFunctions(W)
+    w, v, gammar = TestFunctions(W)
+    n = FacetNormal(mesh)
+
+    a_dx = dot(w, u)*dx - div(w)*p*dx + v*div(u)*dx + p*v*dx
+    a_dS = jump(w, n=n)*lambdar('+')*dS_h + jump(w, n=n)*lambdar('+')*dS_v + jump(u, n=n)*gammar('+')*dS_h + jump(u, n=n)*gammar('+')*dS_v
+
+    form = a_dx + a_dS
+
+else:
+    V = FunctionSpace(mesh, HDiv_ele)
+    U = FunctionSpace(mesh, "DG", degree)
+    W = V * U
+    u, p = TrialFunctions(W)
+    w, v = TestFunctions(W)
+    n = FacetNormal(mesh)
+
+    form = dot(w, u)*dx - div(w)*p*dx + v*div(u)*dx + p*v*dx
+
+M = assemble(form, mat_type="aij")
 fig = figure()
 ax1 = fig.add_subplot(111)
-ax1.spy(M.M.values, markersize=15, precision=0.0001)
-title("Schur-complement matrix for $\lambda$: HDivTrace1")
+ax1.spy(M.M.values, markersize=2, precision=0.0001)
 
 show()
