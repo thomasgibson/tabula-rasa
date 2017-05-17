@@ -1,92 +1,72 @@
-"""Tests hybridization of the nice-Helmholtz problem on extruded meshes
-using Slate.
-"""
 from __future__ import absolute_import, print_function, division
 import pytest
-
 from firedrake import *
 
 
-def test_slate_hybridization_extr():
-    degree = 1
-    base = UnitSquareMesh(1, 1, quadrilateral=False)
-    mesh = ExtrudedMesh(base, 1)
+@pytest.mark.parametrize('quad', [False, True])
+def test_hybrid_extr_helmholtz(quad):
+    """Hybridize the lowest order HDiv conforming method using
+    both triangular prism and hexahedron elements.
+    """
+    base = UnitSquareMesh(5, 5, quadrilateral=quad)
+    mesh = ExtrudedMesh(base, layers=5, layer_height=0.2)
 
-    RT_elt = FiniteElement("RT", triangle, degree)
-    DG = FiniteElement("DG", interval, degree - 1)
-    DGh = FiniteElement("DG", triangle, degree - 1)
-    CG = FiniteElement("CG", interval, degree)
-    elem = EnrichedElement(HDiv(TensorProductElement(RT_elt, DG)),
-                           HDiv(TensorProductElement(DGh, CG)))
-    product_elt = BrokenElement(elem)
-    V = FunctionSpace(mesh, product_elt)
-    U = FunctionSpace(mesh, "DG", degree - 1)
-    T = FunctionSpace(mesh, "HDiv Trace", (degree - 1, degree - 1))
+    if quad:
+        RT = FiniteElement("RTCF", quadrilateral, 1)
+        DG_v = FiniteElement("DG", interval, 0)
+        DG_h = FiniteElement("DQ", quadrilateral, 0)
+        CG = FiniteElement("CG", interval, 1)
+
+    else:
+        RT = FiniteElement("RT", triangle, 1)
+        DG_v = FiniteElement("DG", interval, 0)
+        DG_h = FiniteElement("DG", triangle, 0)
+        CG = FiniteElement("CG", interval, 1)
+
+    HDiv_ele = EnrichedElement(HDiv(TensorProductElement(RT, DG_v)),
+                               HDiv(TensorProductElement(DG_h, CG)))
+    V = FunctionSpace(mesh, HDiv_ele)
+    U = FunctionSpace(mesh, "DG", 0)
     W = V * U
-    n = FacetNormal(mesh)
-    x, y, z = SpatialCoordinate(mesh)
 
+    x, y, z = SpatialCoordinate(mesh)
     f = Function(U)
-    f.interpolate((1+12*pi*pi)*cos(2*pi*x)*cos(2*pi*y)*cos(2*pi*z))
+    expr = (1+12*pi*pi)*cos(2*pi*x)*cos(2*pi*y)*cos(2*pi*z)
+    f.interpolate(expr)
 
     sigma, u = TrialFunctions(W)
     tau, v = TestFunctions(W)
-    gammar = TestFunction(T)
 
-    mass_v = dot(sigma, tau) * dx
-    mass_p = u * v * dx
-    divgrad = div(sigma) * v * dx
-    divgrad_adj = div(tau) * u * dx
-    local_trace = (gammar('+') * dot(sigma, n) * dS_h +
-                   gammar('+') * dot(sigma, n) * dS_v)
+    a = dot(sigma, tau)*dx + u*v*dx + div(sigma)*v*dx - div(tau)*u*dx
     L = f*v*dx
+    w = Function(W)
+    params = {'mat_type': 'matfree',
+              'ksp_type': 'preonly',
+              'pc_type': 'python',
+              'pc_python_type': 'firedrake.HybridizationPC',
+              'hybridization_ksp_rtol': 1e-8,
+              'hybridization_pc_type': 'lu',
+              'hybridization_ksp_type': 'preonly',
+              'hybridization_projector_tolerance': 1e-14}
+    solve(a == L, w, solver_parameters=params)
+    sigma_h, u_h = w.split()
 
-    bcs = DirichletBC(T, Constant(0.0), "on_boundary")
+    w2 = Function(W)
+    params2 = {'pc_type': 'fieldsplit',
+               'pc_fieldsplit_type': 'schur',
+               'ksp_type': 'cg',
+               'ksp_rtol': 1e-8,
+               'pc_fieldsplit_schur_fact_type': 'FULL',
+               'fieldsplit_0_ksp_type': 'cg',
+               'fieldsplit_1_ksp_type': 'cg'}
+    solve(a == L, w2, solver_parameters=params2)
+    nh_sigma, nh_u = w2.split()
 
-    A = Tensor(mass_v + mass_p + divgrad - divgrad_adj)
-    K = Tensor(local_trace)
-    Schur = -K * A.inv * K.T
+    sigma_err = errornorm(sigma_h, nh_sigma)
+    u_err = errornorm(u_h, nh_u)
 
-    F = Tensor(L)
-    RHS = - K * A.inv * F
-
-    S = assemble(Schur, bcs=bcs)
-    E = assemble(RHS)
-
-    lambda_sol = Function(T)
-    solve(S, lambda_sol, E, solver_parameters={'pc_type': 'lu',
-                                               'ksp_type': 'cg'})
-
-    sigma = TrialFunction(V)
-    tau = TestFunction(V)
-    u = TrialFunction(U)
-    v = TestFunction(U)
-
-    A_v = Tensor(dot(sigma, tau) * dx)
-    A_p = Tensor(u * v * dx)
-    B = Tensor(div(sigma) * v * dx)
-    K = Tensor(dot(sigma, n) * gammar('+') * dS_h +
-               dot(sigma, n) * gammar('+') * dS_v)
-    F = Tensor(f * v * dx)
-
-    # SLATE expression for pressure recovery:
-    u_sol = (B * A_v.inv * B.T + A_p).inv * (F + B * A_v.inv * K.T * lambda_sol)
-    u_h = assemble(u_sol)
-
-    # SLATE expression for velocity recovery
-    sigma_sol = A_v.inv * (B.T * u_h - K.T * lambda_sol)
-    sigma_h = assemble(sigma_sol)
-
-    exact = Function(U)
-    exact.interpolate(cos(2*pi*x)*cos(2*pi*y)*cos(2*pi*z))
-
-    # sigma = -grad(u)
-    sig_error = sqrt(assemble(dot(sigma_h + grad(exact),
-                                  sigma_h + grad(exact))*dx))
-    u_error = sqrt(assemble((u_h - exact)*(u_h - exact)*dx))
-
-    assert sig_error < 1e-11
-    assert u_error < 1e-11
+    assert sigma_err < 5e-8
+    assert u_err < 1e-8
 
 
 if __name__ == '__main__':
