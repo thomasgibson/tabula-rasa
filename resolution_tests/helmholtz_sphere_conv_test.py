@@ -26,13 +26,14 @@ def RT0DGO0(res, degree):
     L = f * v * dx
     w = Function(W)
 
-    solver_parameters = {'mat_type': 'matfree',
+    solver_parameters = {'ksp_type': 'preonly',
+                         'mat_type': 'matfree',
                          'pc_type': 'python',
                          'pc_python_type': 'firedrake.HybridizationPC',
-                         'trace_ksp_rtol': 1e-13,
-                         'trace_pc_type': 'lu',
-                         'trace_ksp_type': 'preonly',
-                         'trace_ksp_monitor_true_residual': True}
+                         'hybridization_pc_type': 'lu',
+                         'hybridization_ksp_type': 'preonly',
+                         'hybridization_pc_factor_mat_solver_package': 'mumps',
+                         'hybridization_projector_tolerance': 1e-14}
 
     solve(a == L, w, solver_parameters=solver_parameters)
     _, u_h = w.split()
@@ -60,13 +61,14 @@ def BDM1DGO0(res, degree):
     L = f * v * dx
     w = Function(W)
 
-    solver_parameters = {'mat_type': 'matfree',
+    solver_parameters = {'ksp_type': 'preonly',
+                         'mat_type': 'matfree',
                          'pc_type': 'python',
                          'pc_python_type': 'firedrake.HybridizationPC',
-                         'trace_ksp_rtol': 1e-13,
-                         'trace_pc_type': 'lu',
-                         'trace_ksp_type': 'preonly',
-                         'trace_ksp_monitor_true_residual': True}
+                         'hybridization_pc_type': 'lu',
+                         'hybridization_ksp_type': 'preonly',
+                         'hybridization_pc_factor_mat_solver_package': 'mumps',
+                         'hybridization_projector_tolerance': 1e-14}
 
     solve(a == L, w, solver_parameters=solver_parameters)
     _, u_h = w.split()
