@@ -7,7 +7,7 @@ ny = 2 ** res
 nz = 2 ** res
 
 quads = False
-broken = True
+broken = False
 
 base = UnitSquareMesh(nx, ny, quadrilateral=quads)
 mesh = ExtrudedMesh(base, layers=nz, layer_height=1.0/nz)
@@ -51,7 +51,7 @@ else:
     w, v = TestFunctions(W)
     n = FacetNormal(mesh)
 
-    form = dot(w, u)*dx - div(w)*p*dx + v*div(u)*dx + p*v*dx
+    form = dot(w, u)*dx - div(w)*p*dx + v*div(u)*dx # + p*v*dx
 
 M = assemble(form, mat_type="aij")
 fig = figure()
