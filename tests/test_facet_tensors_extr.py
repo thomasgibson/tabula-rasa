@@ -102,6 +102,22 @@ def test_total_facet(mesh):
     assert np.allclose(A, ref, rtol=1e-8)
 
 
+def test_trace_coefficient_extr(mesh):
+    DG = VectorFunctionSpace(mesh, "DG", 1)
+    n = FacetNormal(mesh)
+    u = TestFunction(DG)
+    T = FunctionSpace(mesh, "HDiv Trace", (1, 1))
+
+    x, y, z = SpatialCoordinate(mesh)
+    f = interpolate(z ** 2 + y ** 2 + x ** 2, T)
+    form = f*dot(u, n)*(dS_v + dS_h) + f*dot(u, n)*(ds_t + ds_b)
+    ref_form = jump(f*u, n=n)*(dS_v + dS_h) + f*dot(u, n)*(ds_t + ds_b)
+    A = assemble(Tensor(form)).dat.data
+    ref = assemble(ref_form).dat.data
+
+    assert np.allclose(A, ref, rtol=1e-8)
+
+
 if __name__ == '__main__':
     import os
     pytest.main(os.path.abspath(__file__))
