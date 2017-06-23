@@ -1,4 +1,4 @@
-from __future__ import absolute_import, print_function, division
+from __future__ import absolute_import, division
 
 from firedrake import *
 
@@ -6,9 +6,10 @@ from firedrake import *
 def run_hybrid_extr_helmholtz(degree, res, quads):
     nx = 2 ** res
     ny = 2 ** res
-    nz = 2 ** res
+    nz = 2 ** (res - 1)
+    h = 0.2 / nz
     base = UnitSquareMesh(nx, ny, quadrilateral=quads)
-    mesh = ExtrudedMesh(base, layers=nz, layer_height=1.0/nz)
+    mesh = ExtrudedMesh(base, layers=nz, layer_height=h)
 
     if quads:
         RT = FiniteElement("RTCF", quadrilateral, degree + 1)
@@ -30,8 +31,10 @@ def run_hybrid_extr_helmholtz(degree, res, quads):
 
     x, y, z = SpatialCoordinate(mesh)
     f = Function(U)
-    expr = (1+12*pi*pi)*cos(2*pi*x)*cos(2*pi*y)*cos(2*pi*z)
-    f.interpolate(expr)
+    f.interpolate(Expression("(1+38*pi*pi)*sin(x[0]*pi*2)*sin(x[1]*pi*3)*sin(x[2]*pi*5)"))
+    exact = Function(U)
+    exact.interpolate(Expression("sin(x[0]*pi*2)*sin(x[1]*pi*3)*sin(x[2]*pi*5)"))
+    exact.rename("exact")
 
     sigma, u = TrialFunctions(W)
     tau, v = TestFunctions(W)
@@ -40,24 +43,21 @@ def run_hybrid_extr_helmholtz(degree, res, quads):
     L = f*v*dx
     w = Function(W)
     params = {'mat_type': 'matfree',
+              'ksp_type': 'preonly',
               'pc_type': 'python',
               'pc_python_type': 'firedrake.HybridizationPC',
-              'hybridization_ksp_type': 'cg',
-              'hybridization_projector_tolerance': 1e-14}
+              'hybridization': {'ksp_type': 'preonly',
+                                'pc_type': 'lu',
+                                'hdiv_residual': {'ksp_type': 'cg',
+                                                  'ksp_rtol': 1e-14},
+                                'use_reconstructor': True}}
     solve(a == L, w, solver_parameters=params)
     sigma_h, u_h = w.split()
+    sigma_h.rename("flux")
+    u_h.rename("pressure")
 
-    nh_w = Function(W)
-    nh_params = {'pc_type': 'fieldsplit',
-                 'pc_fieldsplit_type': 'schur',
-                 'ksp_type': 'cg',
-                 'ksp_rtol': 1e-14,
-                 'pc_fieldsplit_schur_fact_type': 'FULL',
-                 'fieldsplit_0_ksp_type': 'cg',
-                 'fieldsplit_1_ksp_type': 'cg'}
-    solve(a == L, nh_w, solver_parameters=nh_params)
-    s_nh, u_nh = nh_w.split()
+    print errornorm(u_h, exact)
 
-    File("3D-hybrid.pvd").write(sigma_h, u_h, s_nh, u_nh)
+    File("3D-hybrid.pvd").write(sigma_h, u_h, exact)
 
 run_hybrid_extr_helmholtz(0, 5, quads=False)
