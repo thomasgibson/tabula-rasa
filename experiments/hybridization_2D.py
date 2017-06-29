@@ -29,16 +29,26 @@ sin(x[0]*pi*2)*sin(x[1]*pi*2)
 from __future__ import absolute_import, print_function, division
 
 from firedrake import *
+import numpy as np
+import matplotlib.pyplot as plt
 
 
-def test_slate_hybridization(degree, resolution, quads=False):
+def l2_error(a, b):
+    return sqrt(assemble(inner(a - b, a - b)*dx))
+
+
+def test_slate_hybridization(degree, resolution):
     # Create a mesh
     mesh = UnitSquareMesh(2 ** resolution, 2 ** resolution)
-    RT = FunctionSpace(mesh, "RT", degree)
-    DG = FunctionSpace(mesh, "DG", degree - 1)
-    W = RT * DG
+    RT_elt = FiniteElement("RT", triangle, degree + 1)
+    broken_RT = BrokenElement(RT_elt)
+    RT_d = FunctionSpace(mesh, broken_RT)
+    DG = FunctionSpace(mesh, "DG", degree)
+    T = FunctionSpace(mesh, "HDiv Trace", degree)
+    W = RT_d * DG
     sigma, u = TrialFunctions(W)
     tau, v = TestFunctions(W)
+    gammar = TestFunction(T)
     n = FacetNormal(mesh)
 
     # Define the source function
@@ -48,22 +58,106 @@ def test_slate_hybridization(degree, resolution, quads=False):
 
     # Define the variational forms
     a = (dot(sigma, tau) - div(tau) * u + u * v + v * div(sigma)) * dx
-    L = f * v * dx - 42 * dot(tau, n)*ds
+    L = f * v * dx
+    local_trace = gammar('+') * dot(sigma, n) * dS
 
-    # Compare hybridized solution with non-hybridized
-    # (Hybrid) Python preconditioner, pc_type slate.HybridizationPC
-    w = Function(W)
-    solve(a == L, w,
-          solver_parameters={'mat_type': 'matfree',
-                             'pc_type': 'python',
-                             'pc_python_type': 'firedrake.HybridizationPC',
-                             'hybridization_fieldsplit_schur_fact_type': 'lower',
-                             'hybridization_ksp_rtol': 1e-8,
-                             'hybridization_pc_type': 'lu',
-                             'hybridization_ksp_type': 'preonly',
-                             'hybridization_projector_tolerance': 1e-14})
-    sigma_h, u_h = w.split()
+    bcs = [DirichletBC(T, Constant(0.0), "on_boundary")]
 
-    File("hybrid-2d.pvd").write(sigma_h, u_h)
+    A = Tensor(a)
+    K = Tensor(local_trace)
+    Schur = K * A.inv * K.T
 
-test_slate_hybridization(degree=1, resolution=5)
+    F = Tensor(L)
+    RHS = K * A.inv * F
+
+    S = assemble(Schur, bcs=bcs)
+    E = assemble(RHS)
+
+    lambda_sol = Function(T)
+    solve(S, lambda_sol, E, solver_parameters={'pc_type': 'lu',
+                                               'ksp_type': 'cg'})
+
+    sigma = TrialFunction(RT_d)
+    tau = TestFunction(RT_d)
+    u = TrialFunction(DG)
+    v = TestFunction(DG)
+
+    A_v = Tensor(dot(sigma, tau) * dx)
+    B = Tensor(div(sigma) * v * dx)
+    K = Tensor(dot(sigma, n) * gammar('+') * dS)
+    F = Tensor(f * v * dx)
+
+    # SLATE expression for pressure recovery:
+    u_sol = (B * A_v.inv * B.T).inv * (F + B * A_v.inv * K.T * lambda_sol)
+    u_h = assemble(u_sol)
+
+    # SLATE expression for velocity recovery
+    sigma_sol = A_v.inv * (B.T * u_h - K.T * lambda_sol)
+    sigma_h = assemble(sigma_sol)
+
+    new_sigma_h = project(sigma_h, FunctionSpace(mesh, RT_elt))
+
+    # Post processing
+    DG_k1 = FunctionSpace(mesh, "DG", degree + 1)
+    ustar = Function(DG_k1)
+    u = TrialFunction(DG_k1)
+    v = TestFunction(DG)
+    gammar = TestFunction(T)
+    if degree < 2:
+        r = u*gammar('+')*dS + u*gammar*ds
+        Lr = lambda_sol*gammar('+')*dS + lambda_sol*gammar*ds
+        R = Tensor(r)
+        LR = Tensor(Lr)
+        assemble(R.inv * LR, tensor=ustar)
+    else:
+        raise ValueError
+
+    exact_u = sin(x*pi*2)*sin(y*pi*2)
+    err = l2_error(exact_u, ustar)
+    # File("helmholtz_2D-hybrid.pvd").write(new_sigma_h, ustar)
+    return err
+
+
+errs = []
+ref_levels = range(3, 8)
+d = 0
+for i in ref_levels:
+    err = test_slate_hybridization(degree=d, resolution=i)
+    errs.append(err)
+
+errRT_u = np.asarray(errs)
+
+fig = plt.figure()
+ax = fig.add_subplot(111)
+
+res = [2 ** r for r in ref_levels]
+dh = np.asarray(res)
+k = d + 2
+dh_arry = dh ** k
+dh_arry = 0.001 * dh_arry
+
+orange = '#FF6600'
+lw = '5'
+ms = 15
+
+if k == 1:
+    dhlabel = '$\propto \Delta x$'
+else:
+    dhlabel = '$\propto \Delta x^%d$' % k
+
+ax.loglog(res, errRT_u, color='r', marker='o',
+          linestyle='-', linewidth=lw, markersize=ms,
+          label='$DG_1$ $p_h$')
+ax.loglog(res, dh_arry[::-1], color='k', linestyle=':',
+          linewidth=lw, label=dhlabel)
+ax.grid(True)
+plt.title("Resolution test for lowest order H-RT method")
+plt.xlabel("Mesh resolution in all spatial directions $2^r$")
+plt.ylabel("$L^2$-error against projected exact solution")
+plt.gca().invert_xaxis()
+plt.legend(loc=2)
+font = {'family': 'normal',
+        'weight': 'bold',
+        'size': 28}
+plt.rc('font', **font)
+plt.show()
