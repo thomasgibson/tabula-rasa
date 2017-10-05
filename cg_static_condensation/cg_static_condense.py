@@ -6,14 +6,15 @@ from firedrake.parloops import par_loop, READ, INC
 import numpy as np
 
 mesh = UnitSquareMesh(32, 32)
+d = 6
 
-CG = FiniteElement("Lagrange", triangle, 5)
+CG = FiniteElement("Lagrange", triangle, d)
 int_ele = CG["interior"]
 facet_ele = CG["facet"]
 
 V_o = FunctionSpace(mesh, int_ele)
 V_d = FunctionSpace(mesh, facet_ele)
-V = FunctionSpace(mesh, "CG", 5)
+V = FunctionSpace(mesh, "CG", d)
 f = Function(V)
 f.interpolate(Expression("(1+8*pi*pi)*cos(x[0]*pi*2)*cos(x[1]*pi*2)"))
 
@@ -52,8 +53,11 @@ assemble(A00.inv * (F0 - A01 * u_ext), tensor=u_int)
 
 u_h = Function(V, name="Approximate")
 
-shapes = (V_o.finat_element.space_dimension(), np.prod(V_o.shape),
-          V_d.finat_element.space_dimension(), np.prod(V_d.shape))
+# Extract first node index in the cell interior
+offset = V.finat_element.entity_dofs()[2][0][0]
+args = (V_o.finat_element.space_dimension(), np.prod(V_o.shape),
+        offset,
+        V_d.finat_element.space_dimension(), np.prod(V_d.shape))
 
 # Offset for interior dof mapping is determined by inspecting the entity
 # dofs of V (original FE space) and the dofs of V_o. For example,
@@ -73,13 +77,13 @@ shapes = (V_o.finat_element.space_dimension(), np.prod(V_o.shape),
 kernel = """
 for (int i=0; i<%d; ++i){
     for (int j=0; j<%d; ++j) {
-        u_h[i+15][j] = u_o[i][j];
+        u_h[i+%d][j] = u_o[i][j];
 }}
 
 for (int i=0; i<%d; ++i){
     for (int j=0; j<%d; ++j) {
         u_h[i][j] = u_d[i][j];
-}}""" % shapes
+}}""" % args
 
 par_loop(kernel, dx, {"u_h": (u_h, INC),
                       "u_o": (u_int, READ),
