@@ -95,9 +95,19 @@ def run_sc_helmholtz(r, d, write=False):
     u_t.interpolate(Expression("cos(x[0]*pi*2)*cos(x[1]*pi*2)"))
     if write:
         File("cgsc.pvd").write(u_h, u_t)
-    return errornorm(u_t, u_h)
+
+    u = TrialFunction(V)
+    v = TestFunction(V)
+
+    a = bilinear_form(v, u)
+    L = linear_form(v, f)
+    uh = Function(V)
+
+    solve(a == L, uh)
+    return errornorm(u_t, u_h), errornorm(u_h, uh)
 
 
 degree = 3
-error = run_sc_helmholtz(3, degree, write=True)
+error, error_comp = run_sc_helmholtz(3, degree)
 print(error)
+print(error_comp)
