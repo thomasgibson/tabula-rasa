@@ -35,22 +35,57 @@ def run_sc_helmholtz(r, d, write=False):
     A01 = Tensor(bilinear_form(TestFunction(V_o), TrialFunction(V_d)))
     A10 = Tensor(bilinear_form(TestFunction(V_d), TrialFunction(V_o)))
     A11 = Tensor(bilinear_form(TestFunction(V_d), TrialFunction(V_d)))
-    F0 = Tensor(linear_form(TestFunction(V_o), f))
-    F1 = Tensor(linear_form(TestFunction(V_d), f))
+
+    v = TestFunction(V)
+    l = f * v * dx
+    L = assemble(l)
+
+    # TODO: There must be a cleaner way of getting the offset
+    lo = Function(V_o)
+    ld = Function(V_d)
+    offset = V.finat_element.entity_dofs()[2][0][0]
+    args = (V_o.finat_element.space_dimension(), np.prod(V_o.shape),
+            offset,
+            V_d.finat_element.space_dimension(), np.prod(V_d.shape))
+
+    kernel = """
+        for (int i=0; i<%d; ++i){
+            for (int j=0; j<%d; ++j){
+                r_int[i][j] = r_h[i + %d][j];
+            }
+        }
+
+        for (int i=0; i<%d; ++i){
+            for (int j=0; j<%d; ++j){
+                r_facet[i][j] = r_h[i][j];
+            }
+        }""" % args
+
+    par_loop(kernel, dx, {"r_int": (lo, INC),
+                          "r_facet": (ld, INC),
+                          "r_h": (L, READ)})
+
+    # F1 = AssembledVector(ld)
+    # F0 = AssembledVector(lo)
+
+    # Fr0 = Tensor(linear_form(TestFunction(V_o), f))
+    # Fr1 = Tensor(linear_form(TestFunction(V_d), f))
 
     u_ext = Function(V_d)
 
     S = A11 - A10 * A00.inv * A01
-    E = F1 - A10 * A00.inv * F0
+    # E = Fr1 - A10 * A00.inv * Fr0
+    vecr = Function(V_d)
+    vecr.assign(ld - assemble(A10 * A00.inv * AssembledVector(lo)))
 
     Mat = assemble(S)
     Mat.force_evaluation()
-    vec = assemble(E)
 
-    solve(Mat, u_ext, vec)
+    solve(Mat, u_ext, vecr)
+    U = AssembledVector(u_ext)
 
     u_int = Function(V_o)
-    assemble(A00.inv * (F0 - A01 * u_ext), tensor=u_int)
+    assemble(A00.inv * (AssembledVector(lo) - A01 * U), tensor=u_int)
 
     u_h = Function(V, name="Approximate")
 
@@ -108,6 +143,6 @@ def run_sc_helmholtz(r, d, write=False):
 
 
 degree = 3
-error, error_comp = run_sc_helmholtz(3, degree)
+error, error_comp = run_sc_helmholtz(1, degree)
 print(error)
 print(error_comp)
