@@ -29,7 +29,8 @@ def run_sc_helmholtz(r, d, write=False):
     V = FunctionSpace(mesh, "CG", d)
     V_ho = FunctionSpace(mesh, "CG", d+2)
     f = Function(V)
-    f.interpolate(Expression("(1+8*pi*pi)*cos(x[0]*pi*2)*cos(x[1]*pi*2)"))
+    x = SpatialCoordinate(mesh)
+    f.interpolate((1+8*pi*pi)*cos(2*pi*x[0])*cos(2*pi*x[1]))
 
     A00 = Tensor(bilinear_form(TestFunction(V_o), TrialFunction(V_o)))
     A01 = Tensor(bilinear_form(TestFunction(V_o), TrialFunction(V_d)))
@@ -75,8 +76,10 @@ def run_sc_helmholtz(r, d, write=False):
 
     S = A11 - A10 * A00.inv * A01
     # E = Fr1 - A10 * A00.inv * Fr0
+    F0 = AssembledVector(lo)
     vecr = Function(V_d)
-    vecr.assign(ld - assemble(A10 * A00.inv * AssembledVector(lo)))
+    thunk = assemble(A10 * A00.inv * F0)
+    vecr.assign(ld - thunk)
 
     Mat = assemble(S)
     Mat.force_evaluation()
@@ -127,7 +130,7 @@ def run_sc_helmholtz(r, d, write=False):
                           "u_d": (u_ext, READ)})
 
     u_t = Function(V_ho, name="Analytic")
-    u_t.interpolate(Expression("cos(x[0]*pi*2)*cos(x[1]*pi*2)"))
+    u_t.interpolate(cos(2*pi*x[0])*cos(2*pi*x[1]))
     if write:
         File("cgsc.pvd").write(u_h, u_t)
 
