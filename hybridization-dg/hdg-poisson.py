@@ -1,3 +1,39 @@
+"""This module solves the Dirichlet Poisson problem:
+
+
+-div(grad(u)) = f in [0, 1]^2
+
+u = 0 on the boundary (all sides of the domain),
+
+
+in a mixed formulation:
+
+
+sigma = -grad(u),
+
+div(sigma) = f
+
+u = 0 on the boundary,
+
+
+using a hybridized discontinuous Galerkin (HDG) method.
+The method is implemented using the Slate DSL for
+constructing the Schur complement system and local recovery.
+The weak formulation for the HDG method reads as follows:
+
+find sigma, u, lambda in (DG_k)^2 x DG_k, DG_Trace_k such that
+
+
+dot(tau, sigma)*dx - div(tau)*u*dx + dot(tau, lambda*n)*(dS + ds) = 0,
+
+dot(grad(v), sigma)*dx + v*(dot(sigma, n) + T*(u - lambda))*(dS + ds) = v*f*dx,
+
+-gamma*(dot(sigma, n) + T*(u - lambda))*(dS + ds) = 0 (no Neumman BCs)
+
+
+for all tau, v, gamma in (DG_k)^2 x DG_k, DG_Trace_k, where T is a non-negative
+stability parameter.
+"""
 from firedrake import *
 
 degree = 2
