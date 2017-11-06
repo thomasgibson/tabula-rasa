@@ -1,4 +1,5 @@
 from firedrake import *
+import numpy as np
 
 
 def run_hybrid_mixed(r, d, write=False, post_process=False):
@@ -80,9 +81,25 @@ def run_hybrid_mixed(r, d, write=False, post_process=False):
 
     return error_dict
 
+errs_u = []
+errs_sigma = []
+errs_upp = []
 d = 2
-r = 3
-errors = run_hybrid_mixed(r, d, write=True, post_process=True)
-print("Error in scalar variable: %.6f" % errors["u"])
-print("Error in vector variable: %.6f" % errors["sigma"])
-print("Post-processed scalar error: %.6f" % errors["u_pp"])
+h_array = list(range(3, 7))
+for r in h_array:
+    errors = run_hybrid_mixed(r, d, write=False, post_process=True)
+    errs_u.append(errors["u"])
+    errs_sigma.append(errors["sigma"])
+    errs_upp.append(errors["u_pp"])
+
+errs_u = np.array(errs_u)
+errs_sigma = np.array(errs_sigma)
+errs_upp = np.array(errs_upp)
+
+conv_u = np.log2(errs_u[:-1] / errs_u[1:])[-1]
+conv_sigma = np.log2(errs_sigma[:-1] / errs_sigma[1:])[-1]
+conv_upp = np.log2(errs_upp[:-1] / errs_upp[1:])[-1]
+
+print("Convergence rate for u_h: %0.8f" % conv_u)
+print("Convergence rate for sigma_h: %0.8f" % conv_sigma)
+print("Convergence rate for u_pp: %0.8f" % conv_upp)
