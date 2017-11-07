@@ -18,13 +18,10 @@ def run_hdg_poisson(r, d, write=False, post_process=False):
     q, u, uhat = TrialFunctions(W)
     v, w, mu = TestFunctions(W)
 
-    # Lagrange multipliers enforce the Dirichlet condition
-    bcs = DirichletBC(W.sub(2), Constant(0.0), "on_boundary")
-
     f = Function(V).interpolate(-2*(x[0]-1)*x[0] - 2*(x[1]-1)*x[1])
 
     # $qhat\cdot n$
-    tau = Constant(10)/CellVolume(mesh)
+    tau = Constant(10)
     qhat = q + tau*(u - uhat)*n
 
     def ejump(a):
@@ -33,12 +30,15 @@ def run_hdg_poisson(r, d, write=False, post_process=False):
     a = (
         (dot(v, q) - div(v)*u)*dx
         + ejump(uhat*inner(v, n))*dS
-        # + uhat*inner(v, n)*ds
+        + uhat*inner(v, n)*ds
         - dot(grad(w), q)*dx
         + ejump(inner(qhat, n)*w)*dS
         + inner(qhat, n)*w*ds
+        # Transmission condition (interior only)
         + ejump(mu*inner(qhat, n))*dS
-        # + mu*inner(qhat, n)*ds
+        # trace mass term for the boundary conditions
+        # <uhat, mu>ds == <g, mu>ds where g=0 in this example
+        + uhat*mu*ds
     )
 
     L = w*f*dx
@@ -50,7 +50,7 @@ def run_hdg_poisson(r, d, write=False, post_process=False):
               'pc_python_type': 'firedrake.HybridStaticCondensationPC',
               'hybrid_sc': {'ksp_type': 'preonly',
                             'pc_type': 'lu'}}
-    solve(a == L, w, bcs=bcs, solver_parameters=params)
+    solve(a == L, w, solver_parameters=params)
     q_h, u_h, uhat_h = w.split()
 
     V_a = FunctionSpace(mesh, "DG", degree + 3)
@@ -65,23 +65,26 @@ def run_hdg_poisson(r, d, write=False, post_process=False):
                   "u_h": errornorm(u_h, u_a)}
 
     if post_process:
-        # # Post processing for scalar variable
+        # Post processing for scalar variable
         Vk1 = FunctionSpace(mesh, "DG", degree + 1)
-        u_pp = Function(Vk1, name="Post processed scalar")
+        eta_h = Function(Vk1)
         ustar = TrialFunction(Vk1)
         eta = TestFunction(Vk1)
         A = Tensor(inner(grad(ustar), grad(eta))*dx)
         B = Tensor((uhat_h - u_h)*jump(grad(eta), n=n)*dS +
                    inner(uhat_h - u_h, dot(grad(eta), n))*ds)
 
-        assemble(A.inv * B, tensor=u_pp)
-        uk1 = Function(Vk1).interpolate(u_h)
-        u_pp += uk1
+        assemble(A.inv * B, tensor=eta_h)
+        u_pp = eta_h + u_h
+        err = sqrt(assemble((u_pp - u_a) *
+                            (u_pp - u_a) * dx))
 
-        error_dict.update({"u_pp": errornorm(u_a, u_pp)})
+        error_dict.update({"u_pp": err})
 
         # Post processing of vector variable
-        RTd = FunctionSpace(mesh, "DRT", degree + 1)
+        RT = FiniteElement("RT", triangle, degree + 1)
+        RTd_element = BrokenElement(RT)
+        RTd = FunctionSpace(mesh, RTd_element)
         nu = Function(RTd)
         Un1 = VectorFunctionSpace(mesh, "DG", degree - 1)
         W = Un1 * T
@@ -94,15 +97,15 @@ def run_hdg_poisson(r, d, write=False, post_process=False):
         B = Tensor(jump(qhat_h - q_h, n=n)*gammar*dS +
                    dot(qhat_h - q_h, n)*gammar*ds)
         assemble(A.inv * B, tensor=nu)
-        q_pp = Function(RTd, name="q_pp").project(q_h)
-        q_pp += nu
-        div_err = sqrt(assemble((div(q_a) - div(q_pp)) *
-                                (div(q_a) - div(q_pp)) * dx))
+        q_pp = nu + q_h
+        div_err = sqrt(assemble((div(q_a - q_pp)) *
+                                (div(q_a - q_pp)) * dx))
+
         error_dict.update({"q_pp_div": div_err})
 
     if write:
         if post_process:
-            File("hdg-test.pvd").write(q_a, u_a, u_h, q_pp)
+            File("hdg-test.pvd").write(q_a, u_a, u_h)
         else:
             File("hdg-test.pvd").write(q_a, u_a, u_h)
 
