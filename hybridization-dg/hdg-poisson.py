@@ -66,18 +66,24 @@ def run_hdg_poisson(r, d, write=False, post_process=False):
 
     if post_process:
         # Post processing for scalar variable
-        Vk1 = FunctionSpace(mesh, "DG", degree + 1)
-        eta_h = Function(Vk1)
-        ustar = TrialFunction(Vk1)
-        eta = TestFunction(Vk1)
-        A = Tensor(inner(grad(ustar), grad(eta))*dx)
-        B = Tensor((uhat_h - u_h)*jump(grad(eta), n=n)*dS +
-                   inner(uhat_h - u_h, dot(grad(eta), n))*ds)
+        DGk1 = FunctionSpace(mesh, "DG", degree + 1)
+        DG0 = FunctionSpace(mesh, "DG", 0)
+        Wpp = DGk1 * DG0
 
-        assemble(A.inv * B, tensor=eta_h)
-        u_pp = eta_h + u_h
-        err = sqrt(assemble((u_pp - u_a) *
-                            (u_pp - u_a) * dx))
+        up, psi = TrialFunctions(Wpp)
+        wp, phi = TestFunctions(Wpp)
+
+        K = (inner(grad(up), grad(wp)) +
+             # DG0 Lagrange multiplier
+             inner(psi, wp) +
+             inner(up, phi))*dx
+        F = -inner(q_h, grad(wp))*dx + inner(u_h, phi)*dx
+
+        wpp = Function(Wpp)
+        solve(K == F, wpp, solver_parameters={"ksp_type": "gmres",
+                                              "ksp_rtol": 1e-14})
+        u_pp, _ = wpp.split()
+        err = errornorm(u_a, u_pp)
 
         error_dict.update({"u_pp": err})
 
@@ -116,7 +122,7 @@ errs_u = []
 errs_q = []
 errs_upp = []
 errs_qpp = []
-d = 2
+d = 3
 h_array = list(range(3, 7))
 for r in h_array:
     errors = run_hdg_poisson(r, d, write=False, post_process=True)
