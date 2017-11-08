@@ -2,13 +2,6 @@ from firedrake import *
 import numpy as np
 
 
-def div_err(u, v):
-    """
-    """
-    err = sqrt(assemble(div(u - v) * div(u - v) * dx))
-    return err
-
-
 def run_hdg_poisson(r, d, write=False, post_process=False):
     """
     """
@@ -27,9 +20,15 @@ def run_hdg_poisson(r, d, write=False, post_process=False):
     q, u, uhat = TrialFunctions(W)
     v, w, mu = TestFunctions(W)
 
+    # Need smooth right-hand side for superconvergence magic
     f = Function(V_a).interpolate((2*pi*pi)*sin(x[0]*pi)*sin(x[1]*pi))
 
-    # $qhat\cdot n$
+    # For tau = O(1), q_h and u_h converge at order k+1, and
+    # u_pp converges at order k+1.
+    # For tau = O(1/h), q_h converges at order k, u_h AND
+    # u_pp at order k+1 (post processing doesn't help).
+    # In both cases, div(q - q_pp) converges at order k+1
+
     tau = Constant(10)
     # tau = Constant(10)/CellVolume(mesh)
     qhat = q + tau*(u - uhat)*n
@@ -70,9 +69,12 @@ def run_hdg_poisson(r, d, write=False, post_process=False):
     q_a = Function(U_a, name="Analytical vector")
     q_a.project(-grad(sin(x[0]*pi)*sin(x[1]*pi)))
 
+    qdiv_err = sqrt(assemble(div(q_h - q_a) *
+                             div(q_h - q_a) * dx))
+
     error_dict = {"q_h": errornorm(q_h, q_a),
                   "u_h": errornorm(u_h, u_a),
-                  "q_div": div_err(q_h, q_a)}
+                  "q_div": qdiv_err}
 
     if post_process:
         # Post processing for scalar variable
@@ -117,7 +119,8 @@ def run_hdg_poisson(r, d, write=False, post_process=False):
 
         q_pp = nu + q_h
 
-        diverr = div_err(q_pp, q_a)
+        diverr = sqrt(assemble(div(q_pp - q_a) *
+                               div(q_pp - q_a) * dx))
         qpp_err = errornorm(q_pp, q_a)
 
         error_dict.update({"q_pp": qpp_err})
@@ -134,8 +137,8 @@ errs_qdiv = []
 errs_upp = []
 errs_qpp = []
 errs_qpp_div = []
-d = 1
-h_array = list(range(3, 6))
+d = 2
+h_array = list(range(3, 7))
 for r in h_array:
     errors = run_hdg_poisson(r, d, write=False, post_process=True)
     errs_u.append(errors["u_h"])
