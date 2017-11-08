@@ -19,13 +19,15 @@ def run_hdg_poisson(r, d, write=False, post_process=False):
     n = FacetNormal(mesh)
     U = VectorFunctionSpace(mesh, "DG", degree)
     V = FunctionSpace(mesh, "DG", degree)
+    V_a = FunctionSpace(mesh, "DG", degree + 4)
+    U_a = VectorFunctionSpace(mesh, "DG", degree + 4)
     T = FunctionSpace(mesh, "HDiv Trace", degree)
 
     W = U * V * T
     q, u, uhat = TrialFunctions(W)
     v, w, mu = TestFunctions(W)
 
-    f = Function(V).interpolate((2*pi*pi)*sin(x[0]*pi)*sin(x[1]*pi))
+    f = Function(V_a).interpolate((2*pi*pi)*sin(x[0]*pi)*sin(x[1]*pi))
 
     # $qhat\cdot n$
     tau = Constant(10)
@@ -62,8 +64,6 @@ def run_hdg_poisson(r, d, write=False, post_process=False):
     solve(a == L, w, solver_parameters=params)
     q_h, u_h, uhat_h = w.split()
 
-    V_a = FunctionSpace(mesh, "DG", degree + 4)
-    U_a = VectorFunctionSpace(mesh, "DG", degree + 4)
     u_a = Function(V_a, name="Analytical Scalar")
     u_a.interpolate(sin(x[0]*pi)*sin(x[1]*pi))
 
@@ -77,30 +77,25 @@ def run_hdg_poisson(r, d, write=False, post_process=False):
     if post_process:
         # Post processing for scalar variable
         DGk1 = FunctionSpace(mesh, "DG", degree + 1)
-        DG0 = FunctionSpace(mesh, "DG", degree - 2)
+        DG0 = FunctionSpace(mesh, "DG", 0)
         Wpp = DGk1 * DG0
 
         up, psi = TrialFunctions(Wpp)
         wp, phi = TestFunctions(Wpp)
 
         K = (inner(grad(up), grad(wp)) +
-             # DG0 Lagrange multiplier
              inner(psi, wp) +
              inner(up, phi))*dx
-        F = -inner(q_h, grad(wp))*dx + inner(u_h, phi)*dx
-
-        # Keep this here for reminder of first attempt...
-        # F = inner(f, wp)*dx -\
-        #     jump(q_h, n=n)*wp('+')*dS -\
-        #     dot(q_h, n)*wp*ds +\
-        #     inner(u_h, phi)*dx
+        F = (-inner(q_h, grad(wp)) +
+             inner(u_h, phi))*dx
 
         wpp = Function(Wpp)
         solve(K == F, wpp, solver_parameters={"ksp_type": "gmres",
                                               "ksp_rtol": 1e-14})
         u_pp, _ = wpp.split()
+        err_upp = sqrt(assemble((u_pp - u_a) * (u_pp - u_a) * dx))
 
-        error_dict.update({"u_pp": errornorm(u_a, u_pp)})
+        error_dict.update({"u_pp": err_upp})
 
         # Post processing of vector variable
         qhat_h = q_h + tau*(u_h - uhat_h)*n
@@ -139,8 +134,8 @@ errs_qdiv = []
 errs_upp = []
 errs_qpp = []
 errs_qpp_div = []
-d = 3
-h_array = list(range(3, 7))
+d = 1
+h_array = list(range(3, 6))
 for r in h_array:
     errors = run_hdg_poisson(r, d, write=False, post_process=True)
     errs_u.append(errors["u_h"])
