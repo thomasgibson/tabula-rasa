@@ -2,30 +2,48 @@ from firedrake import *
 import numpy as np
 
 
-def run_hybrid_mixed(r, d, write=False, post_process=False):
+def run_hybrid_mixed(r, d, write=False, post_process=False, mixed_method="RT"):
     """
     """
-    mesh = UnitSquareMesh(2**r, 2**r)
+    if mixed_method == "RT":
+        mesh = UnitSquareMesh(2**r, 2**r)
+        broken_element = BrokenElement(FiniteElement("RT",
+                                                     triangle,
+                                                     d + 1))
+        U = FunctionSpace(mesh, broken_element)
+        V = FunctionSpace(mesh, "DG", d)
+        T = FunctionSpace(mesh, "HDiv Trace", d)
+    elif mixed_method == "BDM":
+        mesh = UnitSquareMesh(2**r, 2**r)
+        broken_element = BrokenElement(FiniteElement("BDM",
+                                                     triangle,
+                                                     d))
+        U = FunctionSpace(mesh, broken_element)
+        V = FunctionSpace(mesh, "DG", d - 1)
+        T = FunctionSpace(mesh, "HDiv Trace", d)
+    else:
+        raise ValueError
+
     n = FacetNormal(mesh)
     x = SpatialCoordinate(mesh)
-    RTd_element = BrokenElement(FiniteElement("RT", triangle, d + 1))
-    RTd = FunctionSpace(mesh, RTd_element)
-    DG = FunctionSpace(mesh, "DG", d)
-    T = FunctionSpace(mesh, "HDiv Trace", d)
+    V_a = FunctionSpace(mesh, "DG", d + 4)
+    U_a = VectorFunctionSpace(mesh, "DG", d + 4)
 
-    Wd = RTd * DG * T
+    Wd = U * V * T
 
     sigma, u, lambdar = TrialFunctions(Wd)
     tau, v, gammar = TestFunctions(Wd)
 
-    bcs = DirichletBC(Wd.sub(2), Constant(0.0), "on_boundary")
-
-    adx = (dot(sigma, tau) - div(tau)*u + div(sigma)*v + u*v)*dx
+    # This is the formulation described by the Feel++ folks where
+    # the multipliers weakly enforce the Dirichlet condition on
+    # the scalar unknown.
+    adx = (dot(sigma, tau) - div(tau)*u + div(sigma)*v)*dx
     adS = (jump(sigma, n=n)*gammar('+') + jump(tau, n=n)*lambdar('+'))*dS
-    a = adx + adS
+    ads = (dot(tau, n)*lambdar + lambdar*gammar)*ds
+    a = adx + adS + ads
 
-    f = Function(DG)
-    f.interpolate((1+8*pi*pi)*sin(x[0]*pi*2)*sin(x[1]*pi*2))
+    f = Function(V_a)
+    f.interpolate((2*pi*pi)*sin(x[0]*pi)*sin(x[1]*pi))
     L = v*f*dx
 
     w = Function(Wd, name="Approximate")
@@ -36,17 +54,13 @@ def run_hybrid_mixed(r, d, write=False, post_process=False):
               'pc_python_type': 'firedrake.HybridStaticCondensationPC',
               'hybrid_sc': {'ksp_type': 'preonly',
                             'pc_type': 'lu'}}
-    solve(a == L, w, bcs=bcs, solver_parameters=params)
+    solve(a == L, w, solver_parameters=params)
     sigma_h, u_h, lambdar_h = w.split()
 
-    DG_a = FunctionSpace(mesh, "DG", d + 2)
-    RTd_element_a = BrokenElement(FiniteElement("RT", triangle, d + 3))
-    RTd_a = FunctionSpace(mesh, RTd_element_a)
-
-    u_a = Function(DG_a, name="Analytic u")
-    u_a.interpolate(sin(x[0]*pi*2)*sin(x[1]*pi*2))
-    sigma_a = Function(RTd_a, name="Analytic sigma")
-    sigma_a.project(-grad(sin(x[0]*pi*2)*sin(x[1]*pi*2)))
+    u_a = Function(V_a, name="Analytic u")
+    u_a.interpolate(sin(x[0]*pi)*sin(x[1]*pi))
+    sigma_a = Function(U_a, name="Analytic sigma")
+    sigma_a.project(-grad(sin(x[0]*pi)*sin(x[1]*pi)))
 
     error_dict = {"sigma": errornorm(sigma_a, sigma_h),
                   "u": errornorm(u_a, u_h)}
@@ -84,10 +98,14 @@ def run_hybrid_mixed(r, d, write=False, post_process=False):
 errs_u = []
 errs_sigma = []
 errs_upp = []
+# Max d is 4
+# Test cases: RT-H for k = 0, 2, 4 and BDM-H for k = 2, 4
 d = 2
 h_array = list(range(3, 7))
 for r in h_array:
-    errors = run_hybrid_mixed(r, d, write=False, post_process=True)
+    errors = run_hybrid_mixed(r, d, write=False,
+                              post_process=True,
+                              mixed_method="BDM")
     errs_u.append(errors["u"])
     errs_sigma.append(errors["sigma"])
     errs_upp.append(errors["u_pp"])
