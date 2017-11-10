@@ -69,13 +69,13 @@ if '--hybrid-mixed-method' in sys.argv:
                                 # Reconstruct HDiv vector field
                                 # via local averaging
                                 # (Alternatively, one could also use
-                                # a Galerkin project onto the HDiv space)
+                                # a Galerkin projection onto the HDiv space)
                                 # 'hdiv_projection':{'ksp_type': 'cg',
                                 #                    'pc_type': 'bjacobi',
                                 #                    'sub_pc_type': 'ilu',
                                 #                    'ksp_rtol': 1e-8,
                                 #                    'ksp_monitor': True}}}
-                                'use_reconstructor': True}}
+                                'hdiv_projection': {'method': 'average'}}}
 else:
     params = {'pc_type': 'fieldsplit',
               'pc_fieldsplit_type': 'schur',
