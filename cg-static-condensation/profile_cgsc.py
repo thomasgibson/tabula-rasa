@@ -18,7 +18,7 @@ if '--scpc' in sys.argv:
     parameters = {'mat_type': 'matfree',
                   'ksp_type': 'preonly',
                   'pc_type': 'python',
-                  'pc_python_type': 'firedrake.StaticCondensationPC',
+                  'pc_python_type': 'firedrake.CGStaticCondensationPC',
                   'static_condensation': {'ksp_type': 'cg',
                                           'pc_type': 'hypre',
                                           'pc_hypre_type': 'boomeramg',

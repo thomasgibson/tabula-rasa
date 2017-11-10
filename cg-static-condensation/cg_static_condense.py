@@ -27,7 +27,7 @@ def run_helmholtz_3D_example(d, r, write=False):
               'ksp_type': 'gmres',
               'ksp_monitor': True,
               'pc_type': 'python',
-              'pc_python_type': 'firedrake.StaticCondensationPC',
+              'pc_python_type': 'firedrake.CGStaticCondensationPC',
               'static_condensation': {'ksp_type': 'cg',
                                       'pc_type': 'hypre',
                                       'pc_hypre_type': 'boomeramg',
