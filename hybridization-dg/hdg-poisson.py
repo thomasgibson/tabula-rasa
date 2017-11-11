@@ -29,8 +29,9 @@ def run_hdg_poisson(r, d, write=False, post_process=False):
     # u_pp at order k+1 (post processing doesn't help).
     # In both cases, div(q - q_pp) converges at order k+1
 
-    tau = Constant(10)
-    # tau = Constant(10)/CellVolume(mesh)
+    hk = CellVolume(mesh)
+    tau = Constant(50)
+    # tau = Constant(0.5)/hk
     qhat = q + tau*(u - uhat)*n
 
     def ejump(a):
@@ -68,12 +69,13 @@ def run_hdg_poisson(r, d, write=False, post_process=False):
     q_a = Function(U_a, name="Analytical vector")
     q_a.project(-grad(sin(x[0]*pi)*sin(x[1]*pi)))
 
-    qdiv_err = sqrt(assemble(div(q_h - q_a) *
-                             div(q_h - q_a) * dx))
+    m = TestFunction(FunctionSpace(mesh, "DG", 0))
+    int_avg_uh = assemble(Tensor((1/hk)*u_h*m*dx))
+    int_avg_ua = assemble(Tensor((1/hk)*u_a*m*dx))
 
     error_dict = {"q_h": errornorm(q_h, q_a),
                   "u_h": errornorm(u_h, u_a),
-                  "q_div": qdiv_err}
+                  "u_hbar": errornorm(int_avg_ua, int_avg_uh)}
 
     if post_process:
         # Post processing for scalar variable
@@ -98,32 +100,36 @@ def run_hdg_poisson(r, d, write=False, post_process=False):
 
         error_dict.update({"u_pp": err_upp})
 
-        # Post processing of vector variable
-        qhat_h = q_h + tau*(u_h - uhat_h)*n
-        RT = FiniteElement("RT", triangle, degree + 1)
-        RTd_element = BrokenElement(RT)
-        RTd = FunctionSpace(mesh, RTd_element)
-        nu = Function(RTd)
-        DGkn1 = VectorFunctionSpace(mesh, "DG", degree - 1)
-        Npp = DGkn1 * T
-        n_p = TrialFunction(RTd)
-        vp, mu = TestFunctions(Npp)
+        if d != 0:
+            # Post processing of vector variable
+            qhat_h = q_h + tau*(u_h - uhat_h)*n
+            RT = FiniteElement("RT", triangle, degree + 1)
+            RTd_element = BrokenElement(RT)
+            RTd = FunctionSpace(mesh, RTd_element)
+            nu = Function(RTd)
+            DGkn1 = VectorFunctionSpace(mesh, "DG", degree - 1)
+            Npp = DGkn1 * T
+            n_p = TrialFunction(RTd)
+            vp, mu = TestFunctions(Npp)
 
-        A = Tensor(inner(n_p, vp)*dx +
-                   jump(n_p, n=n)*mu('+')*dS +
-                   dot(n_p, n)*mu*ds)
-        B = Tensor(jump(qhat_h - q_h, n=n)*mu('+')*dS
-                   + dot(qhat_h - q_h, n)*mu*ds)
-        assemble(A.inv * B, tensor=nu)
+            A = Tensor(inner(n_p, vp)*dx +
+                       jump(n_p, n=n)*mu('+')*dS +
+                       dot(n_p, n)*mu*ds)
+            B = Tensor(jump(qhat_h - q_h, n=n)*mu('+')*dS
+                       + dot(qhat_h - q_h, n)*mu*ds)
+            assemble(A.inv * B, tensor=nu)
 
-        q_pp = nu + q_h
+            q_pp = nu + q_h
 
-        diverr = sqrt(assemble(div(q_pp - q_a) *
-                               div(q_pp - q_a) * dx))
-        qpp_err = errornorm(q_pp, q_a)
+            diverr = sqrt(assemble(div(q_pp - q_a) *
+                                   div(q_pp - q_a) * dx))
+            qpp_err = errornorm(q_pp, q_a)
 
-        error_dict.update({"q_pp": qpp_err})
-        error_dict.update({"q_pp_div": diverr})
+            error_dict.update({"q_pp": qpp_err})
+            error_dict.update({"q_pp_div": diverr})
+        else:
+            error_dict.update({"q_pp": 0})
+            error_dict.update({"q_pp_div": 0})
 
     if write:
         File("hdg-test.pvd").write(q_a, u_a, u_h)
@@ -132,38 +138,38 @@ def run_hdg_poisson(r, d, write=False, post_process=False):
 
 errs_u = []
 errs_q = []
-errs_qdiv = []
+errs_ubar = []
 errs_upp = []
 errs_qpp = []
 errs_qpp_div = []
-d = 2
-h_array = list(range(3, 7))
+d = 3
+h_array = list(range(3, 9))
 for r in h_array:
     errors = run_hdg_poisson(r, d, write=False, post_process=True)
     errs_u.append(errors["u_h"])
     errs_q.append(errors["q_h"])
-    errs_qdiv.append(errors["q_div"])
+    errs_ubar.append(errors["u_hbar"])
     errs_upp.append(errors["u_pp"])
     errs_qpp.append(errors["q_pp"])
     errs_qpp_div.append(errors["q_pp_div"])
 
 errs_u = np.array(errs_u)
 errs_q = np.array(errs_q)
-errs_qdiv = np.array(errs_qdiv)
+errs_ubar = np.array(errs_ubar)
 errs_upp = np.array(errs_upp)
 errs_qpp = np.array(errs_qpp)
 errs_qpp_div = np.array(errs_qpp_div)
 
 conv_u = np.log2(errs_u[:-1] / errs_u[1:])[-1]
 conv_q = np.log2(errs_q[:-1] / errs_q[1:])[-1]
-conv_qdiv = np.log2(errs_qdiv[:-1] / errs_qdiv[1:])[-1]
+conv_ubar = np.log2(errs_ubar[:-1] / errs_ubar[1:])[-1]
 conv_upp = np.log2(errs_upp[:-1] / errs_upp[1:])[-1]
 conv_qpp = np.log2(errs_qpp[:-1] / errs_qpp[1:])[-1]
 conv_qpp_div = np.log2(errs_qpp_div[:-1] / errs_qpp_div[1:])[-1]
 
 print("Convergence rate for u - u_h: %0.8f" % conv_u)
 print("Convergence rate for u - u_pp: %0.8f" % conv_upp)
+print("Convergence rate for ubar - u_hbar: %0.8f" % conv_ubar)
 print("Convergence rate for q - q_h: %0.8f" % conv_q)
 print("Convergence rate for q - q_pp: %0.8f" % conv_qpp)
-print("Convergence rate for div(q - q_h): %0.8f" % conv_qdiv)
 print("Convergence rate for div(q - q_pp): %0.8f" % conv_qpp_div)
