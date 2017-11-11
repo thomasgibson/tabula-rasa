@@ -109,14 +109,9 @@ def run_LDG_H_poisson(r, degree, tau_order="1", write=False):
     # the ith global basis function is 1 in the ith
     # cell and 0 otherwise.
     idf = TestFunction(DG0)
-
-    # Wrapping 'Tensor' is the main Slate API. This
-    # creates a local vector of length 1 evaluating the
-    # integral average. This gets assembled into a global
-    # vector whose ith component gives the ith-cell average.
     hk = CellVolume(mesh)
-    avg_scalar_sol = assemble(Tensor((1/hk)*u_h*idf*dx))
-    avg_scalar_analytic = assemble(Tensor((1/hk)*u_a*idf*dx))
+    avg_scalar_sol = assemble((1/hk)*u_h*idf*dx)
+    avg_scalar_analytic = assemble((1/hk)*u_a*idf*dx)
 
     # Now we just take the L2 error of these assembled
     # functions:
@@ -329,7 +324,7 @@ elif "--run-convergence-test" in sys.argv:
         # Extract errors and metrics
         scalar_errors.append(error_dict["scalar_error"])
         scalar_pp_errors.append(error_dict["scalar_pp_error"])
-        avg_scalar_errors.append(error_dict["scalar_pp_error"])
+        avg_scalar_errors.append(error_dict["avg_scalar_error"])
         flux_errors.append(error_dict["flux_error"])
         flux_pp_errors.append(error_dict["flux_pp_error"])
         flux_pp_div_errors.append(error_dict["flux_pp_div_error"])
@@ -377,20 +372,18 @@ elif "--run-convergence-test" in sys.argv:
     fieldnames = ["r",
                   "scalar_errors", "flux_errors",
                   "scalar_pp_errors", "flux_pp_errors",
-                  "avg_scalar_errors",
                   "scalar_rates", "flux_rates",
-                  "avg_scalar_rates",
                   "scalar_pp_rates", "flux_pp_rates",
-                  "flux_pp_div_errors", "flux_pp_div_rates"]
+                  "flux_pp_div_errors", "flux_pp_div_rates",
+                  "flux_pp_jumps"]
 
     data = [r_array,
             scalar_errors, flux_errors,
             scalar_pp_errors, flux_pp_errors,
-            avg_scalar_errors,
             scalar_rates, flux_rates,
-            avg_scalar_rates,
             scalar_pp_rates, flux_pp_rates,
-            flux_pp_div_errors, flux_pp_div_rates]
+            flux_pp_div_errors, flux_pp_div_rates,
+            flux_pp_jumps]
 
     if tau_order == "1/h":
             o = "h-1"
