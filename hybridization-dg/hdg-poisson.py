@@ -24,7 +24,7 @@ def run_hdg_poisson(r, d, write=False, post_process=False):
     f = Function(V_a).interpolate((2*pi*pi)*sin(x[0]*pi)*sin(x[1]*pi))
 
     # For tau = O(1), q_h and u_h converge at order k+1, and
-    # u_pp converges at order k+1.
+    # u_pp converges at order k+2.
     # For tau = O(1/h), q_h converges at order k, u_h AND
     # u_pp at order k+1 (post processing doesn't help).
     # In both cases, div(q - q_pp) converges at order k+1
@@ -43,7 +43,6 @@ def run_hdg_poisson(r, d, write=False, post_process=False):
         - dot(grad(w), q)*dx
         + ejump(inner(qhat, n)*w)*dS
         + inner(qhat, n)*w*ds
-        # + inner(u, w)*dx
         # Transmission condition (interior only)
         + ejump(mu*inner(qhat, n))*dS
         # trace mass term for the boundary conditions
@@ -85,16 +84,16 @@ def run_hdg_poisson(r, d, write=False, post_process=False):
         up, psi = TrialFunctions(Wpp)
         wp, phi = TestFunctions(Wpp)
 
-        K = (inner(grad(up), grad(wp)) +
-             inner(psi, wp) +
-             inner(up, phi))*dx
-        F = (-inner(q_h, grad(wp)) +
-             inner(u_h, phi))*dx
+        K = Tensor((inner(grad(up), grad(wp)) +
+                    inner(psi, wp) +
+                    inner(up, phi))*dx)
+        F = Tensor((-inner(q_h, grad(wp)) +
+                    inner(u_h, phi))*dx)
 
         wpp = Function(Wpp)
-        solve(K == F, wpp, solver_parameters={"ksp_type": "gmres",
-                                              "ksp_rtol": 1e-14})
+        assemble(K.inv * F, tensor=wpp)
         u_pp, _ = wpp.split()
+
         err_upp = sqrt(assemble((u_pp - u_a) * (u_pp - u_a) * dx))
 
         error_dict.update({"u_pp": err_upp})
