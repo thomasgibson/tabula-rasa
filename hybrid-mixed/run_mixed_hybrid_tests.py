@@ -77,7 +77,7 @@ def run_mixed_hybrid_poisson(r, degree, mixed_method="RT", write=False):
     print("Solver finished.\n")
 
     # Computed flux, scalar, and trace
-    q_h, u_h, lambda_h = w.split()
+    q_h, u_h, lambdar_h = w.split()
 
     # Analytical solutions for u and q
     u_a = Function(V_a, name="Analytic Scalar")
@@ -103,16 +103,16 @@ def run_mixed_hybrid_poisson(r, degree, mixed_method="RT", write=False):
         print("NOTE: This approach only works for even-degrees "
               "(see the 1985 paper).\n")
 
-        DG_pp = FunctionSpace(mesh, "DG", d + 1)
+        DG_pp = FunctionSpace(mesh, "DG", degree + 1)
         u_pp_slate = Function(DG_pp,
                               name="Post-processed scalar (Arnold/Brezzi)")
         utilde = TrialFunction(DG_pp)
-        if d == 0:
+        if degree == 0:
             gammar = TestFunction(T)
             K = inner(utilde, gammar)*(dS + ds)
             F = inner(lambdar_h, gammar)*(dS + ds)
         else:
-            DG_n2 = FunctionSpace(mesh, "DG", d - 2)
+            DG_n2 = FunctionSpace(mesh, "DG", degree - 2)
             Wk = DG_n2 * T
             v, gammar = TestFunctions(Wk)
             K = inner(utilde, v)*dx + inner(utilde, gammar)*(dS + ds)
@@ -151,7 +151,7 @@ def run_mixed_hybrid_poisson(r, degree, mixed_method="RT", write=False):
     #
     # for all w, phi in DG(k+1) * DG(0).
     DGk1 = FunctionSpace(mesh, "DG", degree + 1)
-    # Reuse the DG0 space from above
+    DG0 = FunctionSpace(mesh, "DG", 0)
     Wpp = DGk1 * DG0
 
     up, psi = TrialFunctions(Wpp)
@@ -189,13 +189,13 @@ def run_mixed_hybrid_poisson(r, degree, mixed_method="RT", write=False):
         if degree % 2 == 0:
             File("Hybrid-%s_deg%d.pvd" %
                  (mixed_method, degree)).write(q_a, u_a,
-                                               q_h, u_h,
+                                               u_h,
                                                u_pp_slate,
                                                u_pp)
         else:
             File("Hybrid-%s_deg%d.pvd" %
                  (mixed_method, degree)).write(q_a, u_a,
-                                               q_h, u_h,
+                                               u_h,
                                                u_pp)
 
     # Return all error metrics
@@ -226,7 +226,7 @@ if "--test-method" in sys.argv:
     resolution_param = int(sys.argv[3])
     print("Running Hybrid-%s method of degree %d"
           "and mesh parameter h=1/2^%d." %
-          (degree, mixed_method, resolution_param))
+          (mixed_method, degree, resolution_param))
 
     error_dict = run_mixed_hybrid_poisson(r=resolution_param,
                                           degree=degree,
@@ -243,7 +243,7 @@ if "--test-method" in sys.argv:
     print("Error in flux: %0.8f" %
           error_dict["flux_error"])
     print("Interior jump of the hybrid flux: %0.8f" %
-          np.abs(error_dict["flux_pp_jump"]))
+          np.abs(error_dict["flux_jump"]))
 
 elif "--run-convergence-test" in sys.argv:
     # Run a convergence test for a particular set
