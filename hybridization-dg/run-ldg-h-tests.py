@@ -96,33 +96,9 @@ def run_LDG_H_poisson(r, degree, tau_order="1", write=False):
     scalar_error = errornorm(u_h, u_a, norm_type="L2")
     flux_error = errornorm(q_h, q_a, norm_type="L2")
 
-    # Now we compute the integral average in each cell
-    # of the scalar solutions. This is accomplished by
-    # testing against a DG0 test function and assembling
-    # locally into a function to give the integral average
-    # in each cell.
-
-    # We can do this using Slate to compute the local
-    # average:
-    DG0 = FunctionSpace(mesh, "DG", 0)
-    # DG0 test functions are indicator functions:
-    # the ith global basis function is 1 in the ith
-    # cell and 0 otherwise.
-    idf = TestFunction(DG0)
-    hk = CellVolume(mesh)
-    avg_scalar_sol = assemble((1/hk)*u_h*idf*dx)
-    avg_scalar_analytic = assemble((1/hk)*u_a*idf*dx)
-
-    # Now we just take the L2 error of these assembled
-    # functions:
-    avg_scalar_error = errornorm(avg_scalar_sol,
-                                 avg_scalar_analytic,
-                                 norm_type="L2")
-
     # We keep track of all metrics using a Python dictionary
     error_dictionary = {"scalar_error": scalar_error,
-                        "flux_error": flux_error,
-                        "avg_scalar_error": avg_scalar_error}
+                        "flux_error": flux_error}
 
     # Now we use Slate to perform element-wise post-processing
 
@@ -147,7 +123,7 @@ def run_LDG_H_poisson(r, degree, tau_order="1", write=False):
     # for all w, phi in DG(k+1) * DG(0).
 
     DGk1 = FunctionSpace(mesh, "DG", degree + 1)
-    # Reuse the DG0 space from above
+    DG0 = FunctionSpace(mesh, "DG", 0)
     Wpp = DGk1 * DG0
 
     up, psi = TrialFunctions(Wpp)
@@ -232,7 +208,7 @@ def run_LDG_H_poisson(r, degree, tau_order="1", write=False):
         error_dictionary.update({"flux_pp_div_error": 10000})
         error_dictionary.update({"flux_pp_jump": 10000})
 
-    print("Finished test case for h=1/2^%d." % r)
+    print("Finished test case for h=1/2^%d.\n" % r)
 
     # If write specified, then write output
     if write:
@@ -283,8 +259,6 @@ if "--test-method" in sys.argv:
           error_dict["scalar_error"])
     print("Error in post-processed scalar: %0.8f" %
           error_dict["scalar_pp_error"])
-    print("Error in integral average of scalar: %0.8f" %
-          error_dict["avg_scalar_error"])
     print("Error in flux: %0.8f" %
           error_dict["flux_error"])
     print("Error in post-processed flux: %0.8f" %
@@ -324,7 +298,6 @@ elif "--run-convergence-test" in sys.argv:
         # Extract errors and metrics
         scalar_errors.append(error_dict["scalar_error"])
         scalar_pp_errors.append(error_dict["scalar_pp_error"])
-        avg_scalar_errors.append(error_dict["avg_scalar_error"])
         flux_errors.append(error_dict["flux_error"])
         flux_pp_errors.append(error_dict["flux_pp_error"])
         flux_pp_div_errors.append(error_dict["flux_pp_div_error"])
@@ -333,14 +306,12 @@ elif "--run-convergence-test" in sys.argv:
     # Now that all error metrics are collected, we can compute the rates:
     scalar_rates = compute_conv_rates(scalar_errors)
     scalar_pp_rates = compute_conv_rates(scalar_pp_errors)
-    avg_scalar_rates = compute_conv_rates(avg_scalar_errors)
     flux_rates = compute_conv_rates(flux_errors)
     flux_pp_rates = compute_conv_rates(flux_pp_errors)
     flux_pp_div_rates = compute_conv_rates(flux_pp_div_errors)
 
     print("Convergence rate for u - u_h: %0.2f" % scalar_rates[-1])
     print("Convergence rate for u - u_pp: %0.2f" % scalar_pp_rates[-1])
-    print("Convergence rate for ubar - u_hbar: %0.2f" % avg_scalar_rates[-1])
     print("Convergence rate for q - q_h: %0.2f" % flux_rates[-1])
 
     # Only applies to methods of degree > 0
@@ -354,8 +325,6 @@ elif "--run-convergence-test" in sys.argv:
           scalar_errors[-1])
     print("Error in post-processed scalar: %0.13f" %
           scalar_pp_errors[-1])
-    print("Error in integral average of scalar: %0.13f" %
-          avg_scalar_errors[-1])
     print("Error in flux: %0.13f" %
           flux_errors[-1])
 
