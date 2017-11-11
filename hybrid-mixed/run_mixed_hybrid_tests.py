@@ -127,8 +127,8 @@ def run_mixed_hybrid_poisson(r, degree, mixed_method="RT", write=False):
                                            norm_type="L2")}
         )
     else:
-        # Odd degrees don't apply here. Insert nans to be ignored.
-        error_dictionary.update({"arnold_brezzi_pp": np.nan})
+        # Odd degrees don't apply here. Inserted values should be ignored.
+        error_dictionary.update({"arnold_brezzi_pp": 10000})
 
     print("Using post-processing described by Cockburn (2010).\n")
     # Scalar post-processing:
@@ -225,7 +225,7 @@ if "--test-method" in sys.argv:
     mixed_method = sys.argv[2]
     resolution_param = int(sys.argv[3])
     print("Running Hybrid-%s method of degree %d"
-          "and mesh parameter h=1/2^%d." %
+          " and mesh parameter h=1/2^%d." %
           (mixed_method, degree, resolution_param))
 
     error_dict = run_mixed_hybrid_poisson(r=resolution_param,
@@ -265,83 +265,62 @@ elif "--run-convergence-test" in sys.argv:
     # Run over mesh parameters and collect error metrics
     for r in range(1, 6):
         r_array.append(r)
-        error_dict = run_LDG_H_poisson(r=r,
-                                       degree=degree,
-                                       tau_order=tau_order,
-                                       write=False)
+        error_dict = run_mixed_hybrid_poisson(r=r,
+                                              degree=degree,
+                                              mixed_method=mixed_method,
+                                              write=False)
 
         # Extract errors and metrics
         scalar_errors.append(error_dict["scalar_error"])
         scalar_pp_errors.append(error_dict["scalar_pp_error"])
-        avg_scalar_errors.append(error_dict["scalar_pp_error"])
+        arnold_brezzi_pp_errors.append(error_dict["arnold_brezzi_pp"])
         flux_errors.append(error_dict["flux_error"])
-        flux_pp_errors.append(error_dict["flux_pp_error"])
-        flux_pp_div_errors.append(error_dict["flux_pp_div_error"])
-        flux_pp_jumps.append(error_dict["flux_pp_jump"])
+        flux_jumps.append(error_dict["flux_jump"])
 
     # Now that all error metrics are collected, we can compute the rates:
     scalar_rates = compute_conv_rates(scalar_errors)
     scalar_pp_rates = compute_conv_rates(scalar_pp_errors)
-    avg_scalar_rates = compute_conv_rates(avg_scalar_errors)
+    arnold_brezzi_pp_rates = compute_conv_rates(arnold_brezzi_pp_errors)
     flux_rates = compute_conv_rates(flux_errors)
-    flux_pp_rates = compute_conv_rates(flux_pp_errors)
-    flux_pp_div_rates = compute_conv_rates(flux_pp_div_errors)
 
     print("Convergence rate for u - u_h: %0.2f" % scalar_rates[-1])
     print("Convergence rate for u - u_pp: %0.2f" % scalar_pp_rates[-1])
-    print("Convergence rate for ubar - u_hbar: %0.2f" % avg_scalar_rates[-1])
-    print("Convergence rate for q - q_h: %0.2f" % flux_rates[-1])
 
-    # Only applies to methods of degree > 0
-    if degree > 0:
-        print("Convergence rate for q - q_pp: %0.2f" %
-              flux_pp_rates[-1])
-        print("Convergence rate for div(q - q_pp): %0.2f" %
-              flux_pp_div_rates[-1])
+    if degree % 2 == 0:
+        print("Convergence rate for u - u_pp (Arnold/Brezzi): %0.2f" %
+              arnold_brezzi_pp_rates[-1])
+
+    print("Convergence rate for q - q_h: %0.2f" % flux_rates[-1])
 
     print("Error in scalar: %0.13f" %
           scalar_errors[-1])
     print("Error in post-processed scalar: %0.13f" %
           scalar_pp_errors[-1])
-    print("Error in integral average of scalar: %0.13f" %
-          avg_scalar_errors[-1])
-    print("Error in flux: %0.13f" %
-          flux_errors[-1])
 
-    # Only applies to methods of degree > 0
-    if degree > 0:
-        print("Error in post-processed flux: %0.13f" %
-              flux_pp_errors[-1])
-        print("Error in post-processed flux divergence: %0.13f" %
-              flux_pp_div_errors[-1])
-        print("Interior jump of post-processed flux: %0.13f" %
-              np.abs(flux_pp_jumps[-1]))
+    if degree % 2 == 0:
+        print("Error in post-processed scalar (Arnold/Brezzi): %0.13f" %
+              arnold_brezzi_pp_errors[-1])
+
+    print("Error in flux: %0.13f" % flux_errors[-1])
+    print("Interior jump of computed flux: %0.13f" %
+          np.abs(flux_jumps[-1]))
 
     # Write data to CSV file
     fieldnames = ["r",
                   "scalar_errors", "flux_errors",
-                  "scalar_pp_errors", "flux_pp_errors",
-                  "avg_scalar_errors",
+                  "scalar_pp_errors", "arnold_brezzi_pp_errors",
                   "scalar_rates", "flux_rates",
-                  "avg_scalar_rates",
-                  "scalar_pp_rates", "flux_pp_rates",
-                  "flux_pp_div_errors", "flux_pp_div_rates"]
+                  "scalar_pp_rates", "arnold_brezzi_pp_rates",
+                  "flux_jumps"]
 
     data = [r_array,
             scalar_errors, flux_errors,
-            scalar_pp_errors, flux_pp_errors,
-            avg_scalar_errors,
+            scalar_pp_errors, arnold_brezzi_pp_errors,
             scalar_rates, flux_rates,
-            avg_scalar_rates,
-            scalar_pp_rates, flux_pp_rates,
-            flux_pp_div_errors, flux_pp_div_rates]
+            scalar_pp_rates, arnold_brezzi_pp_rates,
+            flux_jumps]
 
-    if tau_order == "1/h":
-            o = "h-1"
-    else:
-        o = tau_order
-
-    csv_file = open("LDG-H-d%d-tau_order-%s.csv" % (degree, o), "w")
+    csv_file = open("H-%s-degree-%d.csv" % (mixed_method, degree), "w")
     csv_writer = csv.writer(csv_file)
     csv_writer.writerow(fieldnames)
     for d in zip(*data):
