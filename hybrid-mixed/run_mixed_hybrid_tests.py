@@ -263,7 +263,7 @@ elif "--run-convergence-test" in sys.argv:
     flux_jumps = []
 
     # Run over mesh parameters and collect error metrics
-    for r in range(1, 6):
+    for r in range(1, 7):
         r_array.append(r)
         error_dict = run_mixed_hybrid_poisson(r=r,
                                               degree=degree,
