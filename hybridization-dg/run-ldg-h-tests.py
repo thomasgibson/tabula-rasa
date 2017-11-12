@@ -4,7 +4,7 @@ import sys
 import csv
 
 
-def run_LDG_H_poisson(r, degree, tau_order="1", write=False):
+def run_LDG_H_poisson(r, degree, tau_order="1", quads=False, write=False):
     """
     """
 
@@ -13,7 +13,7 @@ def run_LDG_H_poisson(r, degree, tau_order="1", write=False):
 
     # Set up problem domain
     res = r
-    mesh = UnitSquareMesh(2**res, 2**res)
+    mesh = UnitSquareMesh(2**res, 2**res, quadrilateral=quads)
     x = SpatialCoordinate(mesh)
     n = FacetNormal(mesh)
 
@@ -135,7 +135,7 @@ def run_LDG_H_poisson(r, degree, tau_order="1", write=False):
     F = Tensor((-inner(q_h, grad(wp)) +
                 inner(u_h, phi))*dx)
 
-    print("Local post-processing of scalar variable.\n")
+    print("Local post-processing of the scalar variable.\n")
     wpp = Function(Wpp, name="Post-processed scalar")
     assemble(K.inv * F, tensor=wpp,
              slac_parameters={"split_vector": 0})
@@ -161,8 +161,8 @@ def run_LDG_H_poisson(r, degree, tau_order="1", write=False):
     # div(q_pp) converges faster than q_h.
 
     # NOTE: You cannot use this post-processing for lowest order (k=0)
-    # methods.
-    if degree > 0:
+    # methods or quads
+    if degree > 0 and not quads:
         qhat_h = q_h + tau*(u_h - uhat_h)*n
         RTd = FunctionSpace(mesh, "DRT", degree + 1)
         DGkn1 = VectorFunctionSpace(mesh, "DG", degree - 1)
@@ -244,16 +244,29 @@ def compute_conv_rates(u):
 if "--test-method" in sys.argv:
     # Run a quick test given a degree, tau order, and resolution
     # (provide those arguments in that order)
+
+    if "--quads" in sys.argv:
+        quads = True
+    else:
+        quads = False
+
     degree = int(sys.argv[1])
     tau_order = sys.argv[2]
     resolution_param = int(sys.argv[3])
-    print("Running LDG-H method of degree %d with tau order '%s' "
-          "and mesh parameter h=1/2^%d." %
-          (degree, tau_order, resolution_param))
+
+    if quads:
+        print("Running LDG-H method on quads of degree %d with tau=O('%s') "
+              "and mesh parameter h=1/2^%d." %
+              (degree, tau_order, resolution_param))
+    else:
+        print("Running LDG-H method (triangles) of degree %d with tau=O('%s') "
+              "and mesh parameter h=1/2^%d." %
+              (degree, tau_order, resolution_param))
 
     error_dict = run_LDG_H_poisson(r=resolution_param,
                                    degree=degree,
                                    tau_order=tau_order,
+                                   quads=quads,
                                    write=True)
 
     print("Error in scalar: %0.8f" %
@@ -272,11 +285,23 @@ if "--test-method" in sys.argv:
 elif "--run-convergence-test" in sys.argv:
     # Run a convergence test for a particular set
     # of parameters.
+
+    if "--quads" in sys.argv:
+        quads = True
+    else:
+        quads = False
+
     degree = int(sys.argv[1])
     tau_order = sys.argv[2]
-    print("Running convergence test for LDG-H method "
-          "of degree %d with tau order '%s'"
-          % (degree, tau_order))
+
+    if quads:
+        print("Running convergence test for LDG-H method (quads) "
+              "of degree %d with tau order '%s'"
+              % (degree, tau_order))
+    else:
+        print("Running convergence test for LDG-H method (triangles) "
+              "of degree %d with tau order '%s'"
+              % (degree, tau_order))
 
     # Create arrays to write to CSV file
     r_array = []
@@ -294,6 +319,7 @@ elif "--run-convergence-test" in sys.argv:
         error_dict = run_LDG_H_poisson(r=r,
                                        degree=degree,
                                        tau_order=tau_order,
+                                       quads=quads,
                                        write=False)
 
         # Extract errors and metrics
@@ -360,7 +386,11 @@ elif "--run-convergence-test" in sys.argv:
     else:
         o = tau_order
 
-    csv_file = open("LDG-H-d%d-tau_order-%s.csv" % (degree, o), "w")
+    if quads:
+        csv_file = open("LDG-H-d%d-tau_order-%s-quads.csv" % (degree, o), "w")
+    else:
+        csv_file = open("LDG-H-d%d-tau_order-%s.csv" % (degree, o), "w")
+
     csv_writer = csv.writer(csv_file)
     csv_writer.writerow(fieldnames)
     for d in zip(*data):
