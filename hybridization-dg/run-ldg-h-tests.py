@@ -65,7 +65,7 @@ def run_LDG_H_poisson(r, degree, tau_order="1", quads=False, write=False):
     tau = O(1) (k=0)      1     1      1     1     1         1
     tau = O(1) (k>0)     k+1   k+1    k+2   k+2   k+1       k+1
     tau = O(h) (k>0)      k    k+1    k+2   k+2   k+1       k+1
-    tau = O(1/h) (k>0)   k+1    k     k+1   k+1   k+1       k+1
+    tau = O(1/h) (k>0)   k+1    k     k+1   k+1    k        k+1
     -----------------------------------------------------------------
 
     Note that the post-processing used for the flux q only holds for
