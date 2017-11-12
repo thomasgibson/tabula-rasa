@@ -45,7 +45,7 @@ def run_mixed_hybrid_poisson(r, degree, mixed_method="RT", write=False):
                   u     -grad(u)     u*
     -----------------------------------------
     H-RT-k       k+1       k+1      k+2
-    H-BDM-k       k        k+1      k+2
+    H-BDM-k       k        k+1      k+1 (k=1) k+2 (k>1)
     H-RTCF-k     k+1       k+1      k+2
     -----------------------------------------
 
