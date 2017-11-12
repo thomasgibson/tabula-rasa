@@ -6,6 +6,51 @@ import csv
 
 def run_mixed_hybrid_poisson(r, degree, mixed_method="RT", write=False):
     """
+    Solves the Dirichlet problem for the Poisson equation:
+
+    -div(grad(u)) = f in [0, 1]^2, u = 0 on the domain boundary.
+
+    The source function is chosen to be the smooth function:
+
+    f(x, y) = (2*pi^2)*sin(x*pi)*sin(y*pi)
+
+    which produces the smooth analytic function:
+
+    u(x, y) = sin(x*pi)*sin(y*pi).
+
+    This problem was crafted so that we can test the theoretical
+    convergence rates for the hybrid-mixed methods. This problem
+    can be solved using the hybrid-RT/BDM method on simplices or
+    the hybrid-RT method on quadrilaterals (hybrid-RTCF).
+
+    The Slate DLS in Firedrake is used to perform the static condensation
+    of the full hybrid-mixed formulation of the Poisson problem to a single
+    system for the trace of u on the mesh skeleton:
+
+    S * Lambda = E.
+
+    The resulting linear system is solved via a direct method (LU) to
+    ensure an accurate approximation to the trace variable. Once
+    the trace is solved, the Slate DSL is used again to solve the
+    elemental systems for the scalar solution u and its flux.
+
+    Post-processing of the scalar variable is performed using Slate to
+    form and solve the elemental-systems for a new approximation u*
+    which superconverges at a rate of k+2.
+
+    The expected (theoretical) rates for the hybrid-mixed methods are
+    summarized below:
+
+    -----------------------------------------
+                  u     -grad(u)     u*
+    -----------------------------------------
+    H-RT-k       k+1       k+1      k+2
+    H-BDM-k       k        k+1      k+2
+    H-RTCF-k     k+1       k+1      k+2
+    -----------------------------------------
+
+    This demo, as well as the primary author of the Slate DSL, was
+    written by: Thomas H. Gibson (t.gibson15@imperial.ac.uk)
     """
 
     if mixed_method not in ("RT", "BDM", "RTCF"):
@@ -155,9 +200,9 @@ def run_mixed_hybrid_poisson(r, degree, mixed_method="RT", write=False):
     # evaluate its jump over mesh interiors. This should be
     # approximately zero if everything worked correctly.
     flux_jump = assemble(jump(q_h, n=n)*dS)
-    error_dictionary.update({"flux_jump": flux_jump})
+    error_dictionary.update({"flux_jump": np.abs(flux_jump)})
 
-    print("Finished test case for h=1/2^%d." % r)
+    print("Finished test case for h=1/2^%d.\n" % r)
 
     # If write specified, then write output
     if write:
@@ -244,13 +289,13 @@ elif "--run-convergence-test" in sys.argv:
     scalar_pp_rates = compute_conv_rates(scalar_pp_errors)
     flux_rates = compute_conv_rates(flux_errors)
 
-    print("Convergence rate for u - u_h: %0.2f" % scalar_rates[-1])
-    print("Convergence rate for u - u_pp: %0.2f" % scalar_pp_rates[-1])
-    print("Convergence rate for q - q_h: %0.2f" % flux_rates[-1])
+    print("Convergence rate for u - u_h: %0.3f" % scalar_rates[-1])
+    print("Convergence rate for u - u_pp: %0.3f" % scalar_pp_rates[-1])
+    print("Convergence rate for q - q_h: %0.3f" % flux_rates[-1])
     print("Error in scalar: %0.13f" % scalar_errors[-1])
     print("Error in post-processed scalar: %0.13f" % scalar_pp_errors[-1])
     print("Error in flux: %0.13f" % flux_errors[-1])
-    print("Interior jump of computed flux: %0.13f" % np.abs(flux_jumps[-1]))
+    print("Interior jump of computed flux: %0.13f" % flux_jumps[-1])
 
     # Write data to CSV file
     fieldnames = ["r",
