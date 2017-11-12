@@ -8,32 +8,43 @@ def run_mixed_hybrid_poisson(r, degree, mixed_method="RT", write=False):
     """
     """
 
-    if mixed_method not in ("RT", "BDM"):
-        raise ValueError("Must specify a method of 'RT' or 'BDM'")
+    if mixed_method not in ("RT", "BDM", "RTCF"):
+        raise ValueError("Must specify a method of 'RT' 'RTCF' or 'BDM'")
 
     # Set up problem domain
     res = r
-    mesh = UnitSquareMesh(2**res, 2**res)
-    x = SpatialCoordinate(mesh)
-    n = FacetNormal(mesh)
 
     # Set up function spaces
     if mixed_method == "RT":
+        mesh = UnitSquareMesh(2**res, 2**res)
         broken_element = BrokenElement(FiniteElement("RT",
                                                      triangle,
                                                      degree + 1))
         U = FunctionSpace(mesh, broken_element)
         V = FunctionSpace(mesh, "DG", degree)
         T = FunctionSpace(mesh, "HDiv Trace", degree)
+
+    elif mixed_method == "RTCF":
+        mesh = UnitSquareMesh(2**res, 2**res, quadrilateral=True)
+        broken_element = BrokenElement(FiniteElement("RTCF",
+                                                     quadrilateral,
+                                                     degree + 1))
+        U = FunctionSpace(mesh, broken_element)
+        V = FunctionSpace(mesh, "DQ", degree)
+        T = FunctionSpace(mesh, "HDiv Trace", degree)
     else:
         assert mixed_method == "BDM"
         assert degree > 0, "Degree 0 is not valid for BDM method"
+        mesh = UnitSquareMesh(2**res, 2**res)
         broken_element = BrokenElement(FiniteElement("BDM",
                                                      triangle,
                                                      degree))
         U = FunctionSpace(mesh, broken_element)
         V = FunctionSpace(mesh, "DG", degree - 1)
         T = FunctionSpace(mesh, "HDiv Trace", degree)
+
+    x = SpatialCoordinate(mesh)
+    n = FacetNormal(mesh)
 
     W = U * V * T
 
@@ -60,9 +71,7 @@ def run_mixed_hybrid_poisson(r, degree, mixed_method="RT", write=False):
 
     L = w*f*dx
 
-    print("Solving hybrid-mixed system using static condensation.")
-    print("Slate is used to perform the local assembly of the Schur-complement"
-          " and solving the local system to recover the relevant unknowns.\n")
+    print("Solving hybrid-mixed system using static condensation.\n")
     w = Function(W, name="solutions")
     params = {'mat_type': 'matfree',
               'ksp_type': 'preonly',
@@ -96,41 +105,6 @@ def run_mixed_hybrid_poisson(r, degree, mixed_method="RT", write=False):
     error_dictionary = {"scalar_error": scalar_error,
                         "flux_error": flux_error}
 
-    if degree % 2 == 0:
-        print("Performing element-wise post-processing as described "
-              "by Arnold & Brezzi (1985). Slate is used to solve "
-              "the elemental systems.\n")
-        print("NOTE: This approach only works for even-degrees "
-              "(see the 1985 paper).\n")
-
-        DG_pp = FunctionSpace(mesh, "DG", degree + 1)
-        u_pp_slate = Function(DG_pp,
-                              name="Post-processed scalar (Arnold/Brezzi)")
-        utilde = TrialFunction(DG_pp)
-        if degree == 0:
-            gammar = TestFunction(T)
-            K = inner(utilde, gammar)*(dS + ds)
-            F = inner(lambdar_h, gammar)*(dS + ds)
-        else:
-            DG_n2 = FunctionSpace(mesh, "DG", degree - 2)
-            Wk = DG_n2 * T
-            v, gammar = TestFunctions(Wk)
-            K = inner(utilde, v)*dx + inner(utilde, gammar)*(dS + ds)
-            F = inner(u_h, v)*dx + inner(lambdar_h, gammar)*(dS + ds)
-
-        A = Tensor(K)
-        B = Tensor(F)
-        assemble(A.inv * B, tensor=u_pp_slate)
-        error_dictionary.update(
-            {"arnold_brezzi_pp": errornorm(u_pp_slate,
-                                           u_a,
-                                           norm_type="L2")}
-        )
-    else:
-        # Odd degrees don't apply here. Inserted values should be ignored.
-        error_dictionary.update({"arnold_brezzi_pp": 10000})
-
-    print("Using post-processing described by Cockburn (2010).\n")
     # Scalar post-processing:
     # This gives an approximation in DG(k+1) via solving for
     # the solution of the local Neumman data problem:
@@ -158,15 +132,16 @@ def run_mixed_hybrid_poisson(r, degree, mixed_method="RT", write=False):
     wp, phi = TestFunctions(Wpp)
 
     # Create mixed system:
-    K = (inner(grad(up), grad(wp)) +
-         inner(psi, wp) +
-         inner(up, phi))*dx
-    F = (-inner(q_h, grad(wp)) +
-         inner(u_h, phi))*dx
+    K = Tensor((inner(grad(up), grad(wp)) +
+                inner(psi, wp) +
+                inner(up, phi))*dx)
+    F = Tensor((-inner(q_h, grad(wp)) +
+                inner(u_h, phi))*dx)
 
-    wpp = Function(Wpp, name="Post-processed scalar (mixed method)")
-    solve(K == F, wpp, solver_parameters={"ksp_type": "gmres",
-                                          "ksp_rtol": 1e-14})
+    print("Local post-processing of the scalar variable.\n")
+    wpp = Function(Wpp, name="Post-processed scalar")
+    assemble(K.inv * F, tensor=wpp,
+             slac_parameters={"split_vector": 0})
     u_pp, _ = wpp.split()
 
     # Now we compute the error in the post-processed solution
@@ -186,17 +161,9 @@ def run_mixed_hybrid_poisson(r, degree, mixed_method="RT", write=False):
 
     # If write specified, then write output
     if write:
-        if degree % 2 == 0:
-            File("Hybrid-%s_deg%d.pvd" %
-                 (mixed_method, degree)).write(q_a, u_a,
-                                               u_h,
-                                               u_pp_slate,
-                                               u_pp)
-        else:
-            File("Hybrid-%s_deg%d.pvd" %
-                 (mixed_method, degree)).write(q_a, u_a,
-                                               u_h,
-                                               u_pp)
+        File("Hybrid-%s_deg%d.pvd" %
+             (mixed_method, degree)).write(q_a, u_a,
+                                           u_h, u_pp)
 
     # Return all error metrics
     return error_dictionary
@@ -235,11 +202,8 @@ if "--test-method" in sys.argv:
 
     print("Error in scalar: %0.8f" %
           error_dict["scalar_error"])
-    print("Error in post-processed scalar (via mixed method): %0.8f" %
+    print("Error in post-processed scalar: %0.8f" %
           error_dict["scalar_pp_error"])
-    if degree % 2 == 0:
-        print("Error in post-processed scalar (Arnold/Brezzi): %0.13f" %
-              error_dict["arnold_brezzi_pp"])
     print("Error in flux: %0.8f" %
           error_dict["flux_error"])
     print("Interior jump of the hybrid flux: %0.8f" %
@@ -258,12 +222,11 @@ elif "--run-convergence-test" in sys.argv:
     r_array = []
     scalar_errors = []
     scalar_pp_errors = []
-    arnold_brezzi_pp_errors = []
     flux_errors = []
     flux_jumps = []
 
     # Run over mesh parameters and collect error metrics
-    for r in range(1, 7):
+    for r in range(1, 6):
         r_array.append(r)
         error_dict = run_mixed_hybrid_poisson(r=r,
                                               degree=degree,
@@ -273,51 +236,35 @@ elif "--run-convergence-test" in sys.argv:
         # Extract errors and metrics
         scalar_errors.append(error_dict["scalar_error"])
         scalar_pp_errors.append(error_dict["scalar_pp_error"])
-        arnold_brezzi_pp_errors.append(error_dict["arnold_brezzi_pp"])
         flux_errors.append(error_dict["flux_error"])
         flux_jumps.append(error_dict["flux_jump"])
 
     # Now that all error metrics are collected, we can compute the rates:
     scalar_rates = compute_conv_rates(scalar_errors)
     scalar_pp_rates = compute_conv_rates(scalar_pp_errors)
-    arnold_brezzi_pp_rates = compute_conv_rates(arnold_brezzi_pp_errors)
     flux_rates = compute_conv_rates(flux_errors)
 
     print("Convergence rate for u - u_h: %0.2f" % scalar_rates[-1])
     print("Convergence rate for u - u_pp: %0.2f" % scalar_pp_rates[-1])
-
-    if degree % 2 == 0:
-        print("Convergence rate for u - u_pp (Arnold/Brezzi): %0.2f" %
-              arnold_brezzi_pp_rates[-1])
-
     print("Convergence rate for q - q_h: %0.2f" % flux_rates[-1])
-
-    print("Error in scalar: %0.13f" %
-          scalar_errors[-1])
-    print("Error in post-processed scalar: %0.13f" %
-          scalar_pp_errors[-1])
-
-    if degree % 2 == 0:
-        print("Error in post-processed scalar (Arnold/Brezzi): %0.13f" %
-              arnold_brezzi_pp_errors[-1])
-
+    print("Error in scalar: %0.13f" % scalar_errors[-1])
+    print("Error in post-processed scalar: %0.13f" % scalar_pp_errors[-1])
     print("Error in flux: %0.13f" % flux_errors[-1])
-    print("Interior jump of computed flux: %0.13f" %
-          np.abs(flux_jumps[-1]))
+    print("Interior jump of computed flux: %0.13f" % np.abs(flux_jumps[-1]))
 
     # Write data to CSV file
     fieldnames = ["r",
                   "scalar_errors", "flux_errors",
-                  "scalar_pp_errors", "arnold_brezzi_pp_errors",
+                  "scalar_pp_errors",
                   "scalar_rates", "flux_rates",
-                  "scalar_pp_rates", "arnold_brezzi_pp_rates",
+                  "scalar_pp_rates",
                   "flux_jumps"]
 
     data = [r_array,
             scalar_errors, flux_errors,
-            scalar_pp_errors, arnold_brezzi_pp_errors,
+            scalar_pp_errors,
             scalar_rates, flux_rates,
-            scalar_pp_rates, arnold_brezzi_pp_rates,
+            scalar_pp_rates,
             flux_jumps]
 
     csv_file = open("H-%s-degree-%d.csv" % (mixed_method, degree), "w")
