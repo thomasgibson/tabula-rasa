@@ -6,6 +6,81 @@ import csv
 
 def run_LDG_H_poisson(r, degree, tau_order="1", quads=False, write=False):
     """
+    Solves the Dirichlet problem for the Poisson equation:
+
+    -div(grad(u)) = f in [0, 1]^2, u = 0 on the domain boundary.
+
+    The source function is chosen to be the smooth function:
+
+    f(x, y) = (2*pi^2)*sin(x*pi)*sin(y*pi)
+
+    which produces the smooth analytic function:
+
+    u(x, y) = sin(x*pi)*sin(y*pi).
+
+    This problem was crafted so that we can test the theoretical
+    convergence rates for the hybridized DG method: LDG-H. This
+    is accomplished by introducing the numerical fluxes:
+
+    u_hat = lambda,
+    q_hat = q + tau*(u - u_hat).
+
+    The Slate DLS in Firedrake is used to perform the static condensation
+    of the full LDG-H formulation of the Poisson problem to a single
+    system for the trace u_hat (lambda) on the mesh skeleton:
+
+    S * Lambda = E.
+
+    The resulting linear system is solved via a direct method (LU) to
+    ensure an accurate approximation to the trace variable. Once
+    the trace is solved, the Slate DSL is used again to solve the
+    elemental systems for the scalar solution u and its flux q.
+
+    Post-processing of the scalar variable, as well as its flux, is
+    performed using Slate to form and solve the elemental-systems for
+    new approximations u*, q*. Depending on the choice of tau, these
+    new solutions have superconvergent properties.
+
+    The post-processed scalar u* superconverges at a rate of k+2 when
+    two conditions are satisfied:
+
+    (1) q converges at a rate of k+1, and
+    (2) the cell average of u, ubar, superconverges at a rate of k+2.
+
+    The choice of tau heavily influences these two conditions. For all
+    tau > 0, the post-processed flux q* has enhanced convervation
+    properties! The new solution q* has the following three properties:
+
+    (1) q* converges at the same rate as q. However,
+    (2) q* is in H(Div), meaning that the interior jump of q* is zero!
+        And lastly,
+    (3) div(q - q*) converges at a rate of k+1.
+
+    The expected (theoretical) rates for the LDG-H method are
+    summarized below for various orders of tau:
+
+    -----------------------------------------------------------------
+                          u     q    ubar    u*    q*     div(p*)
+    -----------------------------------------------------------------
+    tau = O(1) (k=0)      1     1      1     1     1         1
+    tau = O(1) (k>0)     k+1   k+1    k+2   k+2   k+1       k+1
+    tau = O(h) (k>0)      k    k+1    k+2   k+2   k+1       k+1
+    tau = O(1/h) (k>0)   k+1    k     k+1   k+1   k+1       k+1
+    -----------------------------------------------------------------
+
+    Note that the post-processing used for the flux q only holds for
+    simplices (triangles and tetrahedra). If someone knows of a local
+    post-processing method valid for quadrilaterals, please contact me!
+    For these numerical results, we chose the following values of tau:
+
+    tau = O(1) -> tau = 1.0,
+    tau = O(h) -> tau = sqrt(2)*h,
+    tau = O(1/h) -> tau = 1.0/h,
+
+    where h here denotes the facet area.
+
+    This demo, as well as the primary author of the Slate DSL, was
+    written by: Thomas H. Gibson (t.gibson15@imperial.ac.uk)
     """
 
     if tau_order not in ("1", "h", "1/h"):
@@ -37,14 +112,14 @@ def run_LDG_H_poisson(r, degree, tau_order="1", quads=False, write=False):
 
     # Determine stability parameter tau
     if tau_order == "1":
-        tau = Constant(1)
+        tau = Constant(1.0)
 
     elif tau_order == "h":
         tau = sqrt(2)*FacetArea(mesh)
 
     else:
         assert tau_order == "1/h"
-        tau = Constant(1)/FacetArea(mesh)
+        tau = Constant(1.0)/FacetArea(mesh)
 
     # Numerical flux
     qhat = q + tau*(u - uhat)*n
