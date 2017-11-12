@@ -274,7 +274,7 @@ def run_LDG_H_poisson(r, degree, tau_order="1", quads=False, write=False):
 
         error_dictionary.update({"flux_pp_error": flux_pp_error})
         error_dictionary.update({"flux_pp_div_error": flux_pp_div_error})
-        error_dictionary.update({"flux_pp_jump": flux_pp_jump})
+        error_dictionary.update({"flux_pp_jump": np.abs(flux_pp_jump)})
     else:
         # For lowest order, just insert junk
         # (these should be ignored for lowest order)
@@ -412,15 +412,15 @@ elif "--run-convergence-test" in sys.argv:
     flux_pp_rates = compute_conv_rates(flux_pp_errors)
     flux_pp_div_rates = compute_conv_rates(flux_pp_div_errors)
 
-    print("Convergence rate for u - u_h: %0.2f" % scalar_rates[-1])
-    print("Convergence rate for u - u_pp: %0.2f" % scalar_pp_rates[-1])
-    print("Convergence rate for q - q_h: %0.2f" % flux_rates[-1])
+    print("Convergence rate for u - u_h: %0.3f" % scalar_rates[-1])
+    print("Convergence rate for u - u_pp: %0.3f" % scalar_pp_rates[-1])
+    print("Convergence rate for q - q_h: %0.3f" % flux_rates[-1])
 
     # Only applies to methods of degree > 0
     if degree > 0:
-        print("Convergence rate for q - q_pp: %0.2f" %
+        print("Convergence rate for q - q_pp: %0.3f" %
               flux_pp_rates[-1])
-        print("Convergence rate for div(q - q_pp): %0.2f" %
+        print("Convergence rate for div(q - q_pp): %0.3f" %
               flux_pp_div_rates[-1])
 
     print("Error in scalar: %0.13f" %
