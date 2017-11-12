@@ -113,7 +113,7 @@ def run_LDG_H_poisson(r, degree, tau_order="1", write=False):
 
     # NOTE: It is currently not possible to correctly formulate this
     # in UFL. However, we can introduce a Lagrange multiplier and
-    # transform the local problem above into a mixed system:
+    # transform the local problem above into a local mixed system:
     #
     # find (u, psi) in DG(k+1) * DG(0) such that:
     #
@@ -121,7 +121,6 @@ def run_LDG_H_poisson(r, degree, tau_order="1", write=False):
     # (u, phi)*dx = (u_h, phi)*dx,
     #
     # for all w, phi in DG(k+1) * DG(0).
-
     DGk1 = FunctionSpace(mesh, "DG", degree + 1)
     DG0 = FunctionSpace(mesh, "DG", 0)
     Wpp = DGk1 * DG0
@@ -129,17 +128,17 @@ def run_LDG_H_poisson(r, degree, tau_order="1", write=False):
     up, psi = TrialFunctions(Wpp)
     wp, phi = TestFunctions(Wpp)
 
-    # Create mixed system:
-    K = (inner(grad(up), grad(wp)) +
-         inner(psi, wp) +
-         inner(up, phi))*dx
-    F = (-inner(q_h, grad(wp)) +
-         inner(u_h, phi))*dx
+    # Create mixed tensors:
+    K = Tensor((inner(grad(up), grad(wp)) +
+                inner(psi, wp) +
+                inner(up, phi))*dx)
+    F = Tensor((-inner(q_h, grad(wp)) +
+                inner(u_h, phi))*dx)
 
-    print("Post-processing scalar variable.\n")
+    print("Local post-processing of scalar variable.\n")
     wpp = Function(Wpp, name="Post-processed scalar")
-    solve(K == F, wpp, solver_parameters={"ksp_type": "gmres",
-                                          "ksp_rtol": 1e-14})
+    assemble(K.inv * F, tensor=wpp,
+             slac_parameters={"split_vector": 0})
     u_pp, _ = wpp.split()
 
     # Now we compute the error in the post-processed solution
@@ -180,7 +179,7 @@ def run_LDG_H_poisson(r, degree, tau_order="1", write=False):
         B = Tensor(jump(qhat_h - q_h, n=n)*mu('+')*dS
                    + dot(qhat_h - q_h, n)*mu*ds)
 
-        print("Post-processing flux.\n")
+        print("Local post-processing of the flux.\n")
         nu = assemble(A.inv * B)
 
         # Post-processed flux
@@ -207,6 +206,8 @@ def run_LDG_H_poisson(r, degree, tau_order="1", write=False):
         error_dictionary.update({"flux_pp_error": 10000})
         error_dictionary.update({"flux_pp_div_error": 10000})
         error_dictionary.update({"flux_pp_jump": 10000})
+
+    print("Post-processing finished.\n")
 
     print("Finished test case for h=1/2^%d.\n" % r)
 
