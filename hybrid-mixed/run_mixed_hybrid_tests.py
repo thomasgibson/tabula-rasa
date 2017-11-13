@@ -226,7 +226,7 @@ def compute_conv_rates(u):
 
     u_array = np.array(u)
     rates = list(np.log2(u_array[:-1] / u_array[1:]))
-    rates.insert(0, "---")
+    rates.insert(0, None)
     return rates
 
 
@@ -298,12 +298,12 @@ elif "--run-convergence-test" in sys.argv:
     print("Interior jump of computed flux: %0.13f" % flux_jumps[-1])
 
     # Write data to CSV file
-    fieldnames = ["r",
-                  "scalar_errors", "flux_errors",
-                  "scalar_pp_errors",
-                  "scalar_rates", "flux_rates",
-                  "scalar_pp_rates",
-                  "flux_jumps"]
+    fieldnames = ["mesh",
+                  "scalarerrors", "fluxerrors",
+                  "ppscalarerrors",
+                  "scalarrates", "fluxrates",
+                  "ppscalarrates",
+                  "fluxjumps"]
 
     data = [r_array,
             scalar_errors, flux_errors,
