@@ -1,0 +1,6 @@
+Degree,Mesh,ScalarErrors,ScalarConvRates,FluxErrors,FluxConvRates,PostProcessedScalarErrors,PostProcessedScalarRates,PostProcessedFluxErrors,PostProcessedFluxRates,PostProcessedFluxDivErrors,PostProcessedFluxDivRates,PostProcessedFluxInteriorJumps
+3.000E+0,1.000E+0,3.403E-3,---,4.093E-2,---,2.334E-3,---,3.145E-2,---,5.651E-2,---,4.912E-14
+3.000E+0,2.000E+0,2.196E-4,3.954E+0,5.243E-3,2.965E+0,1.402E-4,4.057E+0,4.044E-3,2.959E+0,3.736E-3,3.919E+0,8.926E-14
+3.000E+0,3.000E+0,1.371E-5,4.001E+0,6.599E-4,2.990E+0,8.499E-6,4.044E+0,5.002E-4,3.015E+0,2.369E-4,3.980E+0,2.581E-13
+3.000E+0,4.000E+0,8.544E-7,4.004E+0,8.268E-5,2.997E+0,5.236E-7,4.021E+0,6.189E-5,3.015E+0,1.486E-5,3.995E+0,1.114E-12
+3.000E+0,5.000E+0,5.330E-8,4.003E+0,1.034E-5,2.999E+0,3.252E-8,4.009E+0,7.691E-6,3.008E+0,9.293E-7,3.999E+0,4.641E-12
