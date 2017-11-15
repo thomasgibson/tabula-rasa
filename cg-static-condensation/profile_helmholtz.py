@@ -127,6 +127,7 @@ def run_helmholtz_solve(problem, degree, mesh_size):
                 pcapply = PETSc.Log.Event("PCApply").getPerfInfo()
                 jac = PETSc.Log.Event("SNESJacobianEval").getPerfInfo()
                 residual = PETSc.Log.Event("SNESFunctionEval").getPerfInfo()
+                condense = PETSc.Log.Event("SCCondensation").getPerfInfo()
                 scrhs = PETSc.Log.Event("SCRHS").getPerfInfo()
                 scsolve = PETSc.Log.Event("SCSolve").getPerfInfo()
                 screcover = PETSc.Log.Event("SCRecover").getPerfInfo()
@@ -144,6 +145,8 @@ def run_helmholtz_solve(problem, degree, mesh_size):
                                                       op=MPI.SUM)/size
                 pcapply_time = problem.comm.allreduce(pcapply["time"],
                                                       op=MPI.SUM)/size
+                condense_time = problem.comm.allreduce(condense["time"],
+                                                       op=MPI.SUM)/size
                 scrhs_time = problem.comm.allreduce(scrhs["time"],
                                                     op=MPI.SUM)/size
                 scsolve_time = problem.comm.allreduce(scsolve["time"],
@@ -196,6 +199,7 @@ def run_helmholtz_solve(problem, degree, mesh_size):
                             "parameter_name": param_name,
                             "dofs": problem.u.dof_dset.layout_vec.getSize(),
                             "name": problem.name,
+                            "SCPC_condensation": condense_time,
                             "SCPC_rhs": scrhs_time,
                             "SCPC_solve": scsolve_time,
                             "SCPC_recover": screcover_time}
@@ -206,6 +210,8 @@ def run_helmholtz_solve(problem, degree, mesh_size):
                         sc_ksp = scpc_cxt.sc_ksp
                         sc_ksp_its = sc_ksp.getIterationNumber()
                         data.update({"SCPC_ksp_its": sc_ksp_its})
+                    else:
+                        data.update({"SCPC_ksp_its": "N/A"})
 
                     df = pandas.DataFrame(data, index=[0])
                     df.to_csv(results, index=False, mode=mode, header=header)
@@ -232,6 +238,6 @@ def run_helmholtz_solve(problem, degree, mesh_size):
         )
 
 
-for size in [16]:
+for size in [8, 16]:  # , 32, 64]:
     for degree in range(4, 5):
         run_helmholtz_solve(problem, degree, size)
