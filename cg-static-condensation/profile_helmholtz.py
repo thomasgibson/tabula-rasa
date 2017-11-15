@@ -129,6 +129,7 @@ def run_helmholtz_solve(problem, degree, mesh_size):
                 residual = PETSc.Log.Event("SNESFunctionEval").getPerfInfo()
                 scrhs = PETSc.Log.Event("SCRHS").getPerfInfo()
                 scsolve = PETSc.Log.Event("SCSolve").getPerfInfo()
+                screcover = PETSc.Log.Event("SCRecover").getPerfInfo()
 
                 # Collect times
                 snes_time = problem.comm.allreduce(snes["time"],
@@ -147,6 +148,8 @@ def run_helmholtz_solve(problem, degree, mesh_size):
                                                     op=MPI.SUM)/size
                 scsolve_time = problem.comm.allreduce(scsolve["time"],
                                                       op=MPI.SUM)/size
+                screcover_time = problem.comm.allreduce(screcover["time"],
+                                                        op=MPI.SUM)/size
 
                 newton_its = solver.snes.getIterationNumber()
                 ksp_its = solver.snes.getLinearSolveIterations()
@@ -194,7 +197,8 @@ def run_helmholtz_solve(problem, degree, mesh_size):
                             "dofs": problem.u.dof_dset.layout_vec.getSize(),
                             "name": problem.name,
                             "SCPC_rhs": scrhs_time,
-                            "SCPC_solve": scsolve_time}
+                            "SCPC_solve": scsolve_time,
+                            "SCPC_recover": screcover_time}
 
                     if param_name == "scpc_hypre":
                         SCPC = solver.snes.ksp.getPC()
