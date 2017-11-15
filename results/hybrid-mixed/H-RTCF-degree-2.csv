@@ -1,0 +1,6 @@
+Mesh,ScalarErrors,ScalarConvRates,FluxErrors,FluxConvRates,PostProcessedScalarErrors,PostProcessedScalarRates
+1,8.35e-3,---,2.67e-2,---,1.53e-3,---
+2,1.07e-3,2.96,3.38e-3,2.98,9.47e-5,4.01
+3,1.35e-4,2.99,4.23e-4,3.00,5.89e-6,4.01
+4,1.69e-5,3.00,5.30e-5,3.00,3.68e-7,4.00
+5,2.11e-6,3.00,6.62e-6,3.00,2.30e-8,4.00
