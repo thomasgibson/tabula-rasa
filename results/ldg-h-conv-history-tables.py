@@ -1,6 +1,6 @@
 import csv
 
-tex_file = open("ldg-h_tables.tex", "w")
+tex_file = open("ldg-h-tables.tex", "w")
 
 # Start with the LDG-H method for tau = h
 tables = r"""
@@ -10,7 +10,7 @@ tables = r"""
     \resizebox{\textwidth}{!}{%
         \begin{tabular}{l c c c c c c c c c}
             \toprule
-            \multicolumn{10}{c}{LDG-H method ($\tau = \mathcal{O}(h)$).} \\
+            \multicolumn{10}{c}{LDG-H method ($\tau = \mathcal{O}(h)$)} \\
             \cmidrule{2-10}
             \multirow{2}{*}{$k$} & mesh &
             \multicolumn{2}{c}{$\norm{p-p_h}_{L^2(\Omega)} \leq \mathcal{O}(h^{k})$} &
@@ -94,7 +94,7 @@ tables += r"""
     \resizebox{\textwidth}{!}{%
         \begin{tabular}{l c c c c c c c c c}
             \toprule
-            \multicolumn{10}{c}{LDG-H method ($\tau = \mathcal{O}(h^{-1})$).} \\
+            \multicolumn{10}{c}{LDG-H method ($\tau = \mathcal{O}(h^{-1})$)} \\
             \cmidrule{2-10}
             \multirow{2}{*}{$k$} & mesh &
             \multicolumn{2}{c}{$\norm{p-p_h}_{L^2(\Omega)} \leq \mathcal{O}(h^{k+1})$} &
@@ -178,7 +178,7 @@ tables += r"""
     \resizebox{\textwidth}{!}{%
         \begin{tabular}{l c c c c c c c c c}
             \toprule
-            \multicolumn{10}{c}{LDG-H method ($\tau = \mathcal{O}(1)$).} \\
+            \multicolumn{10}{c}{LDG-H method ($\tau = \mathcal{O}(1)$)} \\
             \cmidrule{2-10}
             \multirow{2}{*}{$k$} & mesh &
             \multicolumn{2}{c}{$\norm{p-p_h}_{L^2(\Omega)} \leq \mathcal{O}(h^{k+1})$} &
