@@ -238,6 +238,6 @@ def run_helmholtz_solve(problem, degree, mesh_size):
         )
 
 
-for size in [8, 16]:  # , 32, 64]:
-    for degree in range(4, 5):
+for size in [8, 16, 32, 64]:
+    for degree in range(4, 7):
         run_helmholtz_solve(problem, degree, size)
