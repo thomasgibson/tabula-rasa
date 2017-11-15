@@ -1,10 +1,11 @@
 from firedrake import *
+from six import string_types
+from decimal import Decimal
 import numpy as np
-import sys
 import csv
 
 
-def run_mixed_hybrid_poisson(r, degree, mixed_method="RT", write=False):
+def run_mixed_hybrid_poisson(r, degree, mixed_method, write=False):
     """
     Solves the Dirichlet problem for the Poisson equation:
 
@@ -49,11 +50,10 @@ def run_mixed_hybrid_poisson(r, degree, mixed_method="RT", write=False):
     H-RTCF-k     k+1       k+1      k+2
     -----------------------------------------
 
-    This demo, as well as the primary author of the Slate DSL, was
-    written by: Thomas H. Gibson (t.gibson15@imperial.ac.uk)
+    This demo was written by: Thomas H. Gibson (t.gibson15@imperial.ac.uk)
     """
 
-    if mixed_method not in ("RT", "BDM", "RTCF"):
+    if mixed_method is None or mixed_method not in ("RT", "BDM", "RTCF"):
         raise ValueError("Must specify a method of 'RT' 'RTCF' or 'BDM'")
 
     # Set up problem domain
@@ -143,8 +143,8 @@ def run_mixed_hybrid_poisson(r, degree, mixed_method="RT", write=False):
     # Now we compute the various metrics. First we
     # simply compute the L2 error between the analytic
     # solutions and the computed ones.
-    scalar_error = errornorm(u_h, u_a, norm_type="L2")
-    flux_error = errornorm(q_h, q_a, norm_type="L2")
+    scalar_error = errornorm(u_a, u_h, norm_type="L2")
+    flux_error = errornorm(q_a, q_h, norm_type="L2")
 
     # We keep track of all metrics using a Python dictionary
     error_dictionary = {"scalar_error": scalar_error,
@@ -191,7 +191,7 @@ def run_mixed_hybrid_poisson(r, degree, mixed_method="RT", write=False):
 
     # Now we compute the error in the post-processed solution
     # and update our error dictionary
-    scalar_pp_error = errornorm(u_pp, u_a, norm_type="L2")
+    scalar_pp_error = errornorm(u_a, u_pp, norm_type="L2")
     error_dictionary.update({"scalar_pp_error": scalar_pp_error})
 
     print("Post-processing finished.\n")
@@ -221,28 +221,25 @@ def compute_conv_rates(u):
 
     Returns a list of convergence rates. Note the first element of
     the list will be empty, as there is no previous computation to
-    compare with. A '---' will be inserted into the first component.
+    compare with. '---' will be inserted into the first component.
     """
 
     u_array = np.array(u)
     rates = list(np.log2(u_array[:-1] / u_array[1:]))
-    rates.insert(0, None)
+    rates.insert(0, '---')
     return rates
 
 
-if "--test-method" in sys.argv:
+def run_single_test(r, degree, method):
     # Run a quick test given a degree, mixed method, and resolution
-    # (provide those arguments in that order)
-    degree = int(sys.argv[1])
-    mixed_method = sys.argv[2]
-    resolution_param = int(sys.argv[3])
+
     print("Running Hybrid-%s method of degree %d"
           " and mesh parameter h=1/2^%d." %
-          (mixed_method, degree, resolution_param))
+          (method, degree, r))
 
-    error_dict = run_mixed_hybrid_poisson(r=resolution_param,
+    error_dict = run_mixed_hybrid_poisson(r=r,
                                           degree=degree,
-                                          mixed_method=mixed_method,
+                                          mixed_method=method,
                                           write=True)
 
     print("Error in scalar: %0.8f" %
@@ -254,14 +251,12 @@ if "--test-method" in sys.argv:
     print("Interior jump of the hybrid flux: %0.8f" %
           np.abs(error_dict["flux_jump"]))
 
-elif "--run-convergence-test" in sys.argv:
-    # Run a convergence test for a particular set
-    # of parameters.
-    degree = int(sys.argv[1])
-    mixed_method = sys.argv[2]
+
+def run_mixed_hybrid_convergence(degree, method):
+
     print("Running convergence test for the hybrid-%s method "
           "of degree %d"
-          % (mixed_method, degree))
+          % (method, degree))
 
     # Create arrays to write to CSV file
     r_array = []
@@ -275,7 +270,7 @@ elif "--run-convergence-test" in sys.argv:
         r_array.append(r)
         error_dict = run_mixed_hybrid_poisson(r=r,
                                               degree=degree,
-                                              mixed_method=mixed_method,
+                                              mixed_method=method,
                                               write=False)
 
         # Extract errors and metrics
@@ -289,35 +284,46 @@ elif "--run-convergence-test" in sys.argv:
     scalar_pp_rates = compute_conv_rates(scalar_pp_errors)
     flux_rates = compute_conv_rates(flux_errors)
 
-    print("Convergence rate for u - u_h: %0.3f" % scalar_rates[-1])
-    print("Convergence rate for u - u_pp: %0.3f" % scalar_pp_rates[-1])
-    print("Convergence rate for q - q_h: %0.3f" % flux_rates[-1])
     print("Error in scalar: %0.13f" % scalar_errors[-1])
     print("Error in post-processed scalar: %0.13f" % scalar_pp_errors[-1])
     print("Error in flux: %0.13f" % flux_errors[-1])
     print("Interior jump of computed flux: %0.13f" % flux_jumps[-1])
 
     # Write data to CSV file
-    fieldnames = ["mesh",
-                  "scalarerrors", "fluxerrors",
-                  "ppscalarerrors",
-                  "scalarrates", "fluxrates",
-                  "ppscalarrates",
-                  "fluxjumps"]
+    fieldnames = ["Mesh",
+                  "ScalarErrors", "ScalarConvRates",
+                  "FluxErrors", "FluxConvRates",
+                  "PostProcessedScalarErrors", "PostProcessedScalarRates"]
 
     data = [r_array,
-            scalar_errors, flux_errors,
-            scalar_pp_errors,
-            scalar_rates, flux_rates,
-            scalar_pp_rates,
-            flux_jumps]
+            scalar_errors, scalar_rates,
+            flux_errors, flux_rates,
+            scalar_pp_errors, scalar_pp_rates]
 
-    csv_file = open("H-%s-degree-%d.csv" % (mixed_method, degree), "w")
+    csv_file = open("H-%s-degree-%d.csv" % (method, degree), "w")
+
     csv_writer = csv.writer(csv_file)
     csv_writer.writerow(fieldnames)
     for d in zip(*data):
-        csv_writer.writerow(d)
+
+        csv_writer.writerow([e if i == 0
+                             else float2f(e) if i % 2 == 0
+                             else format_si(e)
+                             for i, e in enumerate(d)])
     csv_file.close()
 
-else:
-    print("Please specify --test-method or --run-convergence-test")
+
+def format_si(x):
+    if not isinstance(x, string_types):
+        o = '{:.2e}'.format(Decimal(x))
+    else:
+        o = x
+    return o
+
+
+def float2f(x):
+    if not isinstance(x, string_types):
+        o = '{:.2f}'.format(x)
+    else:
+        o = x
+    return o
