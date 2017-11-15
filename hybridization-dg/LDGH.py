@@ -116,7 +116,7 @@ def run_LDG_H_poisson(r, degree, tau_order, write=False):
 
     else:
         assert tau_order == "1/h"
-        tau = 5/FacetArea(mesh)
+        tau = 1/FacetArea(mesh)
 
     # Numerical flux
     qhat = q + tau*(u - uhat)*n
@@ -427,7 +427,7 @@ def run_LDG_H_convergence(degree, tau_order):
 
 def format_si(x):
     if not isinstance(x, string_types):
-        o = '{:.9e}'.format(Decimal(x))
+        o = '{:.2e}'.format(Decimal(x))
     else:
         o = x
     return o
