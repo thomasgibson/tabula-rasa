@@ -16,9 +16,8 @@ import pandas
 
 
 parameters["pyop2_options"]["lazy_evaluation"] = False
+
 PETSc.Log.begin()
-
-
 problem = HelmholtzProblem()
 parser = ArgumentParser(description="""Profile 3D Helmholtz solve""",
                         add_help=False)
@@ -99,10 +98,6 @@ def run_helmholtz_solve(problem, degree, mesh_size):
                                               problem.mesh_size,
                                               param_name)
                     )
-                    PETSc.Sys.Print("************************************")
-                    import traceback
-                    PETSc.Sys.Print(*traceback.format_stack())
-                    PETSc.Sys.Print("************************************")
                     continue
 
             warm[(param_name, degree)] = True
@@ -121,41 +116,23 @@ def run_helmholtz_solve(problem, degree, mesh_size):
 
                 # Collect events
                 size = problem.comm.size
-                snes = PETSc.Log.Event("SNESSolve").getPerfInfo()
                 ksp = PETSc.Log.Event("KSPSolve").getPerfInfo()
                 pcsetup = PETSc.Log.Event("PCSetUp").getPerfInfo()
                 pcapply = PETSc.Log.Event("PCApply").getPerfInfo()
-                jac = PETSc.Log.Event("SNESJacobianEval").getPerfInfo()
-                residual = PETSc.Log.Event("SNESFunctionEval").getPerfInfo()
-                condense = PETSc.Log.Event("SCCondensation").getPerfInfo()
-                scrhs = PETSc.Log.Event("SCRHS").getPerfInfo()
-                scsolve = PETSc.Log.Event("SCSolve").getPerfInfo()
-                screcover = PETSc.Log.Event("SCRecover").getPerfInfo()
 
                 # Collect times
-                snes_time = problem.comm.allreduce(snes["time"],
-                                                   op=MPI.SUM)/size
-                jac_time = problem.comm.allreduce(jac["time"],
-                                                  op=MPI.SUM)/problem.comm.size
-                residual_time = problem.comm.allreduce(residual["time"],
-                                                       op=MPI.SUM)/size
                 ksp_time = problem.comm.allreduce(ksp["time"],
                                                   op=MPI.SUM)/size
                 pcsetup_time = problem.comm.allreduce(pcsetup["time"],
                                                       op=MPI.SUM)/size
                 pcapply_time = problem.comm.allreduce(pcapply["time"],
                                                       op=MPI.SUM)/size
-                condense_time = problem.comm.allreduce(condense["time"],
-                                                       op=MPI.SUM)/size
-                scrhs_time = problem.comm.allreduce(scrhs["time"],
-                                                    op=MPI.SUM)/size
-                scsolve_time = problem.comm.allreduce(scsolve["time"],
-                                                      op=MPI.SUM)/size
-                screcover_time = problem.comm.allreduce(screcover["time"],
-                                                        op=MPI.SUM)/size
 
-                newton_its = solver.snes.getIterationNumber()
-                ksp_its = solver.snes.getLinearSolveIterations()
+                # SCPC only has Krylov iterations for the reduced system
+                if param_name == "scpc_hypre":
+                    ksp_its = solver.snes.ksp.getPC().getPythonContext().sc_ksp.getIterationNumber()
+                else:
+                    ksp_its = solver.snes.getLinearSolveIterations()
 
                 cell_set_size = problem.mesh.cell_set.size
                 num_cells = problem.comm.allreduce(cell_set_size,
@@ -177,41 +154,19 @@ def run_helmholtz_solve(problem, degree, mesh_size):
                         mode = "a"
                         header = not os.path.exists(results)
 
-                    conv_history = solver.snes.getConvergenceHistory()
-                    snes_history, linear_its = conv_history
                     ksp_history = solver.snes.ksp.getConvergenceHistory()
-                    data = {"snes_its": newton_its,
-                            "ksp_its": ksp_its,
-                            "snes_history": cPickle.dumps(snes_history),
-                            "linear_its": cPickle.dumps(linear_its),
+                    data = {"ksp_its": ksp_its,
                             "ksp_history": cPickle.dumps(ksp_history),
-                            "SNESSolve": snes_time,
                             "KSPSolve": ksp_time,
                             "PCSetUp": pcsetup_time,
                             "PCApply": pcapply_time,
-                            "JacobianEval": jac_time,
-                            "FunctionEval": residual_time,
                             "num_processes": problem.comm.size,
                             "mesh_size": problem.mesh_size,
                             "num_cells": num_cells,
                             "degree": problem.degree,
-                            "solver_parameters": cPickle.dumps(solver.parameters),
                             "parameter_name": param_name,
                             "dofs": problem.u.dof_dset.layout_vec.getSize(),
-                            "name": problem.name,
-                            "SCPC_condensation": condense_time,
-                            "SCPC_rhs": scrhs_time,
-                            "SCPC_solve": scsolve_time,
-                            "SCPC_recover": screcover_time}
-
-                    if param_name == "scpc_hypre":
-                        SCPC = solver.snes.ksp.getPC()
-                        scpc_cxt = SCPC.getPythonContext()
-                        sc_ksp = scpc_cxt.sc_ksp
-                        sc_ksp_its = sc_ksp.getIterationNumber()
-                        data.update({"SCPC_ksp_its": sc_ksp_its})
-                    else:
-                        data.update({"SCPC_ksp_its": "N/A"})
+                            "name": problem.name}
 
                     df = pandas.DataFrame(data, index=[0])
                     df.to_csv(results, index=False, mode=mode, header=header)
@@ -224,10 +179,6 @@ def run_helmholtz_solve(problem, degree, mesh_size):
                                           problem.mesh_size,
                                           param_name)
                 )
-                PETSc.Sys.Print("************************************")
-                import traceback
-                PETSc.Sys.Print(*traceback.format_stack())
-                PETSc.Sys.Print("************************************")
                 continue
         PETSc.Sys.Print(
             "\nSolver complete for the 3D %s problem of degree %s, "
@@ -238,6 +189,6 @@ def run_helmholtz_solve(problem, degree, mesh_size):
         )
 
 
-for size in [8, 16, 32, 64]:
+for size in [8, 16, 32]:
     for degree in range(4, 7):
         run_helmholtz_solve(problem, degree, size)
