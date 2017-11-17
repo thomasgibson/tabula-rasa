@@ -27,7 +27,7 @@ def run_convergence_test(degree):
                                       "pc_hypre_boomeramg_P_max": 4,
                                       "pc_hypre_boomeramg_agg_nl": 1}}
 
-    r_params = range(0, 7)
+    r_params = range(0, 6)
     l2_errors = []
     gmres_its = []
     sc_ksp_its = []
