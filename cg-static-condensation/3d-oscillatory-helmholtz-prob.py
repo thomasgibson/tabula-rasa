@@ -94,7 +94,7 @@ def run_convergence_test(degree):
             "NumDOFS": num_dofs,
             "NumCells": num_cells}
 
-    df = pd.DataFrame(data, index=[0, 1])
+    df = pd.DataFrame(data)
     result = "helmholtz_conv-d-%d.csv" % degree
     df.to_csv(result, index=False, mode="w")
 
