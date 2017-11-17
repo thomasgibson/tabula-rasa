@@ -27,7 +27,7 @@ def run_convergence_test(degree):
                                       "pc_hypre_boomeramg_P_max": 4,
                                       "pc_hypre_boomeramg_agg_nl": 1}}
 
-    r_params = range(1, 6)
+    r_params = range(0, 6)
     l2_errors = []
     gmres_its = []
     sc_ksp_its = []
@@ -110,5 +110,5 @@ def run_convergence_test(degree):
     csv_file.close()
 
 
-for degree in range(4, 9):
+for degree in range(4, 8):
     run_convergence_test(degree)
