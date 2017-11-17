@@ -1,7 +1,7 @@
 from firedrake import *
 from mpi4py import MPI
 import numpy as np
-import csv
+import pandas as pd
 
 
 def run_convergence_test(degree):
@@ -27,7 +27,7 @@ def run_convergence_test(degree):
                                       "pc_hypre_boomeramg_P_max": 4,
                                       "pc_hypre_boomeramg_agg_nl": 1}}
 
-    r_params = range(0, 6)
+    r_params = range(0, 7)
     l2_errors = []
     gmres_its = []
     sc_ksp_its = []
@@ -86,28 +86,17 @@ def run_convergence_test(degree):
     # Insert '---' in first slot, as there is rate to compute
     rates.insert(0, '---')
 
-    fieldnames = ["Mesh",
-                  "L2Errors",
-                  "ConvRates",
-                  "GMRESIterations",
-                  "SCPCIterations",
-                  "NumDOFS",
-                  "NumCells"]
-    data = [r_params,
-            l2_errors,
-            rates,
-            gmres_its,
-            sc_ksp_its,
-            num_dofs,
-            num_cells]
+    data = {"Mesh": r_params,
+            "L2Errors": l2_errors,
+            "ConvRates": rates,
+            "GMRESIterations": gmres_its,
+            "SCPCIterations": sc_ksp_its,
+            "NumDOFS": num_dofs,
+            "NumCells": num_cells}
 
-    csv_file = open("3D-Helmholtz-deg%d.csv" % degree, "w")
-    csv_writer = csv.writer(csv_file)
-    csv_writer.writerow(fieldnames)
-    for d in zip(*data):
-        csv_writer.writerow(d)
-
-    csv_file.close()
+    df = pd.DataFrame(data, index=[0, 1])
+    result = "helmholtz_conv-d-%d.csv" % degree
+    df.to_csv(result, index=False, mode="w")
 
 
 for degree in range(4, 8):
