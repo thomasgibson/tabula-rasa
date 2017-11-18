@@ -4,7 +4,6 @@ import pandas as pd
 import seaborn
 
 from matplotlib import pyplot as plt
-from matplotlib.ticker import FormatStrFormatter
 from mpltools import annotation
 
 
@@ -13,10 +12,10 @@ MARKERSIZE = 8
 LINEWIDTH = 2
 
 
-p4_data = "helmholtz_conv-d-4.csv"
-p5_data = "helmholtz_conv-d-5.csv"
-p6_data = "helmholtz_conv-d-6.csv"
-p7_data = "helmholtz_conv-d-7.csv"
+p4_data = "helmholtz-results/helmholtz_conv-d-4.csv"
+p5_data = "helmholtz-results/helmholtz_conv-d-5.csv"
+p6_data = "helmholtz-results/helmholtz_conv-d-6.csv"
+p7_data = "helmholtz-results/helmholtz_conv-d-7.csv"
 data_set = [p4_data, p5_data, p6_data, p7_data]
 
 
@@ -32,7 +31,7 @@ seaborn.set(style="ticks")
 
 fig = plt.figure(figsize=(6, 4), frameon=False)
 ax = fig.add_subplot(111)
-ax.set_xlabel("Mesh resolution\n(Number of cells)", fontsize=FONTSIZE)
+ax.set_xlabel("Mesh size $h=2^{-r}$\n(Number of cells)", fontsize=FONTSIZE)
 ax.set_ylabel("$L_2$ error", fontsize=FONTSIZE)
 ax.set_ylim([dfs.L2Errors.min()/1.25,
              dfs.L2Errors.max()*1.25])
@@ -63,7 +62,7 @@ for group in groups:
             clip_on=False)
 
 ax.set_xticks(h_array)
-ax.set_xticklabels(["$2^{%d}$\n(%d)" % (r, n)
+ax.set_xticklabels(["$2^{-%d}$\n(%d)" % (r, n)
                     for (r, n) in zip(r_values, num_cells)])
 
 for tick in ax.get_xticklabels():
