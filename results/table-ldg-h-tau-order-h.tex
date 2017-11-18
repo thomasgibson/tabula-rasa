@@ -1,0 +1,47 @@
+
+\begin{table}
+    \centering
+    \caption{Convergence history for the LDG-H method for $\tau = h$.}
+    \resizebox{\textwidth}{!}{%
+        \begin{tabular}{l c c c c c c c c c}
+            \toprule
+            \multicolumn{10}{c}{LDG-H method ($\tau = \mathcal{O}(h)$)} \\
+            \cmidrule{2-10}
+            \multirow{2}{*}{$k$} & mesh &
+            \multicolumn{2}{c}{$\norm{p-p_h}_{L^2(\Omega)} \leq \mathcal{O}(h^{k})$} &
+            \multicolumn{2}{c}{
+                $\norm{\boldsymbol{u}-\boldsymbol{u}_h}_{\boldsymbol{L}^2(\Omega)} \leq \mathcal{O}(h^{k+1})$} &
+            \multicolumn{2}{c}{$\norm{p-p_h^{\star}}_{L^2(\Omega)} \leq \mathcal{O}(h^{k+2})$} &
+            \multicolumn{2}{c}{
+                $\norm{\boldsymbol{u}-\boldsymbol{u}_h^{\star}}_{\boldsymbol{L}^2(\Omega)} \leq \mathcal{O}(h^{k+1}) $} \\
+            & $r$ & error & order & error & order & error & order & error & order \\
+            \bottomrule
+            \multirow{6}{*}{1}
+ & 1 & 2.84e-1 & --- & 3.76e-1 & --- & 2.77e-2 & --- & 2.27e-1 & --- \\ 
+ & 2 & 1.56e-1 & 0.86 & 1.00e-1 & 1.91 & 3.28e-3 & 3.08 & 5.64e-2 & 2.01 \\ 
+ & 3 & 8.01e-2 & 0.97 & 2.54e-2 & 1.98 & 3.97e-4 & 3.04 & 1.41e-2 & 2.00 \\ 
+ & 4 & 4.03e-2 & 0.99 & 6.37e-3 & 1.99 & 4.92e-5 & 3.02 & 3.52e-3 & 2.00 \\ 
+ & 5 & 2.02e-2 & 1.00 & 1.59e-3 & 2.00 & 6.12e-6 & 3.00 & 8.80e-4 & 2.00 \\ 
+ & 6 & 1.01e-2 & 1.00 & 3.99e-4 & 2.00 & 7.65e-7 & 3.00 & 2.20e-4 & 2.00 \\ 
+
+\midrule
+\multirow{6}{*}{2}
+ & 1 & 5.92e-2 & --- & 8.40e-2 & --- & 4.89e-3 & --- & 4.03e-2 & --- \\ 
+ & 2 & 1.60e-2 & 1.89 & 1.11e-2 & 2.92 & 3.15e-4 & 3.96 & 4.94e-3 & 3.03 \\ 
+ & 3 & 4.07e-3 & 1.97 & 1.41e-3 & 2.98 & 1.99e-5 & 3.99 & 6.14e-4 & 3.01 \\ 
+ & 4 & 1.02e-3 & 1.99 & 1.77e-4 & 2.99 & 1.25e-6 & 4.00 & 7.67e-5 & 3.00 \\ 
+ & 5 & 2.56e-4 & 2.00 & 2.21e-5 & 3.00 & 7.79e-8 & 4.00 & 9.60e-6 & 3.00 \\ 
+ & 6 & 6.40e-5 & 2.00 & 2.76e-6 & 3.00 & 4.87e-9 & 4.00 & 1.20e-6 & 3.00 \\ 
+
+\midrule
+\multirow{6}{*}{3}
+ & 1 & 1.01e-2 & --- & 1.47e-2 & --- & 7.09e-4 & --- & 5.69e-3 & --- \\ 
+ & 2 & 1.34e-3 & 2.91 & 9.66e-4 & 3.93 & 2.26e-5 & 4.97 & 3.43e-4 & 4.05 \\ 
+ & 3 & 1.69e-4 & 2.98 & 6.11e-5 & 3.98 & 7.09e-7 & 4.99 & 2.12e-5 & 4.01 \\ 
+ & 4 & 2.13e-5 & 2.99 & 3.83e-6 & 4.00 & 2.22e-8 & 5.00 & 1.33e-6 & 4.00 \\ 
+ & 5 & 2.66e-6 & 3.00 & 2.40e-7 & 4.00 & 6.94e-10 & 5.00 & 8.29e-8 & 4.00 \\ 
+ & 6 & 3.33e-7 & 3.00 & 1.52e-8 & 3.98 & 2.19e-11 & 4.99 & 5.71e-9 & 3.86 \\ 
+
+        \bottomrule
+    \end{tabular}}
+\end{table}
