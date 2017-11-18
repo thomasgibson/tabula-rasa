@@ -1,0 +1,42 @@
+
+\begin{table}
+    \centering
+    \caption{Convergence history for the hybridized Brezzi-Douglas-Marini method of order $k$ on simplices ($k=2, 3, 4$).}
+    \resizebox{\textwidth}{!}{%
+        \begin{tabular}{l c c c c c c c}
+            \toprule
+            \multicolumn{8}{c}{BDM-H method} \\
+            \cmidrule{2-8}
+            \multirow{2}{*}{$k$} & mesh &
+            \multicolumn{2}{c}{$\norm{p-p_h}_{L^2(\Omega)} \leq \mathcal{O}(h^{k})$} &
+            \multicolumn{2}{c}{
+                $\norm{\boldsymbol{u}-\boldsymbol{u}_h}_{\boldsymbol{L}^2(\Omega)} \leq \mathcal{O}(h^{k+1})$} &
+            \multicolumn{2}{c}{$\norm{p-p_h^{\star}}_{L^2(\Omega)} \leq \mathcal{O}(h^{k+2})$} \\
+            & $r$ & error & order & error & order & error & order \\
+            \bottomrule
+            \multirow{5}{*}{2}
+ & 1 & 7.39e-2 & --- & 1.07e-1 & --- & 1.29e-2 & --- \\ 
+ & 2 & 1.95e-2 & 1.92 & 1.46e-2 & 2.87 & 9.59e-4 & 3.75 \\ 
+ & 3 & 4.95e-3 & 1.98 & 1.88e-3 & 2.96 & 6.31e-5 & 3.93 \\ 
+ & 4 & 1.24e-3 & 1.99 & 2.37e-4 & 2.99 & 4.00e-6 & 3.98 \\ 
+ & 5 & 3.11e-4 & 2.00 & 2.98e-5 & 3.00 & 2.51e-7 & 3.99 \\ 
+
+\midrule
+\multirow{5}{*}{3}
+ & 1 & 1.63e-2 & --- & 1.81e-2 & --- & 1.27e-3 & --- \\ 
+ & 2 & 2.16e-3 & 2.91 & 1.20e-3 & 3.92 & 4.10e-5 & 4.96 \\ 
+ & 3 & 2.75e-4 & 2.98 & 7.56e-5 & 3.98 & 1.27e-6 & 5.01 \\ 
+ & 4 & 3.45e-5 & 2.99 & 4.74e-6 & 4.00 & 3.96e-8 & 5.00 \\ 
+ & 5 & 4.31e-6 & 3.00 & 2.97e-7 & 4.00 & 1.24e-9 & 5.00 \\ 
+
+\midrule
+\multirow{5}{*}{4}
+ & 1 & 2.86e-3 & --- & 2.54e-3 & --- & 1.49e-4 & --- \\ 
+ & 2 & 1.89e-4 & 3.92 & 8.48e-5 & 4.91 & 2.42e-6 & 5.94 \\ 
+ & 3 & 1.20e-5 & 3.98 & 2.70e-6 & 4.97 & 3.82e-8 & 5.99 \\ 
+ & 4 & 7.53e-7 & 3.99 & 8.51e-8 & 4.99 & 5.98e-10 & 6.00 \\ 
+ & 5 & 4.71e-8 & 4.00 & 2.67e-9 & 5.00 & 9.38e-12 & 6.00 \\ 
+
+        \bottomrule
+    \end{tabular}}
+\end{table}

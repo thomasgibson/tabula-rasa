@@ -1,0 +1,26 @@
+
+\begin{table}
+    \centering
+    \caption{Convergence history for the hybridized Brezzi-Douglas-Marini method of lowest order on simplices.}
+    \resizebox{\textwidth}{!}{%
+        \begin{tabular}{l c c c c c c c}
+            \toprule
+            \multicolumn{8}{c}{BDM-H method ($k=1$)} \\
+            \cmidrule{2-8}
+            \multirow{2}{*}{$k$} & mesh &
+            \multicolumn{2}{c}{$\norm{p-p_h}_{L^2(\Omega)} \leq \mathcal{O}(h^{1})$} &
+            \multicolumn{2}{c}{
+                $\norm{\boldsymbol{u}-\boldsymbol{u}_h}_{\boldsymbol{L}^2(\Omega)} \leq \mathcal{O}(h^{2})$} &
+            \multicolumn{2}{c}{$\norm{p-p_h^{\star}}_{L^2(\Omega)} \leq \mathcal{O}(h^{2})$} \\
+            & $r$ & error & order & error & order & error & order \\
+            \bottomrule
+            \multirow{5}{*}{1}
+ & 1 & 2.58e-1 & --- & 6.32e-1 & --- & 1.16e-1 & --- \\ 
+ & 2 & 1.32e-1 & 0.97 & 1.83e-1 & 1.79 & 3.27e-2 & 1.82 \\ 
+ & 3 & 6.57e-2 & 1.01 & 4.78e-2 & 1.94 & 8.49e-3 & 1.95 \\ 
+ & 4 & 3.28e-2 & 1.00 & 1.21e-2 & 1.98 & 2.14e-3 & 1.99 \\ 
+ & 5 & 1.64e-2 & 1.00 & 3.03e-3 & 2.00 & 5.37e-4 & 2.00 \\ 
+
+        \bottomrule
+    \end{tabular}}
+\end{table}
