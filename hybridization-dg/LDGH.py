@@ -315,15 +315,9 @@ def run_single_test(r, degree, tau_order):
     # Run a quick test given a degree, tau order, and resolution
 
     resolution_param = r
-
-    if quads:
-        print("Running LDG-H method on quads of degree %d with tau=O('%s') "
-              "and mesh parameter h=1/2^%d." %
-              (degree, tau_order, resolution_param))
-    else:
-        print("Running LDG-H method (triangles) of degree %d with tau=O('%s') "
-              "and mesh parameter h=1/2^%d." %
-              (degree, tau_order, resolution_param))
+    print("Running LDG-H method (triangles) of degree %d with tau=O('%s') "
+          "and mesh parameter h=1/2^%d." %
+          (degree, tau_order, resolution_param))
 
     error_dict = run_LDG_H_poisson(r=resolution_param,
                                    degree=degree,
