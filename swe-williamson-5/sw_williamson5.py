@@ -7,6 +7,7 @@ from linear_solver import LinearizedShallowWaterSolver
 from argparse import ArgumentParser
 
 import pandas as pd
+import sys
 
 
 parameters["pyop2_options"]["lazy_evaluation"] = False
@@ -60,6 +61,11 @@ parser.add_argument("--help",
 
 args, _ = parser.parse_known_args()
 
+if args.help:
+    help = parser.format_help()
+    PETSc.Sys.Print("%s\n" % help)
+    sys.exit(1)
+
 if args.hybridization is not None:
     if args.hybridization not in [True, False]:
         raise ValueError("Unrecognized argument '%s', use a boolean"
@@ -74,7 +80,7 @@ day = 24.*60.*60.
 if args.testing:
     ref_dt = {3: 3000.}
     tmax = 3000.
-elif args.profiling:
+elif args.profile:
     ref_dt = {7: 56.25}
     tmax = 1125.
 elif args.refinements == 3:
@@ -106,10 +112,10 @@ diagnostics = Diagnostics(*fieldlist)
 
 for ref_level, dt in ref_dt.items():
 
-    if hybridized:
-        dirname = "results/hybrid_sw_W5_ref%s_dt%s" % (ref_level, dt)
+    if hybridize:
+        dirname = "hybrid_sw_W5_ref%s_dt%s" % (ref_level, dt)
     else:
-        dirname = "results/sw_W5_ref%s_dt%s" % (ref_level, dt)
+        dirname = "sw_W5_ref%s_dt%s" % (ref_level, dt)
 
     mesh = IcosahedralSphereMesh(radius=R,
                                  refinement_level=ref_level, degree=3)
@@ -178,7 +184,7 @@ for ref_level, dt in ref_dt.items():
 
     verify = args.verification
     linear_solver = LinearizedShallowWaterSolver(state,
-                                                 hybridization=hybridized,
+                                                 hybridization=hybridize,
                                                  verification=verify,
                                                  profiling=args.profile)
 

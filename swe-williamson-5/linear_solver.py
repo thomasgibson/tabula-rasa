@@ -1,4 +1,5 @@
 from firedrake import *
+from firedrake.utils import cached_property
 from gusto.linear_solvers import TimesteppingSolver
 
 
@@ -9,24 +10,13 @@ class LinearizedShallowWaterSolver(TimesteppingSolver):
     def __init__(self, state, hybridization=False,
                  verification=False, profiling=False):
 
-        if hybridization:
-            solver_parameters = self._hybrid_params
-        else:
-            solver_parameters = self._approx_sc_params
-
-        if verification:
-            # if verification mode is on, then wrap outer solve
-            # in a GMRES loop and monitor the problem residual
-            solver_parameters['ksp_monitor_true_residual'] = True
-            solver_parameters['ksp_type'] = 'gmres'
-            solver_parameters['ksp_monitor'] = True
-
-        super(LinearizedShallowWaterSolver, self).__init__(state,
-                                                           solver_parameters=solver_parameters,
-                                                           overwrite_solver_parameters=False)
-
         self._hybridized = hybridization
         self._profiling = profiling
+        self._verify = verification
+
+        super(LinearizedShallowWaterSolver, self).__init__(state,
+                                                           solver_parameters=self.solver_parameters,
+                                                           overwrite_solver_parameters=False)
 
     @property
     def _hybrid_params(self):
@@ -82,6 +72,21 @@ class LinearizedShallowWaterSolver(TimesteppingSolver):
                                                'pc_type': 'bjacobi',
                                                'sub_pc_type': 'ilu'}}}
 
+    @cached_property
+    def solver_parameters(self):
+        if self._hybridized:
+            solver_parameters = self._hybrid_params
+        else:
+            solver_parameters = self._approx_sc_params
+        if self._verify:
+            # if verification mode is on, then wrap outer solve
+            # in a GMRES loop and monitor the problem residual
+            solver_parameters['ksp_monitor_true_residual'] = True
+            solver_parameters['ksp_type'] = 'gmres'
+            solver_parameters['ksp_monitor'] = True
+
+        return solver_parameters
+
     def _setup_solver(self):
         state = self.state
         H = state.parameters.H
@@ -111,7 +116,7 @@ class LinearizedShallowWaterSolver(TimesteppingSolver):
         uD_problem = LinearVariationalProblem(
             aeqn, Leqn, self.state.dy)
 
-        if self.hybridized:
+        if self._hybridized:
             prefix = 'SWImplicitHybridMixed'
         else:
             prefix = 'SWImplicit'

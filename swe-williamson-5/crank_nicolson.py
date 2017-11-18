@@ -2,7 +2,7 @@ from gusto.timeloop import BaseTimestepper
 from gusto.configuration import logger
 from pyop2.profiling import timed_stage
 from firedrake.petsc import PETSc
-from mp14py import MPI
+from mpi4py import MPI
 
 
 import pandas as pd
