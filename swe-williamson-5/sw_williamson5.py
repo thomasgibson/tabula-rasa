@@ -22,6 +22,13 @@ parser.add_argument("--hybridization",
                     action="store",
                     help="Select 'True' or 'False'. Default is 'False'.")
 
+parser.add_argument("--verification",
+                    default=False,
+                    type=bool,
+                    action="store",
+                    help=("Turn verification mode on? "
+                          "This enables GMRES residual monitors"))
+
 parser.add_argument("--testing",
                     default=False,
                     type=bool,
@@ -169,7 +176,11 @@ for ref_level, dt in ref_dt.items():
     advected_fields.append(("u", ThetaMethod(state, u0, ueqn)))
     advected_fields.append(("D", SSPRK3(state, D0, Deqn)))
 
-    linear_solver = LinearizedShallowWaterSolver(state)
+    verify = args.verification
+    linear_solver = LinearizedShallowWaterSolver(state,
+                                                 hybridization=hybridized,
+                                                 verification=verify,
+                                                 profiling=args.profile)
 
     # Set up forcing
     sw_forcing = ShallowWaterForcing(state, euler_poincare=False)
