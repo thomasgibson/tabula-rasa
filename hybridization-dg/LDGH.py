@@ -289,7 +289,7 @@ def run_LDG_H_poisson(r, degree, tau_order, write=False):
             o = tau_order
 
         File("LDGH_tauO%s_deg%d.pvd" %
-             (o, degree)).write(q_a, u_a, q_h, u_h, u_pp, div_a)
+             (o, degree)).write(q_a, u_a, q_h, u_h, u_pp)
 
     # Return all error metrics
     return error_dictionary
