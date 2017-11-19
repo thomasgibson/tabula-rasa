@@ -10,9 +10,6 @@ import pandas as pd
 import sys
 
 
-parameters["pyop2_options"]["lazy_evaluation"] = False
-
-
 PETSc.Log.begin()
 parser = ArgumentParser(description="""Run Williamson test case 5""",
                         add_help=False)
@@ -61,6 +58,10 @@ parser.add_argument("--help",
                     help="Show help")
 
 args, _ = parser.parse_known_args()
+
+if args.profile:
+    # Ensures accurate timing of parallel loops
+    parameters["pyop2_options"]["lazy_evaluation"] = False
 
 if args.help:
     help = parser.format_help()
