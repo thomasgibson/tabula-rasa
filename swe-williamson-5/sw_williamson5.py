@@ -78,7 +78,7 @@ else:
 
 day = 24.*60.*60.
 if args.testing:
-    ref_dt = {3: 3000.}
+    ref_dt = {3: 900.}
     tmax = 3000.
 elif args.profile:
     ref_dt = {7: 56.25}
@@ -200,21 +200,23 @@ for ref_level, dt in ref_dt.items():
     stepper.run(t=0, tmax=tmax)
 
     if COMM_WORLD.rank == 0:
-        if hybridized:
+        if hybridize:
             if args.profile:
-                results = "hybrid_profiling_sw_W5_ref%s_dt%s" % (ref_level, dt)
+                results = "hybrid_profiling_sw_W5_ref%s_dt%s.csv" % (ref_level,
+                                                                     dt)
             else:
-                results = "hybrid_sw_W5_ref%s_dt%s" % (ref_level, dt)
+                results = "hybrid_sw_W5_ref%s_dt%s.csv" % (ref_level, dt)
         else:
             if args.profile:
-                results = "profiling_sw_W5_ref%s_dt%s" % (ref_level, dt)
+                results = "profiling_sw_W5_ref%s_dt%s.csv" % (ref_level, dt)
             else:
-                results = "sw_W5_ref%s_dt%s" % (ref_level, dt)
+                results = "sw_W5_ref%s_dt%s.csv" % (ref_level, dt)
 
         data = {"Timestep": stepper.t_array,
-                "SolveTime": stepper.solve_time_array,
-                "OuterKSPIterations": stepper.ksp_iter_array,
-                "InnerKSPIterations": stepper.inner_ksp_iter_array}
+                "PicardIteration": stepper.picard_iter_array,
+                "ImplicitSolveTime": stepper.solve_time_array,
+                "ImplicitOuterKSPIterations": stepper.ksp_iter_array,
+                "ImplicitInnerKSPIterations": stepper.inner_ksp_iter_array}
 
         df = pd.DataFrame(data)
         df.to_csv(results, index=False, mode="w", header=True)

@@ -61,6 +61,7 @@ class CrankNicolsonStepper(BaseTimestepper):
         self.solve_time_array = []
         self.ksp_iter_array = []
         self.inner_ksp_iter_array = []
+        self.picard_iter_array = []
 
     @property
     def passive_advection(self):
@@ -104,24 +105,25 @@ class CrankNicolsonStepper(BaseTimestepper):
                 with timed_stage("Implicit solve"):
                     # solves linear system and places result in state.dy
                     if self.linear_solver._profiling:
-                        self.t_array.append(state.t)
-
+                        tsec = float(state.t.dat.data)
+                        self.t_array.append(tsec)
+                        self.picard_iter_array.append(k)
                         PETSc.Sys.Print("Timing implicit solve.\n")
                         self.linear_solver.solve()
                         PETSc.Sys.Print(
-                            "Implicit solve finished for t=%s.\n" % state.t
+                            "Implicit solve finished for t=%s.\n" % tsec
                         )
 
                         # Collect solver time
                         ksp_event = PETSc.Log.Event("KSPSolve").getPerfInfo()
-                        comm = self.linear_solver.uD_solver._problem.dm.comm
+                        comm = self.linear_solver.uD_solver._problem.u.comm
                         size = comm.size
                         ksp_time = comm.allreduce(ksp_event["time"],
                                                   op=MPI.SUM)/size
-                        self.solver_time_array.append(ksp_time)
+                        self.solve_time_array.append(ksp_time)
 
                         # Collect KSP iterations
-                        outer_ksp = self.linear_solver.uD_solver.ksp
+                        outer_ksp = self.linear_solver.uD_solver.snes.ksp
                         if self.linear_solver._hybridized:
                             cxt = outer_ksp.getPC().getPythonContext()
                             inner_ksp = cxt.trace_ksp
