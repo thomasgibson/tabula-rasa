@@ -39,6 +39,7 @@ parser.add_argument("--testing",
 
 parser.add_argument("--dumpfreq",
                     default=0,
+                    type=int,
                     action="store",
                     help="Dump frequency of output.")
 
@@ -124,9 +125,8 @@ for ref_level, dt in ref_dt.items():
 
     timestepping = TimesteppingParameters(dt=dt)
     output = OutputParameters(dirname=dirname,
-                              dumplist_latlon=['D'],
-                              dumpfreq=100)
-    diagnostic_fields = [Sum('D', 'topography')]
+                              dumpfreq=args.dumpfreq)
+    diagnostic_fields = [Sum('D', 'topography'), PotentialVorticity()]
 
     state = State(mesh, horizontal_degree=1,
                   family="BDM",
