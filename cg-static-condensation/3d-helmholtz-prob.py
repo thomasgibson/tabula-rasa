@@ -1,7 +1,33 @@
 from firedrake import *
 from mpi4py import MPI
+from argparse import ArgumentParser
 import numpy as np
 import pandas as pd
+import sys
+
+
+parser = ArgumentParser(description=("""Convergence test for the 3D Helmholtz."""),
+                        add_help=False)
+
+parser.add_argument("--verify",
+                    default=False,
+                    type=bool,
+                    action="store",
+                    help=(
+                        "Verify static condensation with GMRES "
+                        "converges in one iteration."
+                    ))
+
+parser.add_argument("--help",
+                    action="store_true",
+                    help="Show help")
+
+args, _ = parser.parse_known_args()
+
+if args.help:
+    help = parser.format_help()
+    print("%s\n" % help)
+    sys.exit(1)
 
 
 def run_convergence_test(degree):
@@ -10,14 +36,12 @@ def run_convergence_test(degree):
     param_set = "scpc_hypre"
     params = {"snes_type": "ksponly",
               "mat_type": "matfree",
-              # Wrap PC in GMRES to monitor convergence. This should
-              # take only 1 GMRES iteration if the PC is working properly.
-              "ksp_type": "gmres",
-              "ksp_monitor": True,
+              "ksp_type": "preonly",
               "pc_type": "python",
               "pc_python_type": "firedrake.CGStaticCondensationPC",
               "static_condensation": {"ksp_type": "cg",
-                                      "ksp_rtol": 1e-10,
+                                      # Solve as close to machine precision as possible
+                                      "ksp_rtol": 1e-16,
                                       "ksp_monitor": True,
                                       "pc_type": "hypre",
                                       "pc_hypre_type": "boomeramg",
@@ -26,6 +50,12 @@ def run_convergence_test(degree):
                                       "pc_hypre_boomeramg_interp_type": "ext+i",
                                       "pc_hypre_boomeramg_P_max": 4,
                                       "pc_hypre_boomeramg_agg_nl": 1}}
+
+    if args.verify:
+        # Wrap PC in GMRES to monitor convergence. This should
+        # take only 1 GMRES iteration if the PC is working properly.
+        params["ksp_type"] = "gmres"
+        params["ksp_monitor"] = True
 
     r_params = range(0, 6)
     l2_errors = []
