@@ -5,6 +5,7 @@ from firedrake.petsc import PETSc
 from crank_nicolson import CrankNicolsonStepper
 from linear_solver import LinearizedShallowWaterSolver
 from argparse import ArgumentParser
+from mpi4py import MPI
 
 import pandas as pd
 import sys
@@ -15,27 +16,25 @@ parser = ArgumentParser(description="""Run Williamson test case 5""",
                         add_help=False)
 
 parser.add_argument("--hybridization",
-                    default=False,
-                    type=bool,
-                    action="store",
-                    help="Select 'True' or 'False'. Default is 'False'.")
+                    action="store_true",
+                    help="Turn hybridization on.")
+
+parser.add_argument("--run-full-sim",
+                    action="store_true",
+                    help="Run full 50 day simulation.")
 
 parser.add_argument("--verification",
-                    default=False,
-                    type=bool,
-                    action="store",
+                    action="store_true",
                     help=("Turn verification mode on? "
                           "This enables GMRES residual monitors"))
 
 parser.add_argument("--testing",
-                    default=False,
-                    type=bool,
-                    action="store",
+                    action="store_true",
                     help=("Select 'True' or 'False' to enable a test run. "
                           "Default is False."))
 
 parser.add_argument("--dumpfreq",
-                    default=0,
+                    default=100,
                     type=int,
                     action="store",
                     help="Dump frequency of output.")
@@ -48,10 +47,8 @@ parser.add_argument("--refinements",
                     help="How many refinements to make to the sphere mesh.")
 
 parser.add_argument("--profile",
-                    action="store",
-                    default=False,
-                    type=bool,
-                    help="Turn profiling on? This forces 7 mesh refinements.")
+                    action="store_true",
+                    help="Turn profiling on for 20 timesteps.")
 
 parser.add_argument("--help",
                     action="store_true",
@@ -68,40 +65,29 @@ if args.help:
     PETSc.Sys.Print("%s\n" % help)
     sys.exit(1)
 
-if args.hybridization is not None:
-    if args.hybridization not in [True, False]:
-        raise ValueError("Unrecognized argument '%s', use a boolean"
-                         % args.hybridization)
-    hybridize = args.hybridization
-
-else:
-    hybridize = False
-
-
-day = 24.*60.*60.
-if args.testing:
-    ref_dt = {3: 900.}
-    tmax = 3000.
-elif args.profile:
-    ref_dt = {7: 56.25}
-    tmax = 1125.
-elif args.refinements == 3:
-    ref_dt = {3: 900.}
-    tmax = 50*day
-elif args.refinements == 4:
+if args.refinements == 4:
     ref_dt = {4: 450.}
-    tmax = 50*day
 elif args.refinements == 5:
     ref_dt = {5: 225.}
-    tmax = 50*day
 elif args.refinements == 6:
     ref_dt = {6: 112.5}
-    tmax = 50*day
 elif args.refinements == 7:
     ref_dt = {7: 56.25}
+else:
+    ref_dt = {3: 900.}
+
+# Run full 50 simulation if requested
+if args.run_full_sim:
+    day = 24.*60.*60.
     tmax = 50*day
 else:
-    raise ValueError("What?")
+    # If testing, adjust tmax
+    dt, = ref_dt.values()
+    if args.testing:
+        # 5 time steps
+        tmax = dt*5
+    else:
+        tmax = dt*20
 
 # Setup shallow water parameters
 R = 6371220.
@@ -111,6 +97,7 @@ H = 5960.
 fieldlist = ['u', 'D']
 parameters = ShallowWaterParameters(H=H)
 diagnostics = Diagnostics(*fieldlist)
+hybridize = args.hybridization
 
 for ref_level, dt in ref_dt.items():
 
@@ -201,23 +188,35 @@ for ref_level, dt in ref_dt.items():
     stepper.run(t=0, tmax=tmax)
 
     if COMM_WORLD.rank == 0:
-        if hybridize:
-            if args.profile:
+        if args.profile:
+            if hybridize is True:
                 results = "hybrid_profiling_sw_W5_ref%s_dt%s.csv" % (ref_level,
                                                                      dt)
             else:
-                results = "hybrid_sw_W5_ref%s_dt%s.csv" % (ref_level, dt)
-        else:
-            if args.profile:
                 results = "profiling_sw_W5_ref%s_dt%s.csv" % (ref_level, dt)
-            else:
-                results = "sw_W5_ref%s_dt%s.csv" % (ref_level, dt)
 
-        data = {"Timestep": stepper.t_array,
-                "PicardIteration": stepper.picard_iter_array,
-                "ImplicitSolveTime": stepper.solve_time_array,
-                "ImplicitOuterKSPIterations": stepper.ksp_iter_array,
-                "ImplicitInnerKSPIterations": stepper.inner_ksp_iter_array}
+            solver = stepper.linear_solver
+            comm = solver.uD_solver._problem.u.comm
+            ksp_solve = PETSc.Log.Event("KSPSolve").getPerfInfo()
+            pc_setup = PETSc.Log.Event("PCSetUp").getPerfInfo()
+            pc_apply = PETSc.Log.Event("PCApply").getPerfInfo()
+            outer_its = stepper.ksp_iter_array
+            inner_its = stepper.inner_ksp_iter_array
 
-        df = pd.DataFrame(data)
-        df.to_csv(results, index=False, mode="w", header=True)
+            # Round down to nearest int
+            avg_outer_its = int(sum(outer_its)/len(outer_its))
+            avg_inner_its = int(sum(inner_its)/len(inner_its))
+
+            # Average times from log
+            ksp_time = comm.allreduce(ksp_solve["time"], op=MPI.SUM)/comm.size
+            setup_time = comm.allreduce(pc_setup["time"], op=MPI.SUM)/comm.size
+            apply_time = comm.allreduce(pc_apply["time"], op=MPI.SUM)/comm.size
+
+            data = {"SolveTime": ksp_time,
+                    "SetUpTime": setup_time,
+                    "ApplyTime": apply_time,
+                    "AvgOuterIters": avg_outer_its,
+                    "AvgInnerIters": avg_inner_its}
+
+            df = pd.DataFrame(data, index=[0])
+            df.to_csv(results, index=False, mode="w", header=True)

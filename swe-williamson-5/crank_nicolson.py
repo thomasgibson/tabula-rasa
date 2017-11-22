@@ -2,10 +2,6 @@ from gusto.timeloop import BaseTimestepper
 from gusto.configuration import logger
 from pyop2.profiling import timed_stage
 from firedrake.petsc import PETSc
-from mpi4py import MPI
-
-
-import pandas as pd
 
 
 class CrankNicolsonStepper(BaseTimestepper):
@@ -58,7 +54,6 @@ class CrankNicolsonStepper(BaseTimestepper):
 
         state.xb.assign(state.xn)
         self.t_array = []
-        self.solve_time_array = []
         self.ksp_iter_array = []
         self.inner_ksp_iter_array = []
         self.picard_iter_array = []
@@ -113,14 +108,6 @@ class CrankNicolsonStepper(BaseTimestepper):
                         PETSc.Sys.Print(
                             "Implicit solve finished for t=%s.\n" % tsec
                         )
-
-                        # Collect solver time
-                        ksp_event = PETSc.Log.Event("KSPSolve").getPerfInfo()
-                        comm = self.linear_solver.uD_solver._problem.u.comm
-                        size = comm.size
-                        ksp_time = comm.allreduce(ksp_event["time"],
-                                                  op=MPI.SUM)/size
-                        self.solve_time_array.append(ksp_time)
 
                         # Collect KSP iterations
                         outer_ksp = self.linear_solver.uD_solver.snes.ksp
