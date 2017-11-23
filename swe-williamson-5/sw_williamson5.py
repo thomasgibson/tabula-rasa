@@ -187,30 +187,30 @@ for ref_level, dt in ref_dt.items():
 
     stepper.run(t=0, tmax=tmax)
 
+    solver = stepper.linear_solver
+    comm = solver.uD_solver._problem.u.comm
+    ksp_solve = PETSc.Log.Event("KSPSolve").getPerfInfo()
+    pc_setup = PETSc.Log.Event("PCSetUp").getPerfInfo()
+    pc_apply = PETSc.Log.Event("PCApply").getPerfInfo()
+    outer_its = stepper.ksp_iter_array
+    inner_its = stepper.inner_ksp_iter_array
+
+    # Round down to nearest int
+    avg_outer_its = int(sum(outer_its)/len(outer_its))
+    avg_inner_its = int(sum(inner_its)/len(inner_its))
+
+    # Average times from log
+    ksp_time = comm.allreduce(ksp_solve["time"], op=MPI.SUM)/comm.size
+    setup_time = comm.allreduce(pc_setup["time"], op=MPI.SUM)/comm.size
+    apply_time = comm.allreduce(pc_apply["time"], op=MPI.SUM)/comm.size
+
     if COMM_WORLD.rank == 0:
         if args.profile:
-            if hybridize is True:
+            if hybridize:
                 results = "hybrid_profiling_sw_W5_ref%s_dt%s.csv" % (ref_level,
                                                                      dt)
             else:
                 results = "profiling_sw_W5_ref%s_dt%s.csv" % (ref_level, dt)
-
-            solver = stepper.linear_solver
-            comm = solver.uD_solver._problem.u.comm
-            ksp_solve = PETSc.Log.Event("KSPSolve").getPerfInfo()
-            pc_setup = PETSc.Log.Event("PCSetUp").getPerfInfo()
-            pc_apply = PETSc.Log.Event("PCApply").getPerfInfo()
-            outer_its = stepper.ksp_iter_array
-            inner_its = stepper.inner_ksp_iter_array
-
-            # Round down to nearest int
-            avg_outer_its = int(sum(outer_its)/len(outer_its))
-            avg_inner_its = int(sum(inner_its)/len(inner_its))
-
-            # Average times from log
-            ksp_time = comm.allreduce(ksp_solve["time"], op=MPI.SUM)/comm.size
-            setup_time = comm.allreduce(pc_setup["time"], op=MPI.SUM)/comm.size
-            apply_time = comm.allreduce(pc_apply["time"], op=MPI.SUM)/comm.size
 
             data = {"SolveTime": ksp_time,
                     "SetUpTime": setup_time,
