@@ -32,7 +32,7 @@ seaborn.set(style="ticks")
 fig = plt.figure(figsize=(6, 4), frameon=False)
 ax = fig.add_subplot(111)
 ax.set_xlabel("Mesh size $h=2^{-r}$\n(Number of cells)", fontsize=FONTSIZE)
-ax.set_ylabel("$L_2$ error", fontsize=FONTSIZE)
+ax.set_ylabel("$L^2$ error", fontsize=FONTSIZE)
 ax.set_ylim([dfs.L2Errors.min()/1.25,
              dfs.L2Errors.max()*1.25])
 ax.loglog()
