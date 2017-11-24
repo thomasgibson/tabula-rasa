@@ -47,15 +47,15 @@ num_cells = [n[1] for n in dfs["NumCells"].drop_duplicates().items()]
 
 sbncolor = seaborn.color_palette(n_colors=4)
 colors = iter(sbncolor)
-linestyle = "solid"
 markers = iter(["o", "s", "^", "D"])
+linestyles = iter(["solid", "dashed", "dashdot", "dotted"])
 for group in groups:
     degree, df = group
     # All dfs have the same h array
     ax.plot(h_array, df.L2Errors,
             label="P%d-elements" % degree,
             linewidth=LINEWIDTH,
-            linestyle=linestyle,
+            linestyle=next(linestyles),
             markersize=MARKERSIZE,
             marker=next(markers),
             color=next(colors),
