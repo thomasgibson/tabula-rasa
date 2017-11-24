@@ -115,6 +115,7 @@ def run_convergence_test(degree):
     rates = list(np.log2(l2_errors[:-1] / l2_errors[1:]))
     # Insert '---' in first slot, as there is rate to compute
     rates.insert(0, '---')
+    degrees = [degree]*len(l2_errors)
 
     data = {"Mesh": r_params,
             "L2Errors": l2_errors,
@@ -122,7 +123,8 @@ def run_convergence_test(degree):
             "GMRESIterations": gmres_its,
             "SCPCIterations": sc_ksp_its,
             "NumDOFS": num_dofs,
-            "NumCells": num_cells}
+            "NumCells": num_cells,
+            "Degree": degrees}
 
     df = pd.DataFrame(data)
     result = "helmholtz_conv-d-%d.csv" % degree
