@@ -21,7 +21,7 @@ parser.add_argument("--hybridization",
                     action="store_true",
                     help="Turn hybridization on.")
 
-parser.add_argument("--run-full-sim",
+parser.add_argument("--run_full_sim",
                     action="store_true",
                     help="Run full 50 day simulation.")
 
@@ -41,7 +41,7 @@ parser.add_argument("--testing",
                           "Default is False."))
 
 parser.add_argument("--dumpfreq",
-                    default=100,
+                    default=None,
                     type=int,
                     action="store",
                     help="Dump frequency of output.")
@@ -82,7 +82,7 @@ elif args.refinements == 6:
     ref_lvl = 6
     dt = 112.5
 elif args.refinements == 7:
-    ref_lvl = 3
+    ref_lvl = 7
     dt = 56.25
 else:
     ref_lvl = 3
@@ -92,6 +92,10 @@ else:
 if args.run_full_sim:
     day = 24.*60.*60.
     tmax = 15*day
+    if args.dumpfreq is None:
+        dumpfreq = tmax/(dt*80.)
+    else:
+        dumpfreq = args.dumpfreq
 else:
     # If testing, adjust tmax
     if args.testing:
@@ -99,6 +103,11 @@ else:
         tmax = dt*5
     else:
         tmax = dt*20
+
+    if args.dumpfreq is None:
+        dumpfreq = 5
+    else:
+        dumpfrq = args.dumpfreq
 
 # Setup shallow water parameters
 R = 6371220.
@@ -136,7 +145,7 @@ for ref_dt, params in test_case.items():
                                   dumplist_latlon=['D',
                                                    'u',
                                                    'PotentialVorticity'],
-                                  dumpfreq=args.dumpfreq)
+                                  dumpfreq=dumpfreq)
         state = State(mesh, horizontal_degree=1,
                       family="BDM",
                       timestepping=timestepping,
