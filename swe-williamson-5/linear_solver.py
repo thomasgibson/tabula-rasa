@@ -25,6 +25,7 @@ class LinearizedShallowWaterSolver(TimesteppingSolver):
                 'pc_type': 'python',
                 'pc_python_type': 'firedrake.HybridizationPC',
                 'hybridization': {'ksp_type': 'cg',
+                                  'ksp_rtol': 1e-8,
                                   'pc_type': 'gamg',
                                   'ksp_monitor': True,
                                   'mg_levels_ksp_type': 'chebyshev',
@@ -65,6 +66,7 @@ class LinearizedShallowWaterSolver(TimesteppingSolver):
                 # We apply the same solver options as the hybridized
                 # reduced system for the Lagrange multipliers.
                 'fieldsplit_1': {'ksp_type': 'cg',
+                                 'ksp_rtol': 1e-8,
                                  'pc_type': 'gamg',
                                  'ksp_monitor': True,
                                  'mg_levels': {'ksp_type': 'chebyshev',
