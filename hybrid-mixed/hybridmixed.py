@@ -1,8 +1,6 @@
 from firedrake import *
-from six import string_types
-from decimal import Decimal
 import numpy as np
-import csv
+import pandas as pd
 
 
 def run_mixed_hybrid_poisson(r, degree, mixed_method, write=False):
@@ -211,7 +209,7 @@ def run_mixed_hybrid_poisson(r, degree, mixed_method, write=False):
                                            u_h, u_pp)
 
     # Return all error metrics
-    return error_dictionary
+    return error_dictionary, mesh
 
 
 def compute_conv_rates(u):
@@ -264,20 +262,21 @@ def run_mixed_hybrid_convergence(degree, method):
     scalar_pp_errors = []
     flux_errors = []
     flux_jumps = []
-
+    num_cells = []
     # Run over mesh parameters and collect error metrics
     for r in range(1, 6):
         r_array.append(r)
-        error_dict = run_mixed_hybrid_poisson(r=r,
-                                              degree=degree,
-                                              mixed_method=method,
-                                              write=False)
+        error_dict, mesh = run_mixed_hybrid_poisson(r=r,
+                                                    degree=degree,
+                                                    mixed_method=method,
+                                                    write=False)
 
         # Extract errors and metrics
         scalar_errors.append(error_dict["scalar_error"])
         scalar_pp_errors.append(error_dict["scalar_pp_error"])
         flux_errors.append(error_dict["flux_error"])
         flux_jumps.append(error_dict["flux_jump"])
+        num_cells.append(mesh.num_cells())
 
     # Now that all error metrics are collected, we can compute the rates:
     scalar_rates = compute_conv_rates(scalar_errors)
@@ -289,41 +288,17 @@ def run_mixed_hybrid_convergence(degree, method):
     print("Error in flux: %0.13f" % flux_errors[-1])
     print("Interior jump of computed flux: %0.13f" % flux_jumps[-1])
 
-    # Write data to CSV file
-    fieldnames = ["Mesh",
-                  "ScalarErrors", "ScalarConvRates",
-                  "FluxErrors", "FluxConvRates",
-                  "PostProcessedScalarErrors", "PostProcessedScalarRates"]
+    degrees = [degree] * len(r_array)
+    data = {"Mesh": r_array,
+            "Degree": degrees,
+            "NumCells": num_cells,
+            "ScalarErrors": scalar_errors,
+            "ScalarConvRates": scalar_rates,
+            "FluxErrors": flux_errors,
+            "FluxConvRates": flux_rates,
+            "PostProcessedScalarErrors": scalar_pp_errors,
+            "PostProcessedScalarRates": scalar_pp_rates}
 
-    data = [r_array,
-            scalar_errors, scalar_rates,
-            flux_errors, flux_rates,
-            scalar_pp_errors, scalar_pp_rates]
-
-    csv_file = open("H-%s-degree-%d.csv" % (method, degree), "w")
-
-    csv_writer = csv.writer(csv_file)
-    csv_writer.writerow(fieldnames)
-    for d in zip(*data):
-
-        csv_writer.writerow([e if i == 0
-                             else float2f(e) if i % 2 == 0
-                             else format_si(e)
-                             for i, e in enumerate(d)])
-    csv_file.close()
-
-
-def format_si(x):
-    if not isinstance(x, string_types):
-        o = '{:.2e}'.format(Decimal(x))
-    else:
-        o = x
-    return o
-
-
-def float2f(x):
-    if not isinstance(x, string_types):
-        o = '{:.2f}'.format(x)
-    else:
-        o = x
-    return o
+    df = pd.DataFrame(data)
+    result = "H-%s-degree-%d.csv" % (method, degree)
+    df.to_csv(result, index=False, mode="w")
