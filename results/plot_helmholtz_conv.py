@@ -7,9 +7,9 @@ from matplotlib import pyplot as plt
 from mpltools import annotation
 
 
-FONTSIZE = 12
-MARKERSIZE = 8
-LINEWIDTH = 2
+FONTSIZE = 16
+MARKERSIZE = 12
+LINEWIDTH = 3
 
 
 p4_data = "helmholtz-results/helmholtz_conv-d-4.csv"
@@ -29,12 +29,12 @@ groups = dfs.groupby(["Degree"], as_index=False)
 
 seaborn.set(style="ticks")
 
-fig = plt.figure(figsize=(6, 4), frameon=False)
+fig = plt.figure(figsize=(7, 5), frameon=False)
 ax = fig.add_subplot(111)
 ax.set_xlabel("Mesh size $h=2^{-r}$\n(Number of cells)", fontsize=FONTSIZE)
 ax.set_ylabel("$L^2$ error", fontsize=FONTSIZE)
-ax.set_ylim([dfs.L2Errors.min()/1.25,
-             dfs.L2Errors.max()*1.25])
+ax.set_ylim([dfs.L2Errors.min()/2,
+             dfs.L2Errors.max()*2])
 ax.loglog()
 ax.invert_xaxis()
 
@@ -45,7 +45,7 @@ h_array = [1.0/2**r for r in r_values]
 # Gather number of mesh cells (directly coincide with mesh parameter
 num_cells = [n[1] for n in dfs["NumCells"].drop_duplicates().items()]
 
-sbncolor = seaborn.color_palette(n_colors=4)
+sbncolor = seaborn.color_palette("cubehelix", n_colors=8)
 colors = iter(sbncolor)
 markers = iter(["o", "s", "^", "D"])
 linestyles = iter(["solid", "dashed", "dashdot", "dotted"])
@@ -74,7 +74,7 @@ for tick in ax.get_yticklabels():
 handles, labels = ax.get_legend_handles_labels()
 legend = fig.legend(handles, labels,
                     loc=9,
-                    bbox_to_anchor=(0.5, 1.1),
+                    bbox_to_anchor=(0.5, 1.15),
                     bbox_transform=fig.transFigure,
                     ncol=2,
                     handlelength=2,
@@ -95,6 +95,7 @@ annotation.slope_marker((0.13, 1e-7), 8, ax=ax,
                         invert=True, poly_kwargs={'facecolor': sbncolor[3]})
 
 seaborn.despine(fig)
+plt.title("3D Helmholtz convergence", fontsize=FONTSIZE)
 fig.savefig("helmholtz-convergence.pdf",
             orientation="landscape",
             format="pdf",
