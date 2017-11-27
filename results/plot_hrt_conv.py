@@ -74,7 +74,7 @@ for tick in ax.get_yticklabels():
 handles, labels = ax.get_legend_handles_labels()
 legend = fig.legend(handles, labels,
                     loc=9,
-                    bbox_to_anchor=(0.5, 1.1),
+                    bbox_to_anchor=(0.5, 1.125),
                     bbox_transform=fig.transFigure,
                     ncol=3,
                     handlelength=2,
@@ -95,7 +95,7 @@ annotation.slope_marker((0.13, 1e-7), 5, ax=ax,
                         invert=True, poly_kwargs={'facecolor': colors[4]})
 
 seaborn.despine(fig)
-plt.title("H-RT scalar convergence", fontsize=FONTSIZE)
+plt.title("H-RT convergence (scalar)", fontsize=FONTSIZE)
 fig.savefig("HRT-scalar-convergence.pdf",
             orientation="landscape",
             format="pdf",
@@ -139,7 +139,7 @@ for tick in ax.get_yticklabels():
 handles, labels = ax.get_legend_handles_labels()
 legend = fig.legend(handles, labels,
                     loc=9,
-                    bbox_to_anchor=(0.5, 1.1),
+                    bbox_to_anchor=(0.5, 1.125),
                     bbox_transform=fig.transFigure,
                     ncol=3,
                     handlelength=2,
@@ -160,7 +160,7 @@ annotation.slope_marker((0.13, 1e-7), 5, ax=ax,
                         invert=True, poly_kwargs={'facecolor': colors[4]})
 
 seaborn.despine(fig)
-plt.title("H-RT flux convergence", fontsize=FONTSIZE)
+plt.title("H-RT convergence (flux)", fontsize=FONTSIZE)
 fig.savefig("HRT-flux-convergence.pdf",
             orientation="landscape",
             format="pdf",
@@ -203,7 +203,7 @@ for tick in ax.get_yticklabels():
 handles, labels = ax.get_legend_handles_labels()
 legend = fig.legend(handles, labels,
                     loc=9,
-                    bbox_to_anchor=(0.5, 1.1),
+                    bbox_to_anchor=(0.5, 1.125),
                     bbox_transform=fig.transFigure,
                     ncol=3,
                     handlelength=2,
@@ -231,7 +231,7 @@ annotation.slope_marker((0.13, 1e-8), 6, ax=ax,
                         invert=True, poly_kwargs={'facecolor': colors[4]})
 
 seaborn.despine(fig)
-plt.title("H-RT post-processed scalar convergence", fontsize=FONTSIZE)
+plt.title("H-RT convergence (post-processed scalar)", fontsize=FONTSIZE)
 fig.savefig("HRT-pp-scalar-convergence.pdf",
             orientation="landscape",
             format="pdf",
