@@ -1,8 +1,6 @@
 from firedrake import *
-from six import string_types
-from decimal import Decimal
 import numpy as np
-import csv
+import pandas as pd
 
 
 def run_LDG_H_poisson(r, degree, tau_order, write=False):
@@ -292,7 +290,7 @@ def run_LDG_H_poisson(r, degree, tau_order, write=False):
              (o, degree)).write(q_a, u_a, q_h, u_h, u_pp)
 
     # Return all error metrics
-    return error_dictionary
+    return error_dictionary, mesh
 
 
 def compute_conv_rates(u):
@@ -319,10 +317,10 @@ def run_single_test(r, degree, tau_order):
           "and mesh parameter h=1/2^%d." %
           (degree, tau_order, resolution_param))
 
-    error_dict = run_LDG_H_poisson(r=resolution_param,
-                                   degree=degree,
-                                   tau_order=tau_order,
-                                   write=True)
+    error_dict, _ = run_LDG_H_poisson(r=resolution_param,
+                                      degree=degree,
+                                      tau_order=tau_order,
+                                      write=True)
 
     print("Error in scalar: %0.8f" %
           error_dict["scalar_error"])
@@ -352,14 +350,14 @@ def run_LDG_H_convergence(degree, tau_order):
     flux_pp_errors = []
     flux_pp_div_errors = []
     flux_pp_jumps = []
-
+    num_cells = []
     # Run over mesh parameters and collect error metrics
     for r in range(1, 7):
         r_array.append(r)
-        error_dict = run_LDG_H_poisson(r=r,
-                                       degree=degree,
-                                       tau_order=tau_order,
-                                       write=False)
+        error_dict, mesh = run_LDG_H_poisson(r=r,
+                                             degree=degree,
+                                             tau_order=tau_order,
+                                             write=False)
 
         # Extract errors and metrics
         scalar_errors.append(error_dict["scalar_error"])
@@ -368,6 +366,7 @@ def run_LDG_H_convergence(degree, tau_order):
         flux_pp_errors.append(error_dict["flux_pp_error"])
         flux_pp_div_errors.append(error_dict["flux_pp_div_error"])
         flux_pp_jumps.append(error_dict["flux_pp_jump"])
+        num_cells.append(mesh.num_cells())
 
     # Now that all error metrics are collected, we can compute the rates:
     scalar_rates = compute_conv_rates(scalar_errors)
@@ -388,48 +387,26 @@ def run_LDG_H_convergence(degree, tau_order):
     print("Interior jump of post-processed flux: %0.13f" %
           np.abs(flux_pp_jumps[-1]))
 
-    # Write data to CSV file for table generation
-    fieldnames = ["Mesh",
-                  "ScalarErrors", "ScalarConvRates",
-                  "FluxErrors", "FluxConvRates",
-                  "PostProcessedScalarErrors", "PostProcessedScalarRates",
-                  "PostProcessedFluxErrors", "PostProcessedFluxRates"]
-
-    data = [r_array,
-            scalar_errors, scalar_rates,
-            flux_errors, flux_rates,
-            scalar_pp_errors, scalar_pp_rates,
-            flux_pp_errors, flux_pp_rates]
+    degrees = [degree] * len(r_array)
+    data = {"Mesh": r_array,
+            "Degree": degrees,
+            "NumCells": num_cells,
+            "ScalarErrors": scalar_errors,
+            "ScalarConvRates": scalar_rates,
+            "PostProcessedScalarErrors": scalar_pp_errors,
+            "PostProcessedScalarRates": scalar_pp_rates,
+            "FluxErrors": flux_errors,
+            "FluxConvRates": flux_rates,
+            "PostProcessedFluxErrors": flux_pp_errors,
+            "PostProcessedFluxRates": flux_pp_rates,
+            "PostProccssedDivFluxErrors": flux_pp_div_errors,
+            "PostProccssedDivFluxRates": flux_pp_rates}
 
     if tau_order == "1/h":
             o = "hneg1"
     else:
         o = tau_order
 
-    csv_file = open("LDG-H-d%d-tau_order-%s.csv" % (degree, o), "w")
-
-    csv_writer = csv.writer(csv_file)
-    csv_writer.writerow(fieldnames)
-    for d in zip(*data):
-
-        csv_writer.writerow([e if i == 0
-                             else float2f(e) if i % 2 == 0
-                             else format_si(e)
-                             for i, e in enumerate(d)])
-    csv_file.close()
-
-
-def format_si(x):
-    if not isinstance(x, string_types):
-        o = '{:.2e}'.format(Decimal(x))
-    else:
-        o = x
-    return o
-
-
-def float2f(x):
-    if not isinstance(x, string_types):
-        o = '{:.2f}'.format(x)
-    else:
-        o = x
-    return o
+    df = pd.DataFrame(data)
+    result = "LDG-H-d%d-tau_order-%s.csv" % (degree, o)
+    df.to_csv(result, index=False, mode="w")
