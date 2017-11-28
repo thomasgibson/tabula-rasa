@@ -235,10 +235,10 @@ def run_single_test(r, degree, method):
           " and mesh parameter h=1/2^%d." %
           (method, degree, r))
 
-    error_dict = run_mixed_hybrid_poisson(r=r,
-                                          degree=degree,
-                                          mixed_method=method,
-                                          write=True)
+    error_dict, _ = run_mixed_hybrid_poisson(r=r,
+                                             degree=degree,
+                                             mixed_method=method,
+                                             write=True)
 
     print("Error in scalar: %0.8f" %
           error_dict["scalar_error"])

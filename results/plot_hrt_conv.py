@@ -39,6 +39,7 @@ fig, (axes,) = plt.subplots(1, 3, figsize=(18, 5),
 (ax1, ax2, ax3) = axes
 ymin = 1.0e-12
 ymax = 1.5
+
 ax1.set_ylabel("$L^2$ error", fontsize=FONTSIZE)
 ax1.set_ylim(ymin, ymax)
 ax1.loglog()
