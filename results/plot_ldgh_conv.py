@@ -76,8 +76,8 @@ ax3.set_ylabel("$L^2$ error", fontsize=FONTSIZE)
 for h_group, hneg1_group in zip(h_groups, hneg1_groups):
     h_degree, h_df = h_group
     hneg1_degree, hneg1_df = hneg1_group
-    h_label = "Degree %d $\\left(\\tau = h\\right)$" % h_degree
-    hneg1_label = "Degree %d $\\left(\\tau = \\frac{1}{h}\\right)$" % hneg1_degree
+    h_label = "Degree %d $\\left(\\tau = \\mathcal{O}(h)\\right)$" % h_degree
+    hneg1_label = "Degree %d $\\left(\\tau = \\mathcal{O}\\left(\\frac{1}{h}\\right)\\right)$" % hneg1_degree
     ax1.plot(h_array, h_df.ScalarErrors,
              label=h_label,
              linewidth=LINEWIDTH,
