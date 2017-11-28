@@ -2,6 +2,7 @@ import os
 import sys
 import pandas as pd
 import seaborn
+import matplotlib
 
 from matplotlib import pyplot as plt
 from mpltools import annotation
@@ -29,15 +30,6 @@ groups = dfs.groupby(["Degree"], as_index=False)
 
 seaborn.set(style="ticks")
 
-fig = plt.figure(figsize=(7, 5), frameon=False)
-ax = fig.add_subplot(111)
-ax.set_xlabel("Mesh size $h=2^{-r}$\n(Number of cells)", fontsize=FONTSIZE)
-ax.set_ylabel("$L^2$ error", fontsize=FONTSIZE)
-ax.set_ylim([dfs.L2Errors.min()/2,
-             dfs.L2Errors.max()*2])
-ax.loglog()
-ax.invert_xaxis()
-
 # Gather all mesh parameters and compute h=1/r^2
 r_values = [r[1] for r in dfs["Mesh"].drop_duplicates().items()]
 h_array = [1.0/2**r for r in r_values]
@@ -48,9 +40,29 @@ num_cells = [n[1] for n in dfs["NumCells"].drop_duplicates().items()]
 colors = seaborn.cubehelix_palette(4, start=.5, rot=-.75, light=.65)
 markers = iter(["o", "s", "^", "D"])
 linestyles = iter(["solid", "dashed", "dashdot", "dotted"])
+seaborn.set(style="ticks")
+
+fig, (axes,) = plt.subplots(1, 1, figsize=(7, 5), squeeze=False)
+ax, = axes
+ax.set_ylabel("$L^2$ error", fontsize=FONTSIZE)
+ax.set_ylim([dfs.L2Errors.min()/2, dfs.L2Errors.max()*2])
+
+ax.spines["left"].set_position(("outward", 10))
+ax.spines["bottom"].set_position(("outward", 10))
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+ax.xaxis.set_ticks_position("bottom")
+ax.yaxis.set_ticks_position("left")
+ax.set_xscale('log')
+ax.set_yscale('log')
+ax.set_xticks(h_array)
+ax.invert_xaxis()
+ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+ax.minorticks_off()
+
 for group in groups:
     degree, df = group
-    # All dfs have the same h array
+
     ax.plot(h_array, df.L2Errors,
             label="Degree %d" % degree,
             linewidth=LINEWIDTH,
@@ -59,27 +71,6 @@ for group in groups:
             marker=next(markers),
             color=colors[degree - 4],
             clip_on=False)
-
-ax.set_xticks(h_array)
-ax.set_xticklabels(["$2^{-%d}$\n(%d)" % (r, n)
-                    for (r, n) in zip(r_values, num_cells)])
-
-for tick in ax.get_xticklabels():
-    tick.set_fontsize(FONTSIZE)
-
-for tick in ax.get_yticklabels():
-    tick.set_fontsize(FONTSIZE)
-
-handles, labels = ax.get_legend_handles_labels()
-legend = fig.legend(handles, labels,
-                    loc=9,
-                    bbox_to_anchor=(0.5, 1.15),
-                    bbox_transform=fig.transFigure,
-                    ncol=4,
-                    handlelength=2,
-                    fontsize=FONTSIZE,
-                    numpoints=1,
-                    frameon=False)
 
 annotation.slope_marker((0.375, 0.5), 5, ax=ax,
                         invert=False,
@@ -93,6 +84,33 @@ annotation.slope_marker((0.13, 1e-7), 8, ax=ax,
                                      'position': (0.2125, 3.25e-7)},
                         invert=True, poly_kwargs={'facecolor': colors[3]})
 
+ax.set_title("3D Helmholtz convergence", fontsize=FONTSIZE)
+
+ax.set_xticklabels(["$2^{-%d}$\n(%d)" % (r, n)
+                    for (r, n) in zip(r_values, num_cells)])
+
+for tick in ax.get_xticklabels():
+    tick.set_fontsize(FONTSIZE)
+
+for tick in ax.get_yticklabels():
+    tick.set_fontsize(FONTSIZE)
+
+xlabel = fig.text(0.5, -0.2,
+                  "Mesh size $h=2^{-r}$\n(Number of cells)",
+                  ha='center',
+                  fontsize=FONTSIZE)
+
+handles, labels = ax.get_legend_handles_labels()
+legend = fig.legend(handles, labels,
+                    loc=9,
+                    bbox_to_anchor=(0.5, 1.15),
+                    bbox_transform=fig.transFigure,
+                    ncol=2,
+                    handlelength=2,
+                    fontsize=FONTSIZE,
+                    numpoints=1,
+                    frameon=False)
+
 seaborn.despine(fig)
 plt.title("3D Helmholtz convergence", fontsize=FONTSIZE)
 fig.savefig("helmholtz-convergence.pdf",
@@ -100,4 +118,4 @@ fig.savefig("helmholtz-convergence.pdf",
             format="pdf",
             transparent=True,
             bbox_inches="tight",
-            bbox_extra_artists=[legend])
+            bbox_extra_artists=[xlabel, legend])

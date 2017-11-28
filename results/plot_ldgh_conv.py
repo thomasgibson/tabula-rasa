@@ -3,6 +3,7 @@ import sys
 import pandas as pd
 import seaborn
 import matplotlib
+
 from matplotlib import pyplot as plt
 from mpltools import annotation
 
@@ -77,7 +78,12 @@ for h_group, hneg1_group in zip(h_groups, hneg1_groups):
     h_degree, h_df = h_group
     hneg1_degree, hneg1_df = hneg1_group
     h_label = "Degree %d $\\left(\\tau = \\mathcal{O}(h)\\right)$" % h_degree
-    hneg1_label = "Degree %d $\\left(\\tau = \\mathcal{O}\\left(\\frac{1}{h}\\right)\\right)$" % hneg1_degree
+    hneg1_label = (
+        "Degree %d $\\left(\\tau = "
+        "\\mathcal{O}\\left(\\frac{1}{h}\\right)\\right)$"
+        % hneg1_degree
+    )
+
     ax1.plot(h_array, h_df.ScalarErrors,
              label=h_label,
              linewidth=LINEWIDTH,
@@ -86,6 +92,7 @@ for h_group, hneg1_group in zip(h_groups, hneg1_groups):
              marker=markers[h_degree - 1],
              color=colors[h_degree - 1],
              clip_on=False)
+
     ax1.plot(h_array, hneg1_df.ScalarErrors,
              label=hneg1_label,
              linewidth=LINEWIDTH,
@@ -94,6 +101,7 @@ for h_group, hneg1_group in zip(h_groups, hneg1_groups):
              marker=markers[hneg1_degree - 1],
              color=colors[hneg1_degree - 1],
              clip_on=False)
+
     ax2.plot(h_array, h_df.PostProcessedScalarErrors,
              label=h_label,
              linewidth=LINEWIDTH,
@@ -102,6 +110,7 @@ for h_group, hneg1_group in zip(h_groups, hneg1_groups):
              marker=markers[h_degree - 1],
              color=colors[h_degree - 1],
              clip_on=False)
+
     ax2.plot(h_array, hneg1_df.PostProcessedScalarErrors,
              label=hneg1_label,
              linewidth=LINEWIDTH,
@@ -110,6 +119,7 @@ for h_group, hneg1_group in zip(h_groups, hneg1_groups):
              marker=markers[hneg1_degree - 1],
              color=colors[hneg1_degree - 1],
              clip_on=False)
+
     ax3.plot(h_array, h_df.FluxErrors,
              label=h_label,
              linewidth=LINEWIDTH,
@@ -118,6 +128,7 @@ for h_group, hneg1_group in zip(h_groups, hneg1_groups):
              marker=markers[h_degree - 1],
              color=colors[h_degree - 1],
              clip_on=False)
+
     ax3.plot(h_array, hneg1_df.FluxErrors,
              label=hneg1_label,
              linewidth=LINEWIDTH,
@@ -126,6 +137,7 @@ for h_group, hneg1_group in zip(h_groups, hneg1_groups):
              marker=markers[hneg1_degree - 1],
              color=colors[hneg1_degree - 1],
              clip_on=False)
+
     ax4.plot(h_array, h_df.PostProcessedFluxErrors,
              label=h_label,
              linewidth=LINEWIDTH,
@@ -134,6 +146,7 @@ for h_group, hneg1_group in zip(h_groups, hneg1_groups):
              marker=markers[h_degree - 1],
              color=colors[h_degree - 1],
              clip_on=False)
+
     ax4.plot(h_array, hneg1_df.PostProcessedFluxErrors,
              label=hneg1_label,
              linewidth=LINEWIDTH,
@@ -262,7 +275,7 @@ xlabel = fig.text(0.5, -0.075,
 handles, labels = ax1.get_legend_handles_labels()
 legend = fig.legend(handles, labels,
                     loc=9,
-                    bbox_to_anchor=(0.5, 1.1),
+                    bbox_to_anchor=(0.5, 1.05),
                     bbox_transform=fig.transFigure,
                     ncol=3,
                     handlelength=2,
