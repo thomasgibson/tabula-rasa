@@ -8,7 +8,7 @@ from mpltools import annotation
 
 
 FONTSIZE = 16
-MARKERSIZE = 12
+MARKERSIZE = 10
 LINEWIDTH = 3
 
 tau_h_data = ["LDG-H/LDG-H-d%d-tau_order-h.csv" % i
@@ -36,9 +36,8 @@ h_array = [1.0/2**r for r in r_values]
 # Gather number of mesh cells (also same for both)
 num_cells = [n[1] for n in h_dfs["NumCells"].drop_duplicates().items()]
 
-colors = seaborn.color_palette("cubehelix", n_colors=6)
-h_markers = [".", "d", "*"]
-hneg1_markers = ["o", "h", "^"]
+colors = seaborn.cubehelix_palette(3, start=.5, rot=-.75, light=.65)
+markers = ["o", "s", "^"]
 
 fig, axes = plt.subplots(2, 2, figsize=(12, 9), squeeze=False)
 axes = axes.flatten()
@@ -69,6 +68,7 @@ for ax in [ax1, ax2, ax3, ax4]:
     ax.set_xticks(h_array)
     ax.invert_xaxis()
     ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+    ax.minorticks_off()
 
 ax1.set_ylabel("$L^2$ error", fontsize=FONTSIZE)
 ax3.set_ylabel("$L^2$ error", fontsize=FONTSIZE)
@@ -76,22 +76,22 @@ ax3.set_ylabel("$L^2$ error", fontsize=FONTSIZE)
 for h_group, hneg1_group in zip(h_groups, hneg1_groups):
     h_degree, h_df = h_group
     hneg1_degree, hneg1_df = hneg1_group
-    h_label = "LDG-H-%d (tau = h)" % h_degree
-    hneg1_label = "LDG-H-%d (tau = 1/h)" % hneg1_degree
+    h_label = "Degree %d $\\left(\\tau = h\\right)$" % h_degree
+    hneg1_label = "Degree %d $\\left(\\tau = \\frac{1}{h}\\right)$" % hneg1_degree
     ax1.plot(h_array, h_df.ScalarErrors,
              label=h_label,
              linewidth=LINEWIDTH,
              linestyle="solid",
              markersize=MARKERSIZE,
-             marker=h_markers[h_degree - 1],
+             marker=markers[h_degree - 1],
              color=colors[h_degree - 1],
              clip_on=False)
     ax1.plot(h_array, hneg1_df.ScalarErrors,
              label=hneg1_label,
              linewidth=LINEWIDTH,
-             linestyle="dashdot",
+             linestyle="dotted",
              markersize=MARKERSIZE,
-             marker=hneg1_markers[hneg1_degree - 1],
+             marker=markers[hneg1_degree - 1],
              color=colors[hneg1_degree - 1],
              clip_on=False)
     ax2.plot(h_array, h_df.PostProcessedScalarErrors,
@@ -99,15 +99,15 @@ for h_group, hneg1_group in zip(h_groups, hneg1_groups):
              linewidth=LINEWIDTH,
              linestyle="solid",
              markersize=MARKERSIZE,
-             marker=h_markers[h_degree - 1],
+             marker=markers[h_degree - 1],
              color=colors[h_degree - 1],
              clip_on=False)
     ax2.plot(h_array, hneg1_df.PostProcessedScalarErrors,
              label=hneg1_label,
              linewidth=LINEWIDTH,
-             linestyle="dashdot",
+             linestyle="dotted",
              markersize=MARKERSIZE,
-             marker=hneg1_markers[hneg1_degree - 1],
+             marker=markers[hneg1_degree - 1],
              color=colors[hneg1_degree - 1],
              clip_on=False)
     ax3.plot(h_array, h_df.FluxErrors,
@@ -115,15 +115,15 @@ for h_group, hneg1_group in zip(h_groups, hneg1_groups):
              linewidth=LINEWIDTH,
              linestyle="solid",
              markersize=MARKERSIZE,
-             marker=h_markers[h_degree - 1],
+             marker=markers[h_degree - 1],
              color=colors[h_degree - 1],
              clip_on=False)
     ax3.plot(h_array, hneg1_df.FluxErrors,
              label=hneg1_label,
              linewidth=LINEWIDTH,
-             linestyle="dashdot",
+             linestyle="dotted",
              markersize=MARKERSIZE,
-             marker=hneg1_markers[hneg1_degree - 1],
+             marker=markers[hneg1_degree - 1],
              color=colors[hneg1_degree - 1],
              clip_on=False)
     ax4.plot(h_array, h_df.PostProcessedFluxErrors,
@@ -131,15 +131,15 @@ for h_group, hneg1_group in zip(h_groups, hneg1_groups):
              linewidth=LINEWIDTH,
              linestyle="solid",
              markersize=MARKERSIZE,
-             marker=h_markers[h_degree - 1],
+             marker=markers[h_degree - 1],
              color=colors[h_degree - 1],
              clip_on=False)
     ax4.plot(h_array, hneg1_df.PostProcessedFluxErrors,
              label=hneg1_label,
              linewidth=LINEWIDTH,
-             linestyle="dashdot",
+             linestyle="dotted",
              markersize=MARKERSIZE,
-             marker=hneg1_markers[hneg1_degree - 1],
+             marker=markers[hneg1_degree - 1],
              color=colors[hneg1_degree - 1],
              clip_on=False)
 
@@ -265,7 +265,7 @@ legend = fig.legend(handles, labels,
                     bbox_to_anchor=(0.5, 1.1),
                     bbox_transform=fig.transFigure,
                     ncol=3,
-                    handlelength=1,
+                    handlelength=2,
                     fontsize=FONTSIZE,
                     numpoints=1,
                     frameon=False)

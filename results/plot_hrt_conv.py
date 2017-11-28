@@ -8,7 +8,7 @@ from mpltools import annotation
 
 
 FONTSIZE = 16
-MARKERSIZE = 12
+MARKERSIZE = 10
 LINEWIDTH = 3
 
 rt_data = ["hybrid-mixed/H-RT-degree-%d.csv" % i for i in range(0, 5)]
@@ -30,7 +30,7 @@ h_array = [1.0/2**r for r in r_values]
 # Gather number of mesh cells
 num_cells = [n[1] for n in dfs["NumCells"].drop_duplicates().items()]
 
-colors = seaborn.color_palette("cubehelix", n_colors=8)
+colors = seaborn.cubehelix_palette(5, start=.5, rot=-.75, light=.65)
 markers = ["o", "s", "^", "D", "v"]
 linestyles = ["solid", "dashed", "dashdot", "dotted", "solid"]
 

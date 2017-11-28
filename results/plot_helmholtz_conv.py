@@ -8,7 +8,7 @@ from mpltools import annotation
 
 
 FONTSIZE = 16
-MARKERSIZE = 12
+MARKERSIZE = 10
 LINEWIDTH = 3
 
 
@@ -45,20 +45,19 @@ h_array = [1.0/2**r for r in r_values]
 # Gather number of mesh cells (directly coincide with mesh parameter
 num_cells = [n[1] for n in dfs["NumCells"].drop_duplicates().items()]
 
-sbncolor = seaborn.color_palette("cubehelix", n_colors=8)
-colors = iter(sbncolor)
+colors = seaborn.cubehelix_palette(4, start=.5, rot=-.75, light=.65)
 markers = iter(["o", "s", "^", "D"])
 linestyles = iter(["solid", "dashed", "dashdot", "dotted"])
 for group in groups:
     degree, df = group
     # All dfs have the same h array
     ax.plot(h_array, df.L2Errors,
-            label="P%d-elements" % degree,
+            label="Degree %d" % degree,
             linewidth=LINEWIDTH,
             linestyle=next(linestyles),
             markersize=MARKERSIZE,
             marker=next(markers),
-            color=next(colors),
+            color=colors[degree - 4],
             clip_on=False)
 
 ax.set_xticks(h_array)
@@ -85,14 +84,14 @@ legend = fig.legend(handles, labels,
 annotation.slope_marker((0.375, 0.5), 5, ax=ax,
                         invert=False,
                         text_kwargs={'fontsize': FONTSIZE,
-                                     'color': sbncolor[0],
+                                     'color': colors[0],
                                      'position': (0.2275, 0.2)},
-                        poly_kwargs={'facecolor': sbncolor[0]})
+                        poly_kwargs={'facecolor': colors[0]})
 annotation.slope_marker((0.13, 1e-7), 8, ax=ax,
                         text_kwargs={'fontsize': FONTSIZE,
-                                     'color': sbncolor[3],
+                                     'color': colors[3],
                                      'position': (0.2125, 3.25e-7)},
-                        invert=True, poly_kwargs={'facecolor': sbncolor[3]})
+                        invert=True, poly_kwargs={'facecolor': colors[3]})
 
 seaborn.despine(fig)
 plt.title("3D Helmholtz convergence", fontsize=FONTSIZE)
