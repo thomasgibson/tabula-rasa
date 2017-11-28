@@ -47,7 +47,7 @@ ax1.invert_xaxis()
 
 for group in groups:
     degree, df = group
-    label = "H-RT%d-DG%d" % (degree, degree)
+    label = "RT order %d" % degree
     ax1.plot(h_array, df.ScalarErrors,
              label=label,
              linewidth=LINEWIDTH,
@@ -95,7 +95,7 @@ ax2.loglog()
 ax2.invert_xaxis()
 for group in groups:
     degree, df = group
-    label = "H-RT%d-DG%d" % (degree, degree)
+    label = "RT order %d" % degree
     ax2.plot(h_array, df.PostProcessedScalarErrors,
              label=label,
              linewidth=LINEWIDTH,
@@ -154,7 +154,7 @@ ax3.loglog()
 ax3.invert_xaxis()
 for group in groups:
     degree, df = group
-    label = "H-RT%d-DG%d" % (degree, degree)
+    label = "RT order %d" % degree
     ax3.plot(h_array, df.FluxErrors,
              label=label,
              linewidth=LINEWIDTH,
