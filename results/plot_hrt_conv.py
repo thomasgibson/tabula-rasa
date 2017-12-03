@@ -37,7 +37,7 @@ linestyles = ["solid", "dashed", "dashdot", "dotted", "solid"]
 
 fig, (axes,) = plt.subplots(1, 3, figsize=(18, 5), squeeze=False)
 (ax1, ax2, ax3) = axes
-ymin = 1.0e-12
+ymin = 1.0e-11
 ymax = 1.5
 ax1.set_ylim(ymin, ymax)
 ax2.set_ylim(ymin, ymax)
