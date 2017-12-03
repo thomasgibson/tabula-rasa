@@ -38,9 +38,9 @@ def run_convergence_test(degree):
               "mat_type": "matfree",
               "ksp_type": "preonly",
               "pc_type": "python",
-              "pc_python_type": "firedrake.CGStaticCondensationPC",
+              "pc_python_type": "scpc.SCCG",
+              # HYPRE on the reduced system
               "static_condensation": {"ksp_type": "cg",
-                                      # Solve as close to machine precision as possible
                                       "ksp_rtol": 1e-16,
                                       "ksp_monitor": True,
                                       "pc_type": "hypre",

@@ -145,7 +145,7 @@ def run_LDG_H_poisson(r, degree, tau_order, write=False):
               'pc_type': 'python',
               # Use the static condensation PC for hybridized problems
               # and use a direct solve on the reduced system for u_hat
-              'pc_python_type': 'firedrake.HybridStaticCondensationPC',
+              'pc_python_type': 'scpc.HybridSCPC',
               'hybrid_sc': {'ksp_type': 'preonly',
                             'pc_type': 'lu',
                             'pc_factor_mat_solver_package': 'mumps'}}
@@ -216,11 +216,11 @@ def run_LDG_H_poisson(r, degree, tau_order, write=False):
     F = Tensor((-inner(q_h, grad(wp)) +
                 inner(u_h, phi))*dx)
 
+    E = K.inv * F
+
     print("Local post-processing of the scalar variable.\n")
-    wpp = Function(Wpp, name="Post-processed scalar")
-    assemble(K.inv * F, tensor=wpp,
-             slac_parameters={"split_vector": 0})
-    u_pp, _ = wpp.split()
+    u_pp = Function(DGk1, name="Post-processed scalar")
+    assemble(E[0], tensor=u_pp)
 
     # Now we compute the error in the post-processed solution
     # and update our error dictionary
