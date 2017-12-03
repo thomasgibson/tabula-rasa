@@ -1,5 +1,8 @@
 from firedrake import *
-import numpy as np
+from firedrake.petsc import PETSc
+from pyop2.profiling import timed_stage
+from argparse import ArgumentParser
+from mpi4py import MPI
 import pandas as pd
 
 
@@ -10,9 +13,64 @@ ref_to_dt = {3: 900.0,
              7: 56.25}
 
 
-def run_williamson5(refinement_level=3, dumpfreq=100,
-                    tmax=None, verbose=True, model_degree=2,
-                    hybridization=True):
+PETSc.Log.begin()
+parser = ArgumentParser(description="""Run Williamson test case 5""",
+                        add_help=False)
+
+parser.add_argument("--hybridization",
+                    action="store_true",
+                    help="Turn hybridization on.")
+
+parser.add_argument("--verbose",
+                    action="store_true",
+                    help="Turn on energy and output print statements.")
+
+parser.add_argument("--verification",
+                    action="store_true",
+                    help=("Turn verification mode on? "
+                          "This enables GMRES residual monitors"))
+
+parser.add_argument("--test",
+                    action="store_true",
+                    help=("Select 'True' or 'False' to enable a test run. "
+                          "Default is False."))
+
+parser.add_argument("--dumpfreq",
+                    default=100,
+                    type=int,
+                    action="store",
+                    help="Dump frequency of output.")
+
+parser.add_argument("--refinements",
+                    action="store",
+                    default=3,
+                    type=int,
+                    choices=[3, 4, 5, 6, 7],
+                    help="How many refinements to make to the sphere mesh.")
+
+parser.add_argument("--profile",
+                    action="store_true",
+                    help="Turn profiling on for 20 timesteps.")
+
+parser.add_argument("--help",
+                    action="store_true",
+                    help="Show help")
+
+args, _ = parser.parse_known_args()
+
+if args.profile:
+    # Ensures accurate timing of parallel loops
+    parameters["pyop2_options"]["lazy_evaluation"] = False
+
+if args.help:
+    help = parser.format_help()
+    PETSc.Sys.Print("%s\n" % help)
+    sys.exit(1)
+
+
+def run_williamson5(refinement_level=3, dumpfreq=100, test=False,
+                    profile=False, verbose=True,
+                    model_degree=2, hybridization=False, verification=False):
 
     if refinement_level not in ref_to_dt:
         raise ValueError("Refinement level must be one of "
@@ -20,13 +78,14 @@ def run_williamson5(refinement_level=3, dumpfreq=100,
 
     Dt = ref_to_dt[refinement_level]
     R = 6371220.
-    H = 5960.
+    H = Constant(5960.)
     day = 24.*60.*60.
 
     # Earth-sized mesh
-    mesh = IcosahedralSphereMesh(radius=R,
-                                 refinement_level=refinement_level,
-                                 degree=3)
+    mesh_degree = 2
+    mesh = OctahedralSphereMesh(R, refinement_level,
+                                degree=mesh_degree,
+                                hemisphere="both")
 
     global_normal = Expression(("x[0]", "x[1]", "x[2]"))
     mesh.init_cell_orientations(global_normal)
@@ -38,9 +97,15 @@ def run_williamson5(refinement_level=3, dumpfreq=100,
     # Topography
     bexpr = Expression("2000*(1 - sqrt(fmin(pow(pi/9.0,2), pow(atan2(x[1]/R0,x[0]/R0)+1.0*pi/2.0,2) + pow(asin(x[2]/R0)-pi/6.0,2)))/(pi/9.0))", R0=R)
 
-    # If none, run 15 simulation
-    if tmax is None:
+    if test:
+        tmax = 5*Dt
+        PETSc.Sys.Print("Taking 5 time-steps\n")
+    elif profile:
+        tmax = 20*Dt
+        PETSc.Sys.Print("Taking 20 time-steps\n")
+    else:
         tmax = 15*day
+        PETSc.Sys.Print("Running 15 day simulation\n")
 
     # Compatible FE spaces for velocity and depth
     Vu = FunctionSpace(mesh, "BDM", model_degree)
@@ -65,14 +130,13 @@ def run_williamson5(refinement_level=3, dumpfreq=100,
     Dexpr = h0 - ((R0 * Omega * u_max + u_max*u_max/2.0)*(x[2]*x[2]/(R0*R0)))/g
     Dn.interpolate(Dexpr)
     un.project(uexpr)
+    b = Function(VD, name="Topography").interpolate(bexpr)
+    Dn -= b
 
     # Coriolis expression (1/s)
     fexpr = 2*Omega*x[2]/R0
-    Vm = FunctionSpace(mesh, "CG", 3)
+    Vm = FunctionSpace(mesh, "CG", mesh_degree)
     f = Function(Vm).interpolate(fexpr)
-    f = Constant(0.0)
-    b = Function(VD).interpolate(bexpr)
-    Dn -= b
 
     # Build timestepping solver
     up = Function(Vu)
@@ -98,9 +162,7 @@ def run_williamson5(refinement_level=3, dumpfreq=100,
     Dsolver = LinearVariationalSolver(Dproblem,
                                       solver_parameters={'ksp_type': 'cg',
                                                          'pc_type': 'bjacobi',
-                                                         'sub_pc_type': 'ilu',
-                                                         'ksp_monitor': True,
-                                                         'ksp_rtol': 1e-8},
+                                                         'sub_pc_type': 'ilu'},
                                       options_prefix="D-advection")
 
     # Stage 2: U update
@@ -112,9 +174,10 @@ def run_williamson5(refinement_level=3, dumpfreq=100,
     uup = 0.5*(dot(ubar, n) + abs(dot(ubar, n)))
     uh = 0.5*(un+u)
     Upwind = 0.5*(sign(dot(ubar, n)) + 1)
+
     # Kinetic energy term (implicit midpoint)
-    # K = 0.5*(inner(0.5*(un+up), 0.5*(un+up)))
-    K = 0.5*(inner(un, un)/3 + inner(un, up)/3 + inner(up, up)/3)
+    K = 0.5*(inner(0.5*(un+up), 0.5*(un+up)))
+    # K = 0.5*(inner(un, un)/3 + inner(un, up)/3 + inner(up, up)/3)
     both = lambda u: 2*avg(u)
     # u_t + gradperp.u + f)*perp(ubar) + grad(g*D + K)
     # <w, gradperp.u * perp(ubar)> = <perp(ubar).w, gradperp(u)>
@@ -131,9 +194,7 @@ def run_williamson5(refinement_level=3, dumpfreq=100,
     Usolver = LinearVariationalSolver(Uproblem,
                                       solver_parameters={'ksp_type': 'gmres',
                                                          'pc_type': 'bjacobi',
-                                                         'sub_pc_type': 'ilu',
-                                                         'ksp_monitor': True,
-                                                         'ksp_rtol': 1e-8},
+                                                         'sub_pc_type': 'ilu'},
                                       options_prefix="U-advection")
 
     # Stage 3: Implicit linear solve for u, D increments
@@ -157,31 +218,22 @@ def run_williamson5(refinement_level=3, dumpfreq=100,
     DUproblem = LinearVariationalProblem(uDlhs, uDrhs, DU)
 
     if hybridization:
-        parameters = {'ksp_type': 'gmres',
-                      'ksp_monitor': True,
+        parameters = {'ksp_type': 'preonly',
                       'mat_type': 'matfree',
                       'pc_type': 'python',
-                      'pc_python_type': 'firedrake.HybridizationPC',
+                      'pc_python_type': 'scpc.HybridizationPC',
                       'hybridization': {'ksp_type': 'cg',
                                         'pc_type': 'gamg',
-                                        'ksp_monitor': True,
-                                        'mg_levels_ksp_type': 'chebyshev',
-                                        'mg_levels_ksp_max_it': 2,
-                                        'mg_levels_pc_type': 'bjacobi',
-                                        'mg_levels_sub_pc_type': 'ilu',
-                                        'ksp_converged_reason': True,
-                                        'hdiv_residual': {'ksp_type': 'cg',
-                                                          'pc_type': 'bjacobi',
-                                                          'sub_pc_type': 'ilu',
-                                                          'ksp_rtol': 1e-16,
-                                                          'ksp_monitor': True},
-                                        'hdiv_projection': {'method': 'average'}}}
+                                        'mg_levels': {'ksp_type': 'chebyshev',
+                                                      'ksp_max_it': 2,
+                                                      'pc_type': 'bjacobi',
+                                                      'sub_pc_type': 'ilu'}}}
 
     else:
-        parameters = {'pc_type': 'fieldsplit',
+        parameters = {'ksp_type': 'gmres',
+                      'pc_type': 'fieldsplit',
                       'pc_fieldsplit_type': 'schur',
                       'ksp_type': 'gmres',
-                      'ksp_monitor': True,
                       'ksp_max_it': 100,
                       'ksp_gmres_restart': 50,
                       'pc_fieldsplit_schur_fact_type': 'FULL',
@@ -191,11 +243,16 @@ def run_williamson5(refinement_level=3, dumpfreq=100,
                                        'sub_pc_type': 'ilu'},
                       'fieldsplit_1': {'ksp_type': 'cg',
                                        'pc_type': 'gamg',
-                                       'ksp_monitor': True,
                                        'mg_levels': {'ksp_type': 'chebyshev',
                                                      'ksp_max_it': 2,
                                                      'pc_type': 'bjacobi',
                                                      'sub_pc_type': 'ilu'}}}
+
+    if verification:
+        parameters['ksp_type'] = 'gmres'
+        parameters['ksp_converged_reason'] = True
+        parameters['ksp_monitor'] = True
+        parameters['ksp_monitor_true_residual'] = True
 
     DUsolver = LinearVariationalSolver(DUproblem,
                                        solver_parameters=parameters,
@@ -203,19 +260,26 @@ def run_williamson5(refinement_level=3, dumpfreq=100,
     deltau, deltaD = DU.split()
 
     dumpcount = dumpfreq
-    Dfile = File("results/w5_"+str(refinement_level)+".pvd")
+    count = 0
+    dirname = "results/"
+    if hybridization:
+        dirname += "hybrid/"
+    Dfile = File(dirname + "w5_" + str(refinement_level) + ".pvd")
     eta = Function(VD, name="Surface Height")
 
-    def dump(dumpcount, dumpfreq):
+    def dump(dumpcount, dumpfreq, count):
         dumpcount += 1
-        print(dumpcount)
         if(dumpcount > dumpfreq):
+            if verbose:
+                PETSc.Sys.Print("Output: %s" % count)
             eta.assign(Dn+b)
-            Dfile.write(un, Dn, eta)
+            Dfile.write(un, Dn, eta, b)
             dumpcount -= dumpfreq
+            count += 1
         return dumpcount
 
-    dumpcount = dump(dumpcount, dumpfreq)
+    # Initial output dump
+    dumpcount = dump(dumpcount, dumpfreq, count)
 
     # Some diagnostics
     energy = []
@@ -223,9 +287,15 @@ def run_williamson5(refinement_level=3, dumpfreq=100,
                         0.5*g*(Dn+b)*(Dn+b)*dx)
     energy.append(energy_t)
     if verbose:
-        print(energy_t, 'Energy')
+        PETSc.Sys.Print("Energy: %s" % energy_t)
 
     t = 0.0
+    ksp_outer_its = []
+    ksp_inner_its = []
+    sim_time = [0.0]
+    setup_times = []
+    apply_times = []
+    solve_times = []
     while t < tmax - Dt/2:
         t += Dt
 
@@ -235,26 +305,97 @@ def run_williamson5(refinement_level=3, dumpfreq=100,
 
         # Picard iteration
         for i in range(4):
-            # Update layer depth
-            Dsolver.solve()
-            # Update velocity
-            Usolver.solve()
-            # Calculate increments for up, Dp
-            DUsolver.solve()
+            with timed_stage("Advection"):
+                # Update layer depth
+                Dsolver.solve()
+                # Update velocity
+                Usolver.solve()
+
+            with timed_stage("Linear solve"):
+                # Calculate increments for up, Dp
+                DUsolver.solve()
+                PETSc.Sys.Print(
+                    "Implicit solve finished for Picard iteration %s "
+                    "at t=%s.\n" % (i + 1, t)
+                )
+
             up += deltau
             Dp += deltaD
 
-            un.assign(up)
-            Dn.assign(Dp)
+            outer_ksp = DUsolver.snes.ksp
+            if hybridization:
+                ctx = outer_ksp.getPC().getPythonContext()
+                inner_ksp = ctx.trace_ksp
+            else:
+                ksps = outer_ksp.getPC().getFieldSplitSubKSP()
+                _, inner_ksp = ksps
 
-            dumpcount = dump(dumpcount, dumpfreq)
+            # Collect ksp iterations
+            ksp_outer_its.append(outer_ksp.getIterationNumber())
+            ksp_inner_its.append(inner_ksp.getIterationNumber())
+
+            # Collect times
+            ksp_solve = PETSc.Log.Event("KSPSolve").getPerfInfo()
+            pc_setup = PETSc.Log.Event("PCSetUp").getPerfInfo()
+            pc_apply = PETSc.Log.Event("PCApply").getPerfInfo()
+
+            setup_time = mesh.comm.allreduce(pc_setup["time"], op=MPI.SUM)
+            apply_time = mesh.comm.allreduce(pc_apply["time"], op=MPI.SUM)
+            ksp_time = mesh.comm.allreduce(ksp_solve["time"], op=MPI.SUM)
+            setup_times.append(setup_time)
+            apply_times.append(apply_time)
+            solve_times.append(ksp_time)
+
+        un.assign(up)
+        Dn.assign(Dp)
+
+        with timed_stage("Dump output"):
+            dumpcount = dump(dumpcount, dumpfreq, count)
+
+        with timed_stage("Energy output"):
             energy_t = assemble(0.5*inner(un, un)*Dn*dx +
                                 0.5*g*(Dn+b)*(Dn+b)*dx)
             energy.append(energy_t)
             if verbose:
-                print(energy_t, 'Energy')
+                PETSc.Sys.Print("Energy: %s" % energy_t)
+
+        # Simulation time (in days)
+        sim_time.append(t/day)
+
+    avg_outer_its = int(sum(ksp_outer_its)/len(ksp_outer_its))
+    avg_inner_its = int(sum(ksp_inner_its)/len(ksp_inner_its))
+    csolve_time = sum(solve_times)
+    capply_time = sum(apply_times)
+    csetup_time = sum(setup_times)
+
+    if COMM_WORLD.rank == 0:
+        if hybridization:
+            results_profile = "hybrid_profile_W5_ref%s.csv" % refinement_level
+            results_energy = "hybrid_energy_W5_ref%s.csv" % refinement_level
+        else:
+            results_profile = "profile_W5_ref%s.csv" % refinement_level
+            results_energy = "energy_W5_ref%s.csv" % refinement_level
+
+        data_profile = {"SolveTime": csolve_time,
+                        "SetUpTime": csetup_time,
+                        "ApplyTime": capply_time,
+                        "AvgOuterIters": avg_outer_its,
+                        "AvgInnerIters": avg_inner_its}
+
+        data_energy = {"SimTime": sim_time,
+                       "Energy": energy}
+
+        df_profile = pd.DataFrame(data_profile, index=[0])
+        df_profile.to_csv(results_profile, index=False, mode="w", header=True)
+        df_energy = pd.DataFrame(data_energy)
+        df_energy.to_csv(results_energy, index=False, mode="w", header=True)
 
 
-run_williamson5(refinement_level=3, dumpfreq=100,
-                tmax=None, verbose=True, model_degree=2,
-                hybridization=True)
+run_williamson5(refinement_level=args.refinements,
+                dumpfreq=args.dumpfreq,
+                test=args.test,
+                profile=args.profile,
+                verbose=args.verbose,
+                model_degree=2,
+                hybridization=args.hybridization,
+                verification=args.verification)
