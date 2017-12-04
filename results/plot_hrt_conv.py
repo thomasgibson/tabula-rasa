@@ -8,9 +8,9 @@ from matplotlib import pyplot as plt
 from mpltools import annotation
 
 
-FONTSIZE = 16
-MARKERSIZE = 10
-LINEWIDTH = 3
+FONTSIZE = 12
+# MARKERSIZE = 10
+# LINEWIDTH = 3
 
 rt_data = ["hybrid-mixed/H-RT-degree-%d.csv" % i for i in range(0, 5)]
 
@@ -31,11 +31,12 @@ h_array = [1.0/2**r for r in r_values]
 # Gather number of mesh cells
 num_cells = [n[1] for n in dfs["NumCells"].drop_duplicates().items()]
 
-colors = seaborn.cubehelix_palette(5, start=.5, rot=-.75, light=.65)
+# FiveThirtyEight color scheme
+colors = ['#30a2da', '#fc4f30', '#e5ae38', '#6d904f', '#8b8b8b']
 markers = ["o", "s", "^", "D", "v"]
 linestyles = ["solid", "dashed", "dashdot", "dotted", "solid"]
 
-fig, (axes,) = plt.subplots(1, 3, figsize=(18, 5), squeeze=False)
+fig, (axes,) = plt.subplots(1, 3, figsize=(9.5, 3), squeeze=False)
 (ax1, ax2, ax3) = axes
 ymin = 1.0e-11
 ymax = 1.5
@@ -62,7 +63,7 @@ for ax in [ax1, ax2, ax3]:
     ax.minorticks_off()
 
 
-ax1.set_ylabel("$L^2$ error", fontsize=FONTSIZE)
+ax1.set_ylabel("$L^2$ error", fontsize=FONTSIZE+2)
 
 for group in groups:
     degree, df = group
@@ -70,27 +71,27 @@ for group in groups:
 
     ax1.plot(h_array, df.ScalarErrors,
              label=label,
-             linewidth=LINEWIDTH,
+             # linewidth=LINEWIDTH,
              linestyle=linestyles[degree],
-             markersize=MARKERSIZE,
+             # markersize=MARKERSIZE,
              marker=markers[degree],
              color=colors[degree],
              clip_on=False)
 
     ax2.plot(h_array, df.PostProcessedScalarErrors,
              label=label,
-             linewidth=LINEWIDTH,
+             # linewidth=LINEWIDTH,
              linestyle=linestyles[degree],
-             markersize=MARKERSIZE,
+             # markersize=MARKERSIZE,
              marker=markers[degree],
              color=colors[degree],
              clip_on=False)
 
     ax3.plot(h_array, df.FluxErrors,
              label=label,
-             linewidth=LINEWIDTH,
+             # linewidth=LINEWIDTH,
              linestyle=linestyles[degree],
-             markersize=MARKERSIZE,
+             # markersize=MARKERSIZE,
              marker=markers[degree],
              color=colors[degree],
              clip_on=False)
@@ -98,18 +99,18 @@ for group in groups:
 # Slope markers for scalar
 annotation.slope_marker((0.1, 0.15), 1, ax=ax1,
                         invert=False,
-                        text_kwargs={'fontsize': FONTSIZE,
+                        text_kwargs={'fontsize': FONTSIZE-2,
                                      'color': colors[0],
                                      'position': (0.062, 0.125)},
                         poly_kwargs={'facecolor': colors[0]})
 annotation.slope_marker((0.0625, 0.0001), 3, ax=ax1,
                         invert=False,
-                        text_kwargs={'fontsize': FONTSIZE,
+                        text_kwargs={'fontsize': FONTSIZE-2,
                                      'color': colors[2],
                                      'position': (0.04, 0.000065)},
                         poly_kwargs={'facecolor': colors[2]})
 annotation.slope_marker((0.13, 1e-7), 5, ax=ax1,
-                        text_kwargs={'fontsize': FONTSIZE,
+                        text_kwargs={'fontsize': FONTSIZE-2,
                                      'color': colors[4],
                                      'position': (0.2000, 2.25e-7)},
                         invert=True, poly_kwargs={'facecolor': colors[4]})
@@ -117,19 +118,19 @@ annotation.slope_marker((0.13, 1e-7), 5, ax=ax1,
 # Slope markers for post-processed scalar
 annotation.slope_marker((0.1, 0.015), 2, ax=ax2,
                         invert=False,
-                        text_kwargs={'fontsize': FONTSIZE,
+                        text_kwargs={'fontsize': FONTSIZE-2,
                                      'color': colors[0],
                                      'position': (0.062, 0.01)},
                         poly_kwargs={'facecolor': colors[0]})
 
 annotation.slope_marker((0.05, 0.000001), 4, ax=ax2,
                         invert=False,
-                        text_kwargs={'fontsize': FONTSIZE,
+                        text_kwargs={'fontsize': FONTSIZE-2,
                                      'color': colors[2],
                                      'position': (0.0325, 0.00000065)},
                         poly_kwargs={'facecolor': colors[2]})
 annotation.slope_marker((0.13, 1e-8), 6, ax=ax2,
-                        text_kwargs={'fontsize': FONTSIZE,
+                        text_kwargs={'fontsize': FONTSIZE-2,
                                      'color': colors[4],
                                      'position': (0.2000, 2.25e-8)},
                         invert=True, poly_kwargs={'facecolor': colors[4]})
@@ -137,18 +138,18 @@ annotation.slope_marker((0.13, 1e-8), 6, ax=ax2,
 # Slope markers for flux
 annotation.slope_marker((0.1, 0.50), 1, ax=ax3,
                         invert=False,
-                        text_kwargs={'fontsize': FONTSIZE,
+                        text_kwargs={'fontsize': FONTSIZE-2,
                                      'color': colors[0],
                                      'position': (0.062, 0.475)},
                         poly_kwargs={'facecolor': colors[0]})
 annotation.slope_marker((0.05, 0.0001), 3, ax=ax3,
                         invert=False,
-                        text_kwargs={'fontsize': FONTSIZE,
+                        text_kwargs={'fontsize': FONTSIZE-2,
                                      'color': colors[2],
                                      'position': (0.0325, 0.000065)},
                         poly_kwargs={'facecolor': colors[2]})
 annotation.slope_marker((0.13, 1e-7), 5, ax=ax3,
-                        text_kwargs={'fontsize': FONTSIZE,
+                        text_kwargs={'fontsize': FONTSIZE-2,
                                      'color': colors[4],
                                      'position': (0.2000, 2.25e-7)},
                         invert=True, poly_kwargs={'facecolor': colors[4]})
@@ -170,20 +171,20 @@ for ax in [ax2, ax3]:
 for tick in ax1.get_yticklabels():
     tick.set_fontsize(FONTSIZE)
 
-fig.subplots_adjust(wspace=0.075)
-xlabel = fig.text(0.5, -0.2,
+fig.subplots_adjust(wspace=0.15)
+xlabel = fig.text(0.5, -0.3,
                   "Mesh size $h=2^{-r}$\n(Number of cells)",
                   ha='center',
-                  fontsize=FONTSIZE)
+                  fontsize=FONTSIZE+2)
 
 handles, labels = ax1.get_legend_handles_labels()
 legend = fig.legend(handles, labels,
                     loc=9,
-                    bbox_to_anchor=(0.5, 1.1),
+                    bbox_to_anchor=(0.5, 1.125),
                     bbox_transform=fig.transFigure,
                     ncol=5,
-                    handlelength=2,
-                    fontsize=FONTSIZE,
+                    handlelength=1.5,
+                    fontsize=FONTSIZE+2,
                     numpoints=1,
                     frameon=False)
 

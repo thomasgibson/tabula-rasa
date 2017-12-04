@@ -8,9 +8,9 @@ from matplotlib import pyplot as plt
 from mpltools import annotation
 
 
-FONTSIZE = 16
-MARKERSIZE = 10
-LINEWIDTH = 3
+FONTSIZE = 9
+# MARKERSIZE = 10
+# LINEWIDTH = 3
 
 
 p4_data = "helmholtz-results/helmholtz_conv-d-4.csv"
@@ -37,12 +37,14 @@ h_array = [1.0/2**r for r in r_values]
 # Gather number of mesh cells (directly coincide with mesh parameter
 num_cells = [n[1] for n in dfs["NumCells"].drop_duplicates().items()]
 
-colors = seaborn.cubehelix_palette(4, start=.5, rot=-.75, light=.65)
+# FiveThirtyEight color scheme
+colors = ['#30a2da', '#fc4f30', '#e5ae38', '#6d904f', '#8b8b8b']
+# colors = seaborn.cubehelix_palette(4, start=.5, rot=-.75, light=.65)
 markers = iter(["o", "s", "^", "D"])
 linestyles = iter(["solid", "dashed", "dashdot", "dotted"])
 seaborn.set(style="ticks")
 
-fig, (axes,) = plt.subplots(1, 1, figsize=(7, 5), squeeze=False)
+fig, (axes,) = plt.subplots(1, 1, figsize=(4, 2.5), squeeze=False)
 ax, = axes
 ax.set_ylabel("$L^2$ error", fontsize=FONTSIZE)
 ax.set_ylim([dfs.L2Errors.min()/2, dfs.L2Errors.max()*2])
@@ -65,9 +67,9 @@ for group in groups:
 
     ax.plot(h_array, df.L2Errors,
             label="Degree %d" % degree,
-            linewidth=LINEWIDTH,
+            # linewidth=LINEWIDTH,
             linestyle=next(linestyles),
-            markersize=MARKERSIZE,
+            # markersize=MARKERSIZE,
             marker=next(markers),
             color=colors[degree - 4],
             clip_on=False)
@@ -95,7 +97,7 @@ for tick in ax.get_xticklabels():
 for tick in ax.get_yticklabels():
     tick.set_fontsize(FONTSIZE)
 
-xlabel = fig.text(0.5, -0.2,
+xlabel = fig.text(0.5, -0.275,
                   "Mesh size $h=2^{-r}$\n(Number of cells)",
                   ha='center',
                   fontsize=FONTSIZE)
