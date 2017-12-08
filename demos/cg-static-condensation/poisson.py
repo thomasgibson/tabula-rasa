@@ -31,8 +31,15 @@ bcs = [DirichletBC(Vf, 0, 3),
 A = Tensor(a)
 b = Tensor(L)
 
-S = A[1, 1] - A[1, 0] * A[0, 0].inv * A[0, 1]
-E = b[1] - A[1, 0] * A[0, 0].inv * b[0]
+A00 = A.block(0, 0)    # Extract particular blocks
+A01 = A.block(0, 1)    # of the local tensor
+A10 = A.block(1, 0)
+A11 = A.block(1, 1)
+S = A11 - A10 * A00.inv * A01
+
+b0 = b.block(0)
+b1 = b.block(1)
+E = b1 - A10 * A00.inv * b0
 
 Smat = assemble(S, bcs=bcs)
 E = assemble(E)
@@ -42,7 +49,7 @@ solve(Smat, xf, E, solver_parameters={"ksp_type": "preonly",
                                       "pc_type": "lu"})
 
 Xf = AssembledVector(xf)
-xo = assemble(A[0, 0].inv * (b[0] - A[0, 1] * Xf))
+xo = assemble(A00.inv * (b0 - A01 * Xf))
 
 V = FunctionSpace(mesh, "CG", degree)
 u_h = Function(V, name="Computed solution")
