@@ -1,7 +1,8 @@
 """A simple demonstration showing the use of Slate for performing static
-condensation on a Poisson problem with strong conditions on the x=0, x=1
-sides of a unit square.
+condensation on a very simple Helmholtz problem with strong conditions
+on the x=0, x=1 sides of a unit square.
 
+This script is only for generating Slate kernels as examples.
 Sections of the generated code from this example is displayed in the
 main manuscript.
 """
@@ -11,19 +12,23 @@ import numpy as np
 mesh = UnitSquareMesh(8, 8, quadrilateral=False)
 degree = 8
 element = FiniteElement("Lagrange", triangle, degree)
-V = FunctionSpace(mesh, element)
+Vh = FunctionSpace(mesh, element)
 Vo = FunctionSpace(mesh, element["interior"])
 Vf = FunctionSpace(mesh, element["facet"])
 V = Vo * Vf
 
 vo, vf = TestFunctions(V)
 uo, uf = TrialFunctions(V)
+kappa = Function(Vh).assign(1.0)
+c = Function(Vh).assign(1.0)
+g = Function(Vh)
+f = Function(Vh).interpolate(Expression("42*x[1]"))
 
 v = vo + vf
 u = uo + uf
 
-a = dot(grad(u), grad(v))*dx
-L = Constant(0.0)*v*dx
+a = dot(kappa*grad(u), grad(v))*dx + c*u*v*dx
+L = f*v*dx - g*v*ds
 
 bcs = [DirichletBC(Vf, 0, 3),
        DirichletBC(Vf, 42, 4)]
@@ -51,14 +56,13 @@ solve(Smat, xf, E, solver_parameters={"ksp_type": "preonly",
 Xf = AssembledVector(xf)
 xo = assemble(A00.inv * (b0 - A01 * Xf))
 
-V = FunctionSpace(mesh, "CG", degree)
-u_h = Function(V, name="Computed solution")
-sol = Function(V, name="Analytic").interpolate(Expression("42*x[1]"))
+u_h = Function(Vh, name="Computed solution")
+sol = Function(Vh, name="Analytic").interpolate(Expression("42*x[1]"))
 
 # Custom kernel to join the two data sets together.
 # NOTE: This is done automatically in the PC version of this method.
-dim = V.finat_element._element.ref_el.get_dimension()
-offset = V.finat_element.entity_dofs()[dim][0][0]
+dim = Vh.finat_element._element.ref_el.get_dimension()
+offset = Vh.finat_element.entity_dofs()[dim][0][0]
 args = (Vo.finat_element.space_dimension(), np.prod(Vo.shape),
         offset,
         Vf.finat_element.space_dimension(), np.prod(Vf.shape))
@@ -79,4 +83,4 @@ x[i][j] = x_facet[i][j];
 par_loop(join, dx, {"x_int": (xo, READ),
                     "x_facet": (xf, READ),
                     "x": (u_h, WRITE)})
-File("ex-poisson.pvd").write(u_h, sol)
+File("helmholtz-ex.pvd").write(u_h, sol)
