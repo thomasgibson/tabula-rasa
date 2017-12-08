@@ -30,6 +30,12 @@ parser.add_argument("--verification",
                     help=("Turn verification mode on? "
                           "This enables GMRES residual monitors"))
 
+parser.add_argument("--model_degree",
+                    action="store",
+                    type=int,
+                    default=2,
+                    help="Degree of the finite element model.")
+
 parser.add_argument("--test",
                     action="store_true",
                     help=("Select 'True' or 'False' to enable a test run. "
@@ -148,8 +154,8 @@ def run_williamson5(refinement_level=3, dumpfreq=100, test=False,
     Dps = Function(VD)
     D = TrialFunction(VD)
     phi = TestFunction(VD)
-    Dh = 0.5*(Dn+D)
-    uh = 0.5*(un+up)
+    Dh = 0.5*(Dn + D)
+    uh = 0.5*(un + up)
     n = FacetNormal(mesh)
     uup = 0.5*(dot(uh, n) + abs(dot(uh, n)))
 
@@ -169,14 +175,14 @@ def run_williamson5(refinement_level=3, dumpfreq=100, test=False,
     Ups = Function(Vu)
     u = TrialFunction(Vu)
     v = TestFunction(Vu)
-    Dh = 0.5*(Dn+Dp)
-    ubar = 0.5*(un+up)
+    Dh = 0.5*(Dn + Dp)
+    ubar = 0.5*(un + up)
     uup = 0.5*(dot(ubar, n) + abs(dot(ubar, n)))
-    uh = 0.5*(un+u)
+    uh = 0.5*(un + u)
     Upwind = 0.5*(sign(dot(ubar, n)) + 1)
 
     # Kinetic energy term (implicit midpoint)
-    K = 0.5*(inner(0.5*(un+up), 0.5*(un+up)))
+    K = 0.5*(inner(0.5*(un + up), 0.5*(un + up)))
     # K = 0.5*(inner(un, un)/3 + inner(un, up)/3 + inner(up, up)/3)
     both = lambda u: 2*avg(u)
     # u_t + gradperp.u + f)*perp(ubar) + grad(g*D + K)
@@ -184,10 +190,10 @@ def run_williamson5(refinement_level=3, dumpfreq=100, test=False,
     #                                = <-gradperp(w.perp(ubar))), u>
     #                                  +<< [[perp(n)(w.perp(ubar))]], u>>
     ueqn = (
-        inner(u-un, v)*dx + dt*inner(perp(uh)*f, v)*dx
+        inner(u - un, v)*dx + dt*inner(perp(uh)*f, v)*dx
         - dt*inner(perp(grad(inner(v, perp(ubar)))), uh)*dx
         + dt*inner(both(perp(n)*inner(v, perp(ubar))), both(Upwind*uh))*dS
-        - dt*div(v)*(g*(Dh+b) + K)*dx
+        - dt*div(v)*(g*(Dh + b) + K)*dx
     )
 
     Uproblem = LinearVariationalProblem(lhs(ueqn), rhs(ueqn), Ups)
@@ -210,7 +216,7 @@ def run_williamson5(refinement_level=3, dumpfreq=100, test=False,
     uh = 0.5*(un + up)
 
     uDrhs = -(
-        inner(w, up-Ups)*dx
+        inner(w, up - Ups)*dx
         + phi*(Dp - Dps)*dx
     )
 
@@ -249,10 +255,18 @@ def run_williamson5(refinement_level=3, dumpfreq=100, test=False,
                                                      'sub_pc_type': 'ilu'}}}
 
     if verification:
-        parameters['ksp_type'] = 'gmres'
         parameters['ksp_converged_reason'] = True
         parameters['ksp_monitor'] = True
         parameters['ksp_monitor_true_residual'] = True
+
+        # Ensure the residual is computed accurately in fGMRES
+        # to verify convergence. Should take on average 1 iteration.
+        # NOTE: Scale of the problem heavily influnces the update
+        # in fGMRES
+        if hybridization:
+            parameters['ksp_type'] = 'fgmres'
+            parameters['mat_type'] = 'aij'
+            parameters['pmat_type'] = 'matfree'
 
     DUsolver = LinearVariationalSolver(DUproblem,
                                        solver_parameters=parameters,
@@ -284,7 +298,7 @@ def run_williamson5(refinement_level=3, dumpfreq=100, test=False,
     # Some diagnostics
     energy = []
     energy_t = assemble(0.5*inner(un, un)*Dn*dx +
-                        0.5*g*(Dn+b)*(Dn+b)*dx)
+                        0.5*g*(Dn + b)*(Dn + b)*dx)
     energy.append(energy_t)
     if verbose:
         PETSc.Sys.Print("Energy: %s" % energy_t)
@@ -354,7 +368,7 @@ def run_williamson5(refinement_level=3, dumpfreq=100, test=False,
 
         with timed_stage("Energy output"):
             energy_t = assemble(0.5*inner(un, un)*Dn*dx +
-                                0.5*g*(Dn+b)*(Dn+b)*dx)
+                                0.5*g*(Dn + b)*(Dn + b)*dx)
             energy.append(energy_t)
             if verbose:
                 PETSc.Sys.Print("Energy: %s" % energy_t)
@@ -396,6 +410,6 @@ run_williamson5(refinement_level=args.refinements,
                 test=args.test,
                 profile=args.profile,
                 verbose=args.verbose,
-                model_degree=2,
+                model_degree=args.model_degree,
                 hybridization=args.hybridization,
                 verification=args.verification)
