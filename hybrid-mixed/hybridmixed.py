@@ -185,7 +185,7 @@ def run_mixed_hybrid_poisson(r, degree, mixed_method, write=False):
 
     print("Local post-processing of the scalar variable.\n")
     u_pp = Function(DGk1, name="Post-processed scalar")
-    assemble(E[0], tensor=u_pp)
+    assemble(E.block(0), tensor=u_pp)
 
     # Now we compute the error in the post-processed solution
     # and update our error dictionary
