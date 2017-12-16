@@ -120,12 +120,13 @@ def run_mixed_hybrid_poisson(r, degree, mixed_method, write=False):
               'ksp_type': 'preonly',
               'pc_type': 'python',
               # Use the static condensation PC for hybridized problems
-              # and use a direct solve on the reduced system for u_hat
+              # and use a direct solve on the reduced system for lambdar
               'pc_python_type': 'scpc.HybridSCPC',
               'hybrid_sc': {'ksp_type': 'preonly',
-                            'pc_type': 'lu'}}
-    solve(a == L, w, solver_parameters=params)
+                            'pc_type': 'lu',
+                            'pc_factor_mat_solver_package': 'mumps'}}
 
+    solve(a == L, w, solver_parameters=params)
     print("Solver finished.\n")
 
     # Computed flux, scalar, and trace

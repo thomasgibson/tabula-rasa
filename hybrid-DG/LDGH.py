@@ -119,25 +119,20 @@ def run_LDG_H_poisson(r, degree, tau_order, write=False):
     # Numerical flux
     qhat = q + tau*(u - uhat)*n
 
-    def ejump(a):
-        """UFL hack to get the right form."""
-        return 2*avg(a)
-
     # Formulate the LDG-H method in UFL
     a = ((dot(v, q) - div(v)*u)*dx
-         + ejump(uhat*inner(v, n))*dS
-         + uhat*inner(v, n)*ds
+         + uhat('+')*jump(v, n=n)*dS
+         + uhat*dot(v, n)*ds
          - dot(grad(w), q)*dx
-         + ejump(inner(qhat, n)*w)*dS
+         + w('+')*jump(qhat, n=n)*dS
          + inner(qhat, n)*w*ds
-         # Transmission condition (interior only)
-         + ejump(mu*inner(qhat, n))*dS
+         # Transmission condition
+         + mu('+')*jump(qhat, n=n)*dS
          # trace mass term for the boundary conditions
          # <uhat, mu>ds == <g, mu>ds where g=0 in this example
          + uhat*mu*ds)
 
     L = w*f*dx
-
     print("Solving using static condensation.\n")
     w = Function(W, name="solutions")
     params = {'mat_type': 'matfree',
@@ -150,8 +145,8 @@ def run_LDG_H_poisson(r, degree, tau_order, write=False):
                             'pc_type': 'lu',
                             'pc_factor_mat_solver_package': 'mumps'}}
     solve(a == L, w, solver_parameters=params)
-
     print("Solver finished.\n")
+
     # Computed flux, scalar, and trace
     q_h, u_h, uhat_h = w.split()
 
