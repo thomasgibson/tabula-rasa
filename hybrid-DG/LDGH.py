@@ -80,9 +80,9 @@ def run_LDG_H_poisson(r, degree, tau_order, write=False):
     This demo was written by: Thomas H. Gibson (t.gibson15@imperial.ac.uk)
     """
 
-    if tau_order is None or tau_order not in ("1", "h", "1/h"):
+    if tau_order is None or tau_order not in ("1", "1/h", "h"):
         raise ValueError(
-            "Must specify tau to be of order '1', 'h' or '1/h'"
+            "Must specify tau to be of order '1', '1/h', or 'h'"
         )
 
     assert degree > 0, "Provide a degree >= 1"
@@ -99,7 +99,8 @@ def run_LDG_H_poisson(r, degree, tau_order, write=False):
 
     # Mixed space and test/trial functions
     W = U * V * T
-    q, u, uhat = TrialFunctions(W)
+    s = Function(W, name="solutions").assign(0.0)
+    q, u, uhat = split(s)
     v, w, mu = TestFunctions(W)
 
     Vh = FunctionSpace(mesh, "DG", degree + 3)
@@ -109,33 +110,36 @@ def run_LDG_H_poisson(r, degree, tau_order, write=False):
     if tau_order == "1":
         tau = Constant(1)
 
+    elif tau_order == "1/h":
+        tau = 1/FacetArea(mesh)
+
     elif tau_order == "h":
         tau = FacetArea(mesh)
 
     else:
-        assert tau_order == "1/h"
-        tau = 1/FacetArea(mesh)
+        raise ValueError("Invalid choice of tau")
 
     # Numerical flux
     qhat = q + tau*(u - uhat)*n
 
     # Formulate the LDG-H method in UFL
     a = ((dot(v, q) - div(v)*u)*dx
-         + uhat('+')*jump(v, n=n)*dS
+         + Constant(2)*avg(uhat*dot(v, n))*dS
          + uhat*dot(v, n)*ds
          - dot(grad(w), q)*dx
-         + w('+')*jump(qhat, n=n)*dS
-         + inner(qhat, n)*w*ds
+         + Constant(2)*avg(dot(qhat, n)*w)*dS
+         + dot(qhat, n)*w*ds
          # Transmission condition
-         + mu('+')*jump(qhat, n=n)*dS
+         + Constant(2)*avg(mu*dot(qhat, n))*dS
          # trace mass term for the boundary conditions
          # <uhat, mu>ds == <g, mu>ds where g=0 in this example
          + uhat*mu*ds)
 
     L = w*f*dx
+    F = a - L
     print("Solving using static condensation.\n")
-    w = Function(W, name="solutions")
-    params = {'mat_type': 'matfree',
+    params = {'snes_type': 'ksponly',
+              'mat_type': 'matfree',
               'ksp_type': 'preonly',
               'pc_type': 'python',
               # Use the static condensation PC for hybridized problems
@@ -144,11 +148,16 @@ def run_LDG_H_poisson(r, degree, tau_order, write=False):
               'hybrid_sc': {'ksp_type': 'preonly',
                             'pc_type': 'lu',
                             'pc_factor_mat_solver_package': 'mumps'}}
-    solve(a == L, w, solver_parameters=params)
+    r0 = assemble(F, mat_type="aij")
+    problem = NonlinearVariationalProblem(F, s)
+    solver = NonlinearVariationalSolver(problem, solver_parameters=params)
+    solver.solve()
     print("Solver finished.\n")
+    r1 = assemble(F, mat_type="aij")
+    r_factor = r1.dat.norm/r0.dat.norm
 
     # Computed flux, scalar, and trace
-    q_h, u_h, uhat_h = w.split()
+    q_h, u_h, uhat_h = s.split()
 
     # Analytical solutions for u and q
     V_a = FunctionSpace(mesh, "DG", degree + 3)
@@ -174,7 +183,8 @@ def run_LDG_H_poisson(r, degree, tau_order, write=False):
 
     # We keep track of all metrics using a Python dictionary
     error_dictionary = {"scalar_error": scalar_error,
-                        "flux_error": flux_error}
+                        "flux_error": flux_error,
+                        "r_factor": r_factor}
 
     # Now we use Slate to perform element-wise post-processing
 
@@ -315,7 +325,7 @@ def run_single_test(r, degree, tau_order):
     error_dict, _ = run_LDG_H_poisson(r=resolution_param,
                                       degree=degree,
                                       tau_order=tau_order,
-                                      write=True)
+                                      write=False)
 
     print("Error in scalar: %0.8f" %
           error_dict["scalar_error"])
@@ -346,6 +356,7 @@ def run_LDG_H_convergence(degree, tau_order):
     flux_pp_div_errors = []
     flux_pp_jumps = []
     num_cells = []
+    reductions = []
     # Run over mesh parameters and collect error metrics
     for r in range(1, 7):
         r_array.append(r)
@@ -362,6 +373,7 @@ def run_LDG_H_convergence(degree, tau_order):
         flux_pp_div_errors.append(error_dict["flux_pp_div_error"])
         flux_pp_jumps.append(error_dict["flux_pp_jump"])
         num_cells.append(mesh.num_cells())
+        reductions.append(error_dict["r_factor"])
 
     # Now that all error metrics are collected, we can compute the rates:
     scalar_rates = compute_conv_rates(scalar_errors)
@@ -384,6 +396,7 @@ def run_LDG_H_convergence(degree, tau_order):
 
     degrees = [degree] * len(r_array)
     data = {"Mesh": r_array,
+            "ResidualReductions": reductions,
             "Degree": degrees,
             "NumCells": num_cells,
             "ScalarErrors": scalar_errors,
