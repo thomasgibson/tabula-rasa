@@ -30,7 +30,7 @@ if args.help:
     sys.exit(1)
 
 
-def run_convergence_test(degree):
+def run_convergence_test(degree, write=False):
 
     name = "HelmholtzProblem"
     param_set = "scpc_hypre"
@@ -41,7 +41,7 @@ def run_convergence_test(degree):
               "pc_python_type": "scpc.SCCG",
               # HYPRE on the reduced system
               "static_condensation": {"ksp_type": "cg",
-                                      "ksp_rtol": 1e-16,
+                                      "ksp_rtol": 1e-18,
                                       "ksp_monitor": True,
                                       "pc_type": "hypre",
                                       "pc_hypre_type": "boomeramg",
@@ -57,12 +57,13 @@ def run_convergence_test(degree):
         params["ksp_type"] = "gmres"
         params["ksp_monitor"] = True
 
-    r_params = range(0, 6)
+    r_params = range(1, 7)
     l2_errors = []
     gmres_its = []
     sc_ksp_its = []
     num_dofs = []
     num_cells = []
+    reductions = []
     for r in r_params:
         mesh_size = 2 ** r
         mesh = UnitCubeMesh(mesh_size, mesh_size, mesh_size)
@@ -74,6 +75,7 @@ def run_convergence_test(degree):
         f = Function(V)
         f.interpolate((1 + 27*pi*pi)*cos(3*pi*x)*cos(3*pi*y)*cos(3*pi*z))
         F = inner(grad(v), grad(u))*dx + v*u*dx - inner(v, f)*dx
+        r0 = assemble(F)
         problem = NonlinearVariationalProblem(F, u)
         solver = NonlinearVariationalSolver(problem,
                                             solver_parameters=params)
@@ -89,6 +91,8 @@ def run_convergence_test(degree):
                                           r,
                                           param_set))
         solver.solve()
+        r1 = assemble(F)
+        reductions.append(r1.dat.norm/r0.dat.norm)
         u_h = problem.u
         u_a = Function(FunctionSpace(mesh, "CG", degree + 1), name="analytic")
         sol = cos(3*pi*x)*cos(3*pi*y)*cos(3*pi*z)
@@ -106,9 +110,10 @@ def run_convergence_test(degree):
         l2_errors.append(errornorm(sol, u_h, norm_type="L2"))
 
         # Only write output for the final solve
-        if r == len(r_params):
-            print("\n Writing output to pvd file\n")
-            File(output_file + ".pvd").write(u_h, u_a)
+        if write:
+            if r == len(r_params):
+                print("\n Writing output to pvd file\n")
+                File(output_file + ".pvd").write(u_h, u_a)
 
     print("\nComputing convergence rates\n")
     l2_errors = np.array(l2_errors)
@@ -118,6 +123,7 @@ def run_convergence_test(degree):
     degrees = [degree]*len(l2_errors)
 
     data = {"Mesh": r_params,
+            "ResidualReductions": reductions,
             "L2Errors": l2_errors,
             "ConvRates": rates,
             "GMRESIterations": gmres_its,
