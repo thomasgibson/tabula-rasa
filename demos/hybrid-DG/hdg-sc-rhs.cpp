@@ -1520,8 +1520,8 @@ template <typename Derived>
     for (int  ip  = 0; ip < 2; ip += 1)
     {
       double  t20  = (t19[ip] * t18);
-      double  t21  = (t20 * t14);
-      double  t22  = (t20 * t13);
+      double  t21  = (t14 * t20);
+      double  t22  = (t13 * t20);
       
       for (int  j0  = 0; j0 < 3; j0 += 1)
       {
@@ -1586,8 +1586,8 @@ template <typename Derived>
     for (int  ip  = 0; ip < 2; ip += 1)
     {
       double  t19  = (t18[ip] * t17);
-      double  t20  = (t19 * t13);
-      double  t21  = (t19 * t12);
+      double  t20  = (t13 * t19);
+      double  t21  = (t12 * t19);
       
       for (int  j  = 0; j < 3; j += 1)
       {
@@ -1652,7 +1652,7 @@ template <typename Derived>
     
     for (int  ip  = 0; ip < 2; ip += 1)
     {
-      double  t20  = ((t19[ip] * t18) * t14);
+      double  t20  = (t14 * (t19[ip] * t18));
       
       for (int  j  = 0; j < 3; j += 1)
       {
@@ -1720,7 +1720,7 @@ template <typename Derived>
     
     for (int  ip  = 0; ip < 2; ip += 1)
     {
-      double  t21  = ((t20[ip] * t19) * t15);
+      double  t21  = (t15 * (t20[ip] * t19));
       
       for (int  j  = 0; j < 3; j += 1)
       {
@@ -1790,8 +1790,8 @@ template <typename Derived>
       double  t23[4] ;
       double  t24[4] ;
       double  t20  = (t19[ip] * t18);
-      double  t21  = (t20 * t14);
-      double  t22  = (t20 * t13);
+      double  t21  = (t14 * t20);
+      double  t22  = (t13 * t20);
       
       for (int  k0  = 0; k0 < 3; k0 += 1)
       {
@@ -1868,7 +1868,7 @@ template <typename Derived>
     for (int  ip  = 0; ip < 2; ip += 1)
     {
       double  t22[4] ;
-      double  t21  = ((t20[ip] * t19) * t15);
+      double  t21  = (t15 * (t20[ip] * t19));
       
       for (int  k  = 0; k < 3; k += 1)
       {
@@ -1935,7 +1935,7 @@ template <typename Derived>
     
     for (int  ip  = 0; ip < 2; ip += 1)
     {
-      double  t20  = ((t19[ip] * t18) * t14);
+      double  t20  = (t14 * (t19[ip] * t18));
       
       for (int  j  = 0; j < 6; j += 1)
       {
