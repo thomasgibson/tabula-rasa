@@ -269,7 +269,7 @@ for ax in [ax1, ax3]:
         tick.set_fontsize(FONTSIZE)
 
 fig.subplots_adjust(wspace=0.1, hspace=0.25)
-xlabel = fig.text(0.5, -0.0275,
+xlabel = fig.text(0.5, -0.03,
                   "Mesh size $h=2^{-r}$",
                   ha='center',
                   fontsize=FONTSIZE)

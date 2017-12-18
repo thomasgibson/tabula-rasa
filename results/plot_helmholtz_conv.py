@@ -8,9 +8,9 @@ from matplotlib import pyplot as plt
 from mpltools import annotation
 
 
-FONTSIZE = 9
-# MARKERSIZE = 10
-# LINEWIDTH = 3
+FONTSIZE = 16
+MARKERSIZE = 10
+LINEWIDTH = 3
 
 
 p4_data = "helmholtz-results/helmholtz_conv-d-4.csv"
@@ -44,9 +44,9 @@ markers = iter(["o", "s", "^", "D"])
 linestyles = iter(["solid", "dashed", "dashdot", "dotted"])
 seaborn.set(style="ticks")
 
-fig, (axes,) = plt.subplots(1, 1, figsize=(4, 2.5), squeeze=False)
+fig, (axes,) = plt.subplots(1, 1, figsize=(6, 4), squeeze=False)
 ax, = axes
-ax.set_ylabel("$L^2$ error", fontsize=FONTSIZE)
+ax.set_ylabel("$L^2$ error", fontsize=FONTSIZE+2)
 ax.set_ylim([dfs.L2Errors.min()/2, dfs.L2Errors.max()*2])
 
 ax.spines["left"].set_position(("outward", 10))
@@ -67,29 +67,28 @@ for group in groups:
 
     ax.plot(h_array, df.L2Errors,
             label="Degree %d" % degree,
-            # linewidth=LINEWIDTH,
+            linewidth=LINEWIDTH,
             linestyle=next(linestyles),
-            # markersize=MARKERSIZE,
+            markersize=MARKERSIZE,
             marker=next(markers),
             color=colors[degree - 4],
             clip_on=False)
 
 annotation.slope_marker((0.375, 0.5), 5, ax=ax,
                         invert=False,
-                        text_kwargs={'fontsize': FONTSIZE,
+                        text_kwargs={'fontsize': FONTSIZE-2,
                                      'color': colors[0],
-                                     'position': (0.2275, 0.2)},
+                                     'position': (0.2175, 0.2)},
                         poly_kwargs={'facecolor': colors[0]})
 annotation.slope_marker((0.13, 1e-7), 8, ax=ax,
-                        text_kwargs={'fontsize': FONTSIZE,
+                        text_kwargs={'fontsize': FONTSIZE-2,
                                      'color': colors[3],
-                                     'position': (0.2125, 3.25e-7)},
+                                     'position': (0.225, 3.25e-7)},
                         invert=True, poly_kwargs={'facecolor': colors[3]})
 
 ax.set_title("3D Helmholtz convergence", fontsize=FONTSIZE)
 
-ax.set_xticklabels(["$2^{-%d}$\n(%d)" % (r, n)
-                    for (r, n) in zip(r_values, num_cells)])
+ax.set_xticklabels(["$2^{-%d}$" % r for r in r_values])
 
 for tick in ax.get_xticklabels():
     tick.set_fontsize(FONTSIZE)
@@ -97,15 +96,15 @@ for tick in ax.get_xticklabels():
 for tick in ax.get_yticklabels():
     tick.set_fontsize(FONTSIZE)
 
-xlabel = fig.text(0.5, -0.275,
-                  "Mesh size $h=2^{-r}$\n(Number of cells)",
+xlabel = fig.text(0.5, -0.1,
+                  "Mesh size $h=2^{-r}$",
                   ha='center',
-                  fontsize=FONTSIZE)
+                  fontsize=FONTSIZE+2)
 
 handles, labels = ax.get_legend_handles_labels()
 legend = fig.legend(handles, labels,
                     loc=9,
-                    bbox_to_anchor=(0.5, 1.15),
+                    bbox_to_anchor=(0.5, 1.175),
                     bbox_transform=fig.transFigure,
                     ncol=2,
                     handlelength=2,
