@@ -1,0 +1,2891 @@
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 0, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 0, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 0, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 0, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 0, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 0, and parameter set scpc_hypre
+
+  Residual norms for firedrake_0_static_condensation_ solve.
+  0 KSP Residual norm 5.466221610273e+00 
+  1 KSP Residual norm 1.806370973932e+00 
+  2 KSP Residual norm 1.009427329824e+00 
+  3 KSP Residual norm 5.628412370544e-01 
+  4 KSP Residual norm 1.865920442710e-01 
+  5 KSP Residual norm 5.978723809131e-02 
+  6 KSP Residual norm 1.559659226250e-02 
+  7 KSP Residual norm 3.738968527264e-03 
+  8 KSP Residual norm 1.260013206780e-03 
+  9 KSP Residual norm 4.325560612394e-04 
+ 10 KSP Residual norm 1.290186830457e-04 
+ 11 KSP Residual norm 4.247152326546e-05 
+ 12 KSP Residual norm 1.039727649921e-05 
+ 13 KSP Residual norm 2.684937109547e-06 
+ 14 KSP Residual norm 8.896388493039e-07 
+ 15 KSP Residual norm 3.483990649959e-07 
+ 16 KSP Residual norm 8.610331186069e-08 
+ 17 KSP Residual norm 2.219115054673e-08 
+ 18 KSP Residual norm 6.983227069694e-09 
+ 19 KSP Residual norm 2.253385924534e-09 
+ 20 KSP Residual norm 6.536782806991e-10 
+ 21 KSP Residual norm 2.143286417327e-10 
+ 22 KSP Residual norm 4.956093583609e-11 
+ 23 KSP Residual norm 8.935943530587e-12 
+ 24 KSP Residual norm 1.324156264535e-12 
+ 25 KSP Residual norm 2.474732656457e-13 
+ 26 KSP Residual norm 5.451169827115e-14 
+ 27 KSP Residual norm 1.346142020966e-14 
+ 28 KSP Residual norm 2.705947118566e-15 
+ 29 KSP Residual norm 5.206709335250e-16 
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 1, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 1, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 1, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 1, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 1, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 1, and parameter set scpc_hypre
+
+  Residual norms for firedrake_1_static_condensation_ solve.
+  0 KSP Residual norm 8.220969095557e+00 
+  1 KSP Residual norm 2.507736772714e+00 
+  2 KSP Residual norm 1.389450432880e+00 
+  3 KSP Residual norm 5.334755243265e-01 
+  4 KSP Residual norm 1.887145602892e-01 
+  5 KSP Residual norm 7.010290026350e-02 
+  6 KSP Residual norm 2.316188639171e-02 
+  7 KSP Residual norm 9.324844356473e-03 
+  8 KSP Residual norm 3.065949657281e-03 
+  9 KSP Residual norm 9.802208770023e-04 
+ 10 KSP Residual norm 3.426401432464e-04 
+ 11 KSP Residual norm 1.468900188278e-04 
+ 12 KSP Residual norm 5.086525682768e-05 
+ 13 KSP Residual norm 1.648765870544e-05 
+ 14 KSP Residual norm 5.207336516720e-06 
+ 15 KSP Residual norm 1.742133235355e-06 
+ 16 KSP Residual norm 5.387622601413e-07 
+ 17 KSP Residual norm 1.987261098585e-07 
+ 18 KSP Residual norm 7.471595393450e-08 
+ 19 KSP Residual norm 2.411770167327e-08 
+ 20 KSP Residual norm 9.043794023970e-09 
+ 21 KSP Residual norm 3.204400923951e-09 
+ 22 KSP Residual norm 9.659925411132e-10 
+ 23 KSP Residual norm 2.885960163885e-10 
+ 24 KSP Residual norm 8.175571896781e-11 
+ 25 KSP Residual norm 2.593070228246e-11 
+ 26 KSP Residual norm 8.162277077919e-12 
+ 27 KSP Residual norm 2.945846606864e-12 
+ 28 KSP Residual norm 8.047248938823e-13 
+ 29 KSP Residual norm 2.014299817098e-13 
+ 30 KSP Residual norm 6.393063072757e-14 
+ 31 KSP Residual norm 2.223509270343e-14 
+ 32 KSP Residual norm 7.631328404349e-15 
+ 33 KSP Residual norm 2.344926956562e-15 
+ 34 KSP Residual norm 7.649485427687e-16 
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 2, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 2, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 2, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 2, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 2, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 2, and parameter set scpc_hypre
+
+  Residual norms for firedrake_2_static_condensation_ solve.
+  0 KSP Residual norm 1.336614533286e+01 
+  1 KSP Residual norm 2.782590697454e+00 
+  2 KSP Residual norm 8.995717379211e-01 
+  3 KSP Residual norm 3.166081600152e-01 
+  4 KSP Residual norm 1.188503824380e-01 
+  5 KSP Residual norm 4.308565231027e-02 
+  6 KSP Residual norm 1.758247919854e-02 
+  7 KSP Residual norm 8.288166945241e-03 
+  8 KSP Residual norm 4.301335141347e-03 
+  9 KSP Residual norm 2.011585387434e-03 
+ 10 KSP Residual norm 8.540607138039e-04 
+ 11 KSP Residual norm 3.369233588151e-04 
+ 12 KSP Residual norm 1.325327761244e-04 
+ 13 KSP Residual norm 5.866225334735e-05 
+ 14 KSP Residual norm 2.432226618863e-05 
+ 15 KSP Residual norm 9.131627706266e-06 
+ 16 KSP Residual norm 3.583620254333e-06 
+ 17 KSP Residual norm 1.456971250148e-06 
+ 18 KSP Residual norm 6.313097839538e-07 
+ 19 KSP Residual norm 2.736632961337e-07 
+ 20 KSP Residual norm 1.072479032744e-07 
+ 21 KSP Residual norm 4.305508333724e-08 
+ 22 KSP Residual norm 1.882672677152e-08 
+ 23 KSP Residual norm 8.609356242785e-09 
+ 24 KSP Residual norm 3.746161137733e-09 
+ 25 KSP Residual norm 1.478607443275e-09 
+ 26 KSP Residual norm 6.316554068723e-10 
+ 27 KSP Residual norm 2.520361274911e-10 
+ 28 KSP Residual norm 8.998938569263e-11 
+ 29 KSP Residual norm 2.970248770528e-11 
+ 30 KSP Residual norm 1.115403988713e-11 
+ 31 KSP Residual norm 4.451896525724e-12 
+ 32 KSP Residual norm 1.726865135270e-12 
+ 33 KSP Residual norm 6.381731497672e-13 
+ 34 KSP Residual norm 2.178206081503e-13 
+ 35 KSP Residual norm 6.897153636981e-14 
+ 36 KSP Residual norm 2.669001988662e-14 
+ 37 KSP Residual norm 1.085623274016e-14 
+ 38 KSP Residual norm 4.066356614510e-15 
+ 39 KSP Residual norm 1.421569450122e-15 
+ 40 KSP Residual norm 4.945296876063e-16 
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 3, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 3, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 3, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 3, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 3, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 3, and parameter set scpc_hypre
+
+  Residual norms for firedrake_3_static_condensation_ solve.
+  0 KSP Residual norm 2.311832509098e+01 
+  1 KSP Residual norm 4.988759149964e+00 
+  2 KSP Residual norm 1.900275824278e+00 
+  3 KSP Residual norm 8.216411784259e-01 
+  4 KSP Residual norm 3.198114033431e-01 
+  5 KSP Residual norm 1.287350692935e-01 
+  6 KSP Residual norm 5.475059089589e-02 
+  7 KSP Residual norm 2.246041495426e-02 
+  8 KSP Residual norm 1.063779091575e-02 
+  9 KSP Residual norm 5.129588219355e-03 
+ 10 KSP Residual norm 2.446732631350e-03 
+ 11 KSP Residual norm 1.190558382056e-03 
+ 12 KSP Residual norm 5.906688790731e-04 
+ 13 KSP Residual norm 2.686071109360e-04 
+ 14 KSP Residual norm 1.231703410729e-04 
+ 15 KSP Residual norm 5.672434533153e-05 
+ 16 KSP Residual norm 2.679407318913e-05 
+ 17 KSP Residual norm 1.234684882166e-05 
+ 18 KSP Residual norm 5.528054732596e-06 
+ 19 KSP Residual norm 2.465482189549e-06 
+ 20 KSP Residual norm 1.075597359194e-06 
+ 21 KSP Residual norm 4.946520961038e-07 
+ 22 KSP Residual norm 2.263963650475e-07 
+ 23 KSP Residual norm 9.952351148305e-08 
+ 24 KSP Residual norm 4.130754037295e-08 
+ 25 KSP Residual norm 1.718962987381e-08 
+ 26 KSP Residual norm 7.359354243352e-09 
+ 27 KSP Residual norm 3.214387717666e-09 
+ 28 KSP Residual norm 1.489114342691e-09 
+ 29 KSP Residual norm 7.026109606977e-10 
+ 30 KSP Residual norm 3.202726272077e-10 
+ 31 KSP Residual norm 1.387764525223e-10 
+ 32 KSP Residual norm 5.815872402287e-11 
+ 33 KSP Residual norm 2.350858973349e-11 
+ 34 KSP Residual norm 9.873155091622e-12 
+ 35 KSP Residual norm 4.381714339624e-12 
+ 36 KSP Residual norm 1.835062551633e-12 
+ 37 KSP Residual norm 7.782891979392e-13 
+ 38 KSP Residual norm 3.402245107002e-13 
+ 39 KSP Residual norm 1.458538452494e-13 
+ 40 KSP Residual norm 6.005678244726e-14 
+ 41 KSP Residual norm 2.306044616532e-14 
+ 42 KSP Residual norm 9.067980633011e-15 
+ 43 KSP Residual norm 3.767221674269e-15 
+ 44 KSP Residual norm 1.637634775970e-15 
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 4, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 4, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 4, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 4, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 4, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 4, and parameter set scpc_hypre
+
+  Residual norms for firedrake_4_static_condensation_ solve.
+  0 KSP Residual norm 4.895105694229e+01 
+  1 KSP Residual norm 8.598049431683e+00 
+  2 KSP Residual norm 4.655343313066e+00 
+  3 KSP Residual norm 2.545019035144e+00 
+  4 KSP Residual norm 1.026015964745e+00 
+  5 KSP Residual norm 4.853185449581e-01 
+  6 KSP Residual norm 2.184398966160e-01 
+  7 KSP Residual norm 9.540754428500e-02 
+  8 KSP Residual norm 4.590361066371e-02 
+  9 KSP Residual norm 2.496754257727e-02 
+ 10 KSP Residual norm 1.328484978918e-02 
+ 11 KSP Residual norm 6.894682033419e-03 
+ 12 KSP Residual norm 3.618320589888e-03 
+ 13 KSP Residual norm 1.963397126008e-03 
+ 14 KSP Residual norm 1.028550527515e-03 
+ 15 KSP Residual norm 4.972716731959e-04 
+ 16 KSP Residual norm 2.213718428709e-04 
+ 17 KSP Residual norm 9.385909376290e-05 
+ 18 KSP Residual norm 4.030218670838e-05 
+ 19 KSP Residual norm 1.755442286879e-05 
+ 20 KSP Residual norm 7.728461936124e-06 
+ 21 KSP Residual norm 3.442995256155e-06 
+ 22 KSP Residual norm 1.542256153803e-06 
+ 23 KSP Residual norm 6.865810718877e-07 
+ 24 KSP Residual norm 3.109666583726e-07 
+ 25 KSP Residual norm 1.401867787252e-07 
+ 26 KSP Residual norm 6.593243061216e-08 
+ 27 KSP Residual norm 3.367467948302e-08 
+ 28 KSP Residual norm 1.862878274687e-08 
+ 29 KSP Residual norm 9.926952681213e-09 
+ 30 KSP Residual norm 4.585232913891e-09 
+ 31 KSP Residual norm 1.948660096119e-09 
+ 32 KSP Residual norm 8.369699819444e-10 
+ 33 KSP Residual norm 3.707556841284e-10 
+ 34 KSP Residual norm 1.731131579545e-10 
+ 35 KSP Residual norm 8.299800353117e-11 
+ 36 KSP Residual norm 3.954292015405e-11 
+ 37 KSP Residual norm 1.869243968076e-11 
+ 38 KSP Residual norm 8.551129968565e-12 
+ 39 KSP Residual norm 3.665129665187e-12 
+ 40 KSP Residual norm 1.552606962980e-12 
+ 41 KSP Residual norm 6.844863282921e-13 
+ 42 KSP Residual norm 3.022217901809e-13 
+ 43 KSP Residual norm 1.335570645822e-13 
+ 44 KSP Residual norm 5.793993739902e-14 
+ 45 KSP Residual norm 2.546840889059e-14 
+ 46 KSP Residual norm 1.127874533053e-14 
+ 47 KSP Residual norm 4.931110914697e-15 
+ 48 KSP Residual norm 2.137309139852e-15 
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 5, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 5, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 5, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 5, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 5, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 5, and parameter set scpc_hypre
+
+  Residual norms for firedrake_5_static_condensation_ solve.
+  0 KSP Residual norm 1.179088937893e+02 
+  1 KSP Residual norm 1.572630525756e+01 
+  2 KSP Residual norm 1.166269366703e+01 
+  3 KSP Residual norm 7.146807746429e+00 
+  4 KSP Residual norm 2.770730769882e+00 
+  5 KSP Residual norm 1.503030849042e+00 
+  6 KSP Residual norm 6.916491768919e-01 
+  7 KSP Residual norm 2.684057201188e-01 
+  8 KSP Residual norm 1.126436615400e-01 
+  9 KSP Residual norm 5.929191516630e-02 
+ 10 KSP Residual norm 3.126074262295e-02 
+ 11 KSP Residual norm 1.573407098693e-02 
+ 12 KSP Residual norm 7.751215088031e-03 
+ 13 KSP Residual norm 4.014360262328e-03 
+ 14 KSP Residual norm 2.307129267293e-03 
+ 15 KSP Residual norm 1.399432343686e-03 
+ 16 KSP Residual norm 8.177539158680e-04 
+ 17 KSP Residual norm 4.360135631786e-04 
+ 18 KSP Residual norm 2.225123554788e-04 
+ 19 KSP Residual norm 1.143692730430e-04 
+ 20 KSP Residual norm 5.890359988481e-05 
+ 21 KSP Residual norm 2.971645264076e-05 
+ 22 KSP Residual norm 1.447183057004e-05 
+ 23 KSP Residual norm 6.806404737889e-06 
+ 24 KSP Residual norm 3.177788632963e-06 
+ 25 KSP Residual norm 1.541061003741e-06 
+ 26 KSP Residual norm 7.597847293797e-07 
+ 27 KSP Residual norm 3.642993671682e-07 
+ 28 KSP Residual norm 1.676386460092e-07 
+ 29 KSP Residual norm 7.404820447064e-08 
+ 30 KSP Residual norm 3.245381333948e-08 
+ 31 KSP Residual norm 1.473290850544e-08 
+ 32 KSP Residual norm 6.900264734107e-09 
+ 33 KSP Residual norm 3.266966735631e-09 
+ 34 KSP Residual norm 1.576684871750e-09 
+ 35 KSP Residual norm 7.790429872554e-10 
+ 36 KSP Residual norm 3.881160746863e-10 
+ 37 KSP Residual norm 1.918221930806e-10 
+ 38 KSP Residual norm 9.336173831092e-11 
+ 39 KSP Residual norm 4.460742318767e-11 
+ 40 KSP Residual norm 2.141330284838e-11 
+ 41 KSP Residual norm 1.070653172029e-11 
+ 42 KSP Residual norm 5.701330343773e-12 
+ 43 KSP Residual norm 3.162398185409e-12 
+ 44 KSP Residual norm 1.765427268256e-12 
+ 45 KSP Residual norm 9.439826452301e-13 
+ 46 KSP Residual norm 4.689248071631e-13 
+ 47 KSP Residual norm 2.153051292919e-13 
+ 48 KSP Residual norm 9.553893993199e-14 
+ 49 KSP Residual norm 4.209440579986e-14 
+ 50 KSP Residual norm 1.813121547295e-14 
+ 51 KSP Residual norm 7.491811003091e-15 
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Computing convergence rates
+
+
+Computing convergence rates
+
+
+Computing convergence rates
+
+
+Computing convergence rates
+
+
+Computing convergence rates
+
+
+Computing convergence rates
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 0, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 0, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 0, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 0, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 0, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 0, and parameter set scpc_hypre
+
+  Residual norms for firedrake_6_static_condensation_ solve.
+  0 KSP Residual norm 1.657492653832e+01 
+  1 KSP Residual norm 8.770838714349e+00 
+  2 KSP Residual norm 6.123609771076e+00 
+  3 KSP Residual norm 2.331194793501e+00 
+  4 KSP Residual norm 7.619980154517e-01 
+  5 KSP Residual norm 3.398853059202e-01 
+  6 KSP Residual norm 9.231528199294e-02 
+  7 KSP Residual norm 2.930931720527e-02 
+  8 KSP Residual norm 1.158454863666e-02 
+  9 KSP Residual norm 4.692491183544e-03 
+ 10 KSP Residual norm 1.793141668116e-03 
+ 11 KSP Residual norm 8.530297437233e-04 
+ 12 KSP Residual norm 3.590803274486e-04 
+ 13 KSP Residual norm 1.647102634144e-04 
+ 14 KSP Residual norm 6.173236457814e-05 
+ 15 KSP Residual norm 1.953215962947e-05 
+ 16 KSP Residual norm 8.837467686635e-06 
+ 17 KSP Residual norm 2.988894992364e-06 
+ 18 KSP Residual norm 1.128665280217e-06 
+ 19 KSP Residual norm 2.707100964526e-07 
+ 20 KSP Residual norm 1.029167763032e-07 
+ 21 KSP Residual norm 3.891108003087e-08 
+ 22 KSP Residual norm 1.285520894793e-08 
+ 23 KSP Residual norm 3.810695374327e-09 
+ 24 KSP Residual norm 1.427961859974e-09 
+ 25 KSP Residual norm 5.244329655604e-10 
+ 26 KSP Residual norm 1.485003182166e-10 
+ 27 KSP Residual norm 5.206424853942e-11 
+ 28 KSP Residual norm 1.596553607934e-11 
+ 29 KSP Residual norm 4.988274604984e-12 
+ 30 KSP Residual norm 1.513563301322e-12 
+ 31 KSP Residual norm 5.429322282623e-13 
+ 32 KSP Residual norm 1.513022498737e-13 
+ 33 KSP Residual norm 4.536711394555e-14 
+ 34 KSP Residual norm 1.685242945007e-14 
+ 35 KSP Residual norm 4.770168877022e-15 
+ 36 KSP Residual norm 1.269346653969e-15 
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 1, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 1, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 1, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 1, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 1, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 1, and parameter set scpc_hypre
+
+  Residual norms for firedrake_7_static_condensation_ solve.
+  0 KSP Residual norm 8.595302146349e+00 
+  1 KSP Residual norm 2.828594762818e+00 
+  2 KSP Residual norm 1.488779186896e+00 
+  3 KSP Residual norm 6.822943701502e-01 
+  4 KSP Residual norm 3.090827816766e-01 
+  5 KSP Residual norm 1.226981709227e-01 
+  6 KSP Residual norm 5.002051077263e-02 
+  7 KSP Residual norm 2.224396272078e-02 
+  8 KSP Residual norm 1.038946369894e-02 
+  9 KSP Residual norm 4.825192635417e-03 
+ 10 KSP Residual norm 2.302585211173e-03 
+ 11 KSP Residual norm 9.317133950186e-04 
+ 12 KSP Residual norm 3.997618057586e-04 
+ 13 KSP Residual norm 1.611721737028e-04 
+ 14 KSP Residual norm 8.380073110536e-05 
+ 15 KSP Residual norm 3.971371301607e-05 
+ 16 KSP Residual norm 1.622328928055e-05 
+ 17 KSP Residual norm 6.074313809760e-06 
+ 18 KSP Residual norm 2.438480750939e-06 
+ 19 KSP Residual norm 1.029874180828e-06 
+ 20 KSP Residual norm 3.822670902080e-07 
+ 21 KSP Residual norm 1.358518986903e-07 
+ 22 KSP Residual norm 5.489893739445e-08 
+ 23 KSP Residual norm 2.077288666779e-08 
+ 24 KSP Residual norm 8.571802295987e-09 
+ 25 KSP Residual norm 3.162032065946e-09 
+ 26 KSP Residual norm 1.193707627654e-09 
+ 27 KSP Residual norm 4.148635565369e-10 
+ 28 KSP Residual norm 1.509804947733e-10 
+ 29 KSP Residual norm 5.634617807906e-11 
+ 30 KSP Residual norm 2.182476279941e-11 
+ 31 KSP Residual norm 7.628814134663e-12 
+ 32 KSP Residual norm 3.121105044099e-12 
+ 33 KSP Residual norm 1.148676500362e-12 
+ 34 KSP Residual norm 3.915195841499e-13 
+ 35 KSP Residual norm 1.503382836848e-13 
+ 36 KSP Residual norm 5.840311285969e-14 
+ 37 KSP Residual norm 2.414948584537e-14 
+ 38 KSP Residual norm 9.100699377471e-15 
+ 39 KSP Residual norm 3.575975486901e-15 
+ 40 KSP Residual norm 1.429699947597e-15 
+ 41 KSP Residual norm 5.408629490772e-16 
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 2, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 2, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 2, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 2, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 2, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 2, and parameter set scpc_hypre
+
+  Residual norms for firedrake_8_static_condensation_ solve.
+  0 KSP Residual norm 1.336897053543e+01 
+  1 KSP Residual norm 3.552267703690e+00 
+  2 KSP Residual norm 1.412378529622e+00 
+  3 KSP Residual norm 5.621471125985e-01 
+  4 KSP Residual norm 2.395404597710e-01 
+  5 KSP Residual norm 1.060031646988e-01 
+  6 KSP Residual norm 4.986374898344e-02 
+  7 KSP Residual norm 2.512272521838e-02 
+  8 KSP Residual norm 1.233192847775e-02 
+  9 KSP Residual norm 5.474971122602e-03 
+ 10 KSP Residual norm 2.379644256892e-03 
+ 11 KSP Residual norm 1.122551392213e-03 
+ 12 KSP Residual norm 5.466356468321e-04 
+ 13 KSP Residual norm 2.580071434610e-04 
+ 14 KSP Residual norm 1.222606122178e-04 
+ 15 KSP Residual norm 5.889380375508e-05 
+ 16 KSP Residual norm 2.763703710176e-05 
+ 17 KSP Residual norm 1.386705407410e-05 
+ 18 KSP Residual norm 6.967964899885e-06 
+ 19 KSP Residual norm 3.126939969129e-06 
+ 20 KSP Residual norm 1.443384103089e-06 
+ 21 KSP Residual norm 6.457085788231e-07 
+ 22 KSP Residual norm 2.749659417347e-07 
+ 23 KSP Residual norm 1.241328828195e-07 
+ 24 KSP Residual norm 5.478277455381e-08 
+ 25 KSP Residual norm 2.518886661295e-08 
+ 26 KSP Residual norm 1.115498146723e-08 
+ 27 KSP Residual norm 4.650861136114e-09 
+ 28 KSP Residual norm 2.068080498964e-09 
+ 29 KSP Residual norm 8.897217104092e-10 
+ 30 KSP Residual norm 4.322013393275e-10 
+ 31 KSP Residual norm 2.105946791018e-10 
+ 32 KSP Residual norm 1.011271944371e-10 
+ 33 KSP Residual norm 4.937619646247e-11 
+ 34 KSP Residual norm 2.265670796525e-11 
+ 35 KSP Residual norm 1.087602337317e-11 
+ 36 KSP Residual norm 4.873450057656e-12 
+ 37 KSP Residual norm 2.118043046405e-12 
+ 38 KSP Residual norm 9.041793126546e-13 
+ 39 KSP Residual norm 4.140468910195e-13 
+ 40 KSP Residual norm 1.799760377733e-13 
+ 41 KSP Residual norm 7.740741683913e-14 
+ 42 KSP Residual norm 3.175990777110e-14 
+ 43 KSP Residual norm 1.344240717871e-14 
+ 44 KSP Residual norm 5.763885599633e-15 
+ 45 KSP Residual norm 2.652264321738e-15 
+ 46 KSP Residual norm 1.267875385929e-15 
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 3, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 3, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 3, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 3, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 3, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 3, and parameter set scpc_hypre
+
+  Residual norms for firedrake_9_static_condensation_ solve.
+  0 KSP Residual norm 2.541146676048e+01 
+  1 KSP Residual norm 5.818785133667e+00 
+  2 KSP Residual norm 2.433988465125e+00 
+  3 KSP Residual norm 1.146038097153e+00 
+  4 KSP Residual norm 5.711298064002e-01 
+  5 KSP Residual norm 2.463200134000e-01 
+  6 KSP Residual norm 1.056325717762e-01 
+  7 KSP Residual norm 4.860132126457e-02 
+  8 KSP Residual norm 2.280551009239e-02 
+  9 KSP Residual norm 9.239325563181e-03 
+ 10 KSP Residual norm 4.507306238317e-03 
+ 11 KSP Residual norm 2.383243384588e-03 
+ 12 KSP Residual norm 1.152828819458e-03 
+ 13 KSP Residual norm 5.824812859282e-04 
+ 14 KSP Residual norm 3.228548311158e-04 
+ 15 KSP Residual norm 1.796540922041e-04 
+ 16 KSP Residual norm 9.532621850381e-05 
+ 17 KSP Residual norm 4.905964326504e-05 
+ 18 KSP Residual norm 2.281249850014e-05 
+ 19 KSP Residual norm 9.365097596501e-06 
+ 20 KSP Residual norm 3.823458673502e-06 
+ 21 KSP Residual norm 1.608747922597e-06 
+ 22 KSP Residual norm 6.698890063456e-07 
+ 23 KSP Residual norm 3.013042700452e-07 
+ 24 KSP Residual norm 1.407793596482e-07 
+ 25 KSP Residual norm 6.258403500627e-08 
+ 26 KSP Residual norm 2.725160159496e-08 
+ 27 KSP Residual norm 1.179956512253e-08 
+ 28 KSP Residual norm 5.204754857728e-09 
+ 29 KSP Residual norm 2.350409131150e-09 
+ 30 KSP Residual norm 1.040414850874e-09 
+ 31 KSP Residual norm 4.706978261461e-10 
+ 32 KSP Residual norm 2.132548926166e-10 
+ 33 KSP Residual norm 1.028815820380e-10 
+ 34 KSP Residual norm 4.955963704281e-11 
+ 35 KSP Residual norm 2.330764369190e-11 
+ 36 KSP Residual norm 1.107857436955e-11 
+ 37 KSP Residual norm 5.506370311261e-12 
+ 38 KSP Residual norm 2.735792625878e-12 
+ 39 KSP Residual norm 1.307990343627e-12 
+ 40 KSP Residual norm 6.063706796591e-13 
+ 41 KSP Residual norm 2.761226412014e-13 
+ 42 KSP Residual norm 1.265652240888e-13 
+ 43 KSP Residual norm 6.088103751614e-14 
+ 44 KSP Residual norm 2.967272454459e-14 
+ 45 KSP Residual norm 1.494162944191e-14 
+ 46 KSP Residual norm 7.419742570517e-15 
+ 47 KSP Residual norm 3.611183427094e-15 
+ 48 KSP Residual norm 1.735243687438e-15 
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 4, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 4, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 4, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 4, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 4, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 4, and parameter set scpc_hypre
+
+  Residual norms for firedrake_10_static_condensation_ solve.
+  0 KSP Residual norm 5.691338254033e+01 
+  1 KSP Residual norm 8.924291693272e+00 
+  2 KSP Residual norm 4.714831668742e+00 
+  3 KSP Residual norm 2.838723160318e+00 
+  4 KSP Residual norm 1.705125872408e+00 
+  5 KSP Residual norm 6.509224181302e-01 
+  6 KSP Residual norm 2.983133214837e-01 
+  7 KSP Residual norm 1.591610934184e-01 
+  8 KSP Residual norm 6.829400313297e-02 
+  9 KSP Residual norm 2.827087556075e-02 
+ 10 KSP Residual norm 1.514962775969e-02 
+ 11 KSP Residual norm 8.177661475524e-03 
+ 12 KSP Residual norm 4.221869251734e-03 
+ 13 KSP Residual norm 2.284326792003e-03 
+ 14 KSP Residual norm 1.219877539969e-03 
+ 15 KSP Residual norm 6.528564262381e-04 
+ 16 KSP Residual norm 3.670757151498e-04 
+ 17 KSP Residual norm 2.096277539006e-04 
+ 18 KSP Residual norm 1.108536170352e-04 
+ 19 KSP Residual norm 5.458552563101e-05 
+ 20 KSP Residual norm 2.665492302140e-05 
+ 21 KSP Residual norm 1.266817246333e-05 
+ 22 KSP Residual norm 5.874028016485e-06 
+ 23 KSP Residual norm 2.677116451227e-06 
+ 24 KSP Residual norm 1.188210903616e-06 
+ 25 KSP Residual norm 5.199497615710e-07 
+ 26 KSP Residual norm 2.311098679115e-07 
+ 27 KSP Residual norm 1.063406083844e-07 
+ 28 KSP Residual norm 4.939646494778e-08 
+ 29 KSP Residual norm 2.374422707181e-08 
+ 30 KSP Residual norm 1.131369161400e-08 
+ 31 KSP Residual norm 5.216724310636e-09 
+ 32 KSP Residual norm 2.368815860928e-09 
+ 33 KSP Residual norm 1.093868285802e-09 
+ 34 KSP Residual norm 5.408701842086e-10 
+ 35 KSP Residual norm 2.802020968484e-10 
+ 36 KSP Residual norm 1.527204234811e-10 
+ 37 KSP Residual norm 8.447796223920e-11 
+ 38 KSP Residual norm 4.414961708262e-11 
+ 39 KSP Residual norm 2.160924940390e-11 
+ 40 KSP Residual norm 9.760949875679e-12 
+ 41 KSP Residual norm 4.248388714329e-12 
+ 42 KSP Residual norm 1.811001765798e-12 
+ 43 KSP Residual norm 7.846857466030e-13 
+ 44 KSP Residual norm 3.553393401497e-13 
+ 45 KSP Residual norm 1.673197269301e-13 
+ 46 KSP Residual norm 8.265670676079e-14 
+ 47 KSP Residual norm 4.213910085167e-14 
+ 48 KSP Residual norm 2.175932824478e-14 
+ 49 KSP Residual norm 1.123117157004e-14 
+ 50 KSP Residual norm 5.747412116291e-15 
+ 51 KSP Residual norm 2.817964750811e-15 
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 5, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 5, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 5, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 5, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 5, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 5, and parameter set scpc_hypre
+
+  Residual norms for firedrake_11_static_condensation_ solve.
+  0 KSP Residual norm 1.392418725048e+02 
+  1 KSP Residual norm 1.445458531156e+01 
+  2 KSP Residual norm 1.088431044164e+01 
+  3 KSP Residual norm 7.553600662896e+00 
+  4 KSP Residual norm 4.760768035435e+00 
+  5 KSP Residual norm 1.710968379027e+00 
+  6 KSP Residual norm 8.677273717954e-01 
+  7 KSP Residual norm 4.882414780703e-01 
+  8 KSP Residual norm 1.935901325095e-01 
+  9 KSP Residual norm 8.154941717261e-02 
+ 10 KSP Residual norm 3.988974398036e-02 
+ 11 KSP Residual norm 2.052543841192e-02 
+ 12 KSP Residual norm 1.078490167268e-02 
+ 13 KSP Residual norm 5.775795749420e-03 
+ 14 KSP Residual norm 2.854201903132e-03 
+ 15 KSP Residual norm 1.389583590928e-03 
+ 16 KSP Residual norm 7.026996519905e-04 
+ 17 KSP Residual norm 3.834941896130e-04 
+ 18 KSP Residual norm 2.094829441150e-04 
+ 19 KSP Residual norm 1.164149371853e-04 
+ 20 KSP Residual norm 6.598497091395e-05 
+ 21 KSP Residual norm 3.530572359270e-05 
+ 22 KSP Residual norm 1.878294535256e-05 
+ 23 KSP Residual norm 1.019277320364e-05 
+ 24 KSP Residual norm 5.641449376921e-06 
+ 25 KSP Residual norm 3.099920012879e-06 
+ 26 KSP Residual norm 1.677357291750e-06 
+ 27 KSP Residual norm 8.357099944242e-07 
+ 28 KSP Residual norm 4.185004737625e-07 
+ 29 KSP Residual norm 2.121880228954e-07 
+ 30 KSP Residual norm 1.062294841334e-07 
+ 31 KSP Residual norm 5.666160718268e-08 
+ 32 KSP Residual norm 3.095238044088e-08 
+ 33 KSP Residual norm 1.669765361163e-08 
+ 34 KSP Residual norm 8.767137556125e-09 
+ 35 KSP Residual norm 4.503100048692e-09 
+ 36 KSP Residual norm 2.293062102325e-09 
+ 37 KSP Residual norm 1.168712768525e-09 
+ 38 KSP Residual norm 5.879213343132e-10 
+ 39 KSP Residual norm 2.867354406657e-10 
+ 40 KSP Residual norm 1.350997835964e-10 
+ 41 KSP Residual norm 6.156760756967e-11 
+ 42 KSP Residual norm 2.725740810967e-11 
+ 43 KSP Residual norm 1.192010604746e-11 
+ 44 KSP Residual norm 5.247460044030e-12 
+ 45 KSP Residual norm 2.400369765980e-12 
+ 46 KSP Residual norm 1.153627494001e-12 
+ 47 KSP Residual norm 5.721157028880e-13 
+ 48 KSP Residual norm 2.836837089246e-13 
+ 49 KSP Residual norm 1.417006775396e-13 
+ 50 KSP Residual norm 7.272893026127e-14 
+ 51 KSP Residual norm 3.707255547538e-14 
+ 52 KSP Residual norm 1.890811737143e-14 
+ 53 KSP Residual norm 9.631379882177e-15 
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Computing convergence rates
+
+
+Computing convergence rates
+
+
+Computing convergence rates
+
+
+Computing convergence rates
+
+
+Computing convergence rates
+
+
+Computing convergence rates
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 0, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 0, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 0, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 0, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 0, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 0, and parameter set scpc_hypre
+
+  Residual norms for firedrake_12_static_condensation_ solve.
+  0 KSP Residual norm 6.917223523781e+00 
+  1 KSP Residual norm 4.092022936856e+00 
+  2 KSP Residual norm 2.486222368779e+00 
+  3 KSP Residual norm 1.261232281091e+00 
+  4 KSP Residual norm 1.035369794421e+00 
+  5 KSP Residual norm 6.861032518178e-01 
+  6 KSP Residual norm 3.746910135847e-01 
+  7 KSP Residual norm 1.933247006012e-01 
+  8 KSP Residual norm 7.702458475286e-02 
+  9 KSP Residual norm 3.312897631216e-02 
+ 10 KSP Residual norm 1.397593710874e-02 
+ 11 KSP Residual norm 6.201531298849e-03 
+ 12 KSP Residual norm 2.743285244378e-03 
+ 13 KSP Residual norm 1.401658588573e-03 
+ 14 KSP Residual norm 8.051550881348e-04 
+ 15 KSP Residual norm 3.782077972163e-04 
+ 16 KSP Residual norm 1.458004347548e-04 
+ 17 KSP Residual norm 7.437228556067e-05 
+ 18 KSP Residual norm 3.320325550336e-05 
+ 19 KSP Residual norm 1.669885716515e-05 
+ 20 KSP Residual norm 7.566878082019e-06 
+ 21 KSP Residual norm 3.233343273691e-06 
+ 22 KSP Residual norm 1.291360194242e-06 
+ 23 KSP Residual norm 5.067607112277e-07 
+ 24 KSP Residual norm 2.177641534000e-07 
+ 25 KSP Residual norm 8.143794751436e-08 
+ 26 KSP Residual norm 3.836777005157e-08 
+ 27 KSP Residual norm 1.474032170363e-08 
+ 28 KSP Residual norm 7.300527721239e-09 
+ 29 KSP Residual norm 3.619439626560e-09 
+ 30 KSP Residual norm 1.522110729944e-09 
+ 31 KSP Residual norm 7.181083725113e-10 
+ 32 KSP Residual norm 2.787167003531e-10 
+ 33 KSP Residual norm 1.129574824884e-10 
+ 34 KSP Residual norm 3.648517969332e-11 
+ 35 KSP Residual norm 1.761429440000e-11 
+ 36 KSP Residual norm 6.623272705587e-12 
+ 37 KSP Residual norm 2.641600939983e-12 
+ 38 KSP Residual norm 9.201984836865e-13 
+ 39 KSP Residual norm 3.861368575531e-13 
+ 40 KSP Residual norm 1.705509231785e-13 
+ 41 KSP Residual norm 6.223967067535e-14 
+ 42 KSP Residual norm 2.756878405139e-14 
+ 43 KSP Residual norm 1.064878491130e-14 
+ 44 KSP Residual norm 5.066292708443e-15 
+ 45 KSP Residual norm 2.350408553035e-15 
+ 46 KSP Residual norm 8.607041652229e-16 
+ 47 KSP Residual norm 3.487416688351e-16 
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 1, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 1, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 1, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 1, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 1, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 1, and parameter set scpc_hypre
+
+  Residual norms for firedrake_13_static_condensation_ solve.
+  0 KSP Residual norm 7.698846227138e+00 
+  1 KSP Residual norm 2.578422417474e+00 
+  2 KSP Residual norm 9.614001839995e-01 
+  3 KSP Residual norm 4.105754618175e-01 
+  4 KSP Residual norm 2.175873469344e-01 
+  5 KSP Residual norm 1.064700140483e-01 
+  6 KSP Residual norm 5.580923059716e-02 
+  7 KSP Residual norm 3.332198703359e-02 
+  8 KSP Residual norm 1.542095848664e-02 
+  9 KSP Residual norm 7.419083454564e-03 
+ 10 KSP Residual norm 3.786311339399e-03 
+ 11 KSP Residual norm 1.883716978741e-03 
+ 12 KSP Residual norm 1.052906082704e-03 
+ 13 KSP Residual norm 5.494054789331e-04 
+ 14 KSP Residual norm 2.928505567154e-04 
+ 15 KSP Residual norm 1.361341387563e-04 
+ 16 KSP Residual norm 6.807049718818e-05 
+ 17 KSP Residual norm 3.185788491859e-05 
+ 18 KSP Residual norm 1.547135326632e-05 
+ 19 KSP Residual norm 8.112149957715e-06 
+ 20 KSP Residual norm 4.159304593711e-06 
+ 21 KSP Residual norm 2.276932365475e-06 
+ 22 KSP Residual norm 1.394676993971e-06 
+ 23 KSP Residual norm 7.156817111159e-07 
+ 24 KSP Residual norm 3.899100379791e-07 
+ 25 KSP Residual norm 1.784274710239e-07 
+ 26 KSP Residual norm 9.232787855417e-08 
+ 27 KSP Residual norm 4.664590392425e-08 
+ 28 KSP Residual norm 2.257071582648e-08 
+ 29 KSP Residual norm 9.589953135406e-09 
+ 30 KSP Residual norm 4.394579510368e-09 
+ 31 KSP Residual norm 2.080320295127e-09 
+ 32 KSP Residual norm 9.671603466671e-10 
+ 33 KSP Residual norm 4.288584999385e-10 
+ 34 KSP Residual norm 2.146228532984e-10 
+ 35 KSP Residual norm 1.042551981543e-10 
+ 36 KSP Residual norm 5.196505657408e-11 
+ 37 KSP Residual norm 2.398095835301e-11 
+ 38 KSP Residual norm 1.068144801462e-11 
+ 39 KSP Residual norm 5.077362244043e-12 
+ 40 KSP Residual norm 2.247270429863e-12 
+ 41 KSP Residual norm 1.053277625363e-12 
+ 42 KSP Residual norm 4.830803267634e-13 
+ 43 KSP Residual norm 2.331313557811e-13 
+ 44 KSP Residual norm 1.045184637708e-13 
+ 45 KSP Residual norm 4.454388633757e-14 
+ 46 KSP Residual norm 1.993179673983e-14 
+ 47 KSP Residual norm 8.937984179968e-15 
+ 48 KSP Residual norm 3.849367819781e-15 
+ 49 KSP Residual norm 1.823817531657e-15 
+ 50 KSP Residual norm 8.656000583182e-16 
+ 51 KSP Residual norm 4.093377019804e-16 
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 2, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 2, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 2, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 2, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 2, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 2, and parameter set scpc_hypre
+
+  Residual norms for firedrake_14_static_condensation_ solve.
+  0 KSP Residual norm 1.419796075542e+01 
+  1 KSP Residual norm 4.250528901117e+00 
+  2 KSP Residual norm 1.798401352902e+00 
+  3 KSP Residual norm 8.324457013070e-01 
+  4 KSP Residual norm 3.961798031374e-01 
+  5 KSP Residual norm 1.816165325823e-01 
+  6 KSP Residual norm 8.728989655124e-02 
+  7 KSP Residual norm 4.200408022213e-02 
+  8 KSP Residual norm 2.327352179132e-02 
+  9 KSP Residual norm 1.187057665704e-02 
+ 10 KSP Residual norm 6.683844618975e-03 
+ 11 KSP Residual norm 3.692171496524e-03 
+ 12 KSP Residual norm 2.070143430817e-03 
+ 13 KSP Residual norm 1.048637218351e-03 
+ 14 KSP Residual norm 5.450508307279e-04 
+ 15 KSP Residual norm 3.013674259342e-04 
+ 16 KSP Residual norm 1.644205806115e-04 
+ 17 KSP Residual norm 8.643517925890e-05 
+ 18 KSP Residual norm 4.215646769567e-05 
+ 19 KSP Residual norm 2.132549548970e-05 
+ 20 KSP Residual norm 1.106442249851e-05 
+ 21 KSP Residual norm 5.683030077249e-06 
+ 22 KSP Residual norm 2.758483057223e-06 
+ 23 KSP Residual norm 1.457862286198e-06 
+ 24 KSP Residual norm 7.542456401047e-07 
+ 25 KSP Residual norm 3.961806754224e-07 
+ 26 KSP Residual norm 2.011433209829e-07 
+ 27 KSP Residual norm 1.028648439861e-07 
+ 28 KSP Residual norm 5.088902425587e-08 
+ 29 KSP Residual norm 2.530320028358e-08 
+ 30 KSP Residual norm 1.368360893831e-08 
+ 31 KSP Residual norm 6.590339196941e-09 
+ 32 KSP Residual norm 3.102027456910e-09 
+ 33 KSP Residual norm 1.468339539095e-09 
+ 34 KSP Residual norm 7.242357146535e-10 
+ 35 KSP Residual norm 3.595788342494e-10 
+ 36 KSP Residual norm 1.872883235519e-10 
+ 37 KSP Residual norm 1.076748608022e-10 
+ 38 KSP Residual norm 5.497617032878e-11 
+ 39 KSP Residual norm 2.969542596788e-11 
+ 40 KSP Residual norm 1.559444164036e-11 
+ 41 KSP Residual norm 7.870681969331e-12 
+ 42 KSP Residual norm 4.026620674719e-12 
+ 43 KSP Residual norm 2.083345752666e-12 
+ 44 KSP Residual norm 1.048734760147e-12 
+ 45 KSP Residual norm 5.398230708446e-13 
+ 46 KSP Residual norm 2.675106039647e-13 
+ 47 KSP Residual norm 1.319711317702e-13 
+ 48 KSP Residual norm 6.582278731619e-14 
+ 49 KSP Residual norm 3.184253455640e-14 
+ 50 KSP Residual norm 1.597711157419e-14 
+ 51 KSP Residual norm 8.298729796615e-15 
+ 52 KSP Residual norm 4.064960515474e-15 
+ 53 KSP Residual norm 1.994772324477e-15 
+ 54 KSP Residual norm 9.988314810706e-16 
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 3, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 3, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 3, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 3, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 3, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 3, and parameter set scpc_hypre
+
+  Residual norms for firedrake_15_static_condensation_ solve.
+  0 KSP Residual norm 3.264923368289e+01 
+  1 KSP Residual norm 6.804138265129e+00 
+  2 KSP Residual norm 3.248038527268e+00 
+  3 KSP Residual norm 1.736409066777e+00 
+  4 KSP Residual norm 1.014699872559e+00 
+  5 KSP Residual norm 4.997916350616e-01 
+  6 KSP Residual norm 2.709998975674e-01 
+  7 KSP Residual norm 1.187122910905e-01 
+  8 KSP Residual norm 5.751216417296e-02 
+  9 KSP Residual norm 2.988663478618e-02 
+ 10 KSP Residual norm 1.560448967587e-02 
+ 11 KSP Residual norm 8.434032603745e-03 
+ 12 KSP Residual norm 4.597897719799e-03 
+ 13 KSP Residual norm 2.442167360898e-03 
+ 14 KSP Residual norm 1.308200829320e-03 
+ 15 KSP Residual norm 6.872265020546e-04 
+ 16 KSP Residual norm 3.635823999363e-04 
+ 17 KSP Residual norm 1.970552977375e-04 
+ 18 KSP Residual norm 1.117550718409e-04 
+ 19 KSP Residual norm 6.033000740816e-05 
+ 20 KSP Residual norm 3.047456025990e-05 
+ 21 KSP Residual norm 1.652954108740e-05 
+ 22 KSP Residual norm 9.339345997278e-06 
+ 23 KSP Residual norm 5.190836622385e-06 
+ 24 KSP Residual norm 2.671077478052e-06 
+ 25 KSP Residual norm 1.427111542795e-06 
+ 26 KSP Residual norm 7.618554195212e-07 
+ 27 KSP Residual norm 4.036189144139e-07 
+ 28 KSP Residual norm 2.184454635513e-07 
+ 29 KSP Residual norm 1.158521289994e-07 
+ 30 KSP Residual norm 6.391056384335e-08 
+ 31 KSP Residual norm 3.450320179306e-08 
+ 32 KSP Residual norm 1.820753436717e-08 
+ 33 KSP Residual norm 9.810858678243e-09 
+ 34 KSP Residual norm 5.384768371758e-09 
+ 35 KSP Residual norm 2.941378072242e-09 
+ 36 KSP Residual norm 1.526987145959e-09 
+ 37 KSP Residual norm 7.887051651139e-10 
+ 38 KSP Residual norm 4.189550131879e-10 
+ 39 KSP Residual norm 2.314793268401e-10 
+ 40 KSP Residual norm 1.261519522381e-10 
+ 41 KSP Residual norm 6.700501687929e-11 
+ 42 KSP Residual norm 3.630678163472e-11 
+ 43 KSP Residual norm 1.878520053901e-11 
+ 44 KSP Residual norm 9.314410268986e-12 
+ 45 KSP Residual norm 4.573982216560e-12 
+ 46 KSP Residual norm 2.196050342127e-12 
+ 47 KSP Residual norm 1.114944280486e-12 
+ 48 KSP Residual norm 5.653617223902e-13 
+ 49 KSP Residual norm 2.753555644041e-13 
+ 50 KSP Residual norm 1.412591298989e-13 
+ 51 KSP Residual norm 7.242847830386e-14 
+ 52 KSP Residual norm 3.859056757960e-14 
+ 53 KSP Residual norm 1.964817431537e-14 
+ 54 KSP Residual norm 9.854819534445e-15 
+ 55 KSP Residual norm 5.106546195328e-15 
+ 56 KSP Residual norm 2.676875745749e-15 
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 4, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 4, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 4, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 4, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 4, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 4, and parameter set scpc_hypre
+
+  Residual norms for firedrake_16_static_condensation_ solve.
+  0 KSP Residual norm 8.235487675968e+01 
+  1 KSP Residual norm 1.058032405485e+01 
+  2 KSP Residual norm 6.578004894945e+00 
+  3 KSP Residual norm 4.193813962411e+00 
+  4 KSP Residual norm 2.710615621966e+00 
+  5 KSP Residual norm 1.398406268211e+00 
+  6 KSP Residual norm 7.415559199557e-01 
+  7 KSP Residual norm 3.473921883038e-01 
+  8 KSP Residual norm 1.759990771434e-01 
+  9 KSP Residual norm 8.941764691396e-02 
+ 10 KSP Residual norm 4.287554963235e-02 
+ 11 KSP Residual norm 2.435760152188e-02 
+ 12 KSP Residual norm 1.516712231916e-02 
+ 13 KSP Residual norm 8.513210688546e-03 
+ 14 KSP Residual norm 4.405649919424e-03 
+ 15 KSP Residual norm 2.293040090996e-03 
+ 16 KSP Residual norm 1.288911448042e-03 
+ 17 KSP Residual norm 7.671523170582e-04 
+ 18 KSP Residual norm 4.432242150955e-04 
+ 19 KSP Residual norm 2.574225583530e-04 
+ 20 KSP Residual norm 1.513075673712e-04 
+ 21 KSP Residual norm 8.630329822461e-05 
+ 22 KSP Residual norm 4.962366142522e-05 
+ 23 KSP Residual norm 2.838810217339e-05 
+ 24 KSP Residual norm 1.652604981411e-05 
+ 25 KSP Residual norm 9.015424872999e-06 
+ 26 KSP Residual norm 4.626404474335e-06 
+ 27 KSP Residual norm 2.391944305852e-06 
+ 28 KSP Residual norm 1.292995889661e-06 
+ 29 KSP Residual norm 6.820089650240e-07 
+ 30 KSP Residual norm 3.577202825235e-07 
+ 31 KSP Residual norm 1.895503390633e-07 
+ 32 KSP Residual norm 9.970726524567e-08 
+ 33 KSP Residual norm 5.132380936135e-08 
+ 34 KSP Residual norm 2.643799109134e-08 
+ 35 KSP Residual norm 1.452438376294e-08 
+ 36 KSP Residual norm 8.236191431354e-09 
+ 37 KSP Residual norm 4.624341184526e-09 
+ 38 KSP Residual norm 2.573632679976e-09 
+ 39 KSP Residual norm 1.385143836787e-09 
+ 40 KSP Residual norm 7.520118634856e-10 
+ 41 KSP Residual norm 3.938260947327e-10 
+ 42 KSP Residual norm 1.996845384791e-10 
+ 43 KSP Residual norm 9.986017041748e-11 
+ 44 KSP Residual norm 5.048699313043e-11 
+ 45 KSP Residual norm 2.546317597419e-11 
+ 46 KSP Residual norm 1.247601918151e-11 
+ 47 KSP Residual norm 6.139921890508e-12 
+ 48 KSP Residual norm 3.049499407454e-12 
+ 49 KSP Residual norm 1.473026288438e-12 
+ 50 KSP Residual norm 7.196927980727e-13 
+ 51 KSP Residual norm 3.738077761895e-13 
+ 52 KSP Residual norm 2.064158724970e-13 
+ 53 KSP Residual norm 1.145519449529e-13 
+ 54 KSP Residual norm 6.363835939376e-14 
+ 55 KSP Residual norm 3.516512458430e-14 
+ 56 KSP Residual norm 1.974069694138e-14 
+ 57 KSP Residual norm 1.101899631142e-14 
+ 58 KSP Residual norm 6.016918414221e-15 
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 5, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 5, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 5, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 5, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 5, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 5, and parameter set scpc_hypre
+
+  Residual norms for firedrake_17_static_condensation_ solve.
+  0 KSP Residual norm 2.057503900710e+02 
+  1 KSP Residual norm 1.922223049499e+01 
+  2 KSP Residual norm 1.564943893542e+01 
+  3 KSP Residual norm 1.081601751925e+01 
+  4 KSP Residual norm 7.225182759395e+00 
+  5 KSP Residual norm 3.726725751275e+00 
+  6 KSP Residual norm 1.988224837430e+00 
+  7 KSP Residual norm 1.045853085304e+00 
+  8 KSP Residual norm 5.327155762711e-01 
+  9 KSP Residual norm 2.466047200416e-01 
+ 10 KSP Residual norm 1.051058791198e-01 
+ 11 KSP Residual norm 6.254282861387e-02 
+ 12 KSP Residual norm 4.136772673779e-02 
+ 13 KSP Residual norm 2.256483600911e-02 
+ 14 KSP Residual norm 1.183128549351e-02 
+ 15 KSP Residual norm 6.105005248552e-03 
+ 16 KSP Residual norm 3.287484668631e-03 
+ 17 KSP Residual norm 1.827130421021e-03 
+ 18 KSP Residual norm 9.931016360216e-04 
+ 19 KSP Residual norm 5.894844246625e-04 
+ 20 KSP Residual norm 3.446686257342e-04 
+ 21 KSP Residual norm 1.739388932955e-04 
+ 22 KSP Residual norm 8.621338028752e-05 
+ 23 KSP Residual norm 5.099501819951e-05 
+ 24 KSP Residual norm 3.180536307050e-05 
+ 25 KSP Residual norm 1.844101565590e-05 
+ 26 KSP Residual norm 1.081843723033e-05 
+ 27 KSP Residual norm 6.430333919714e-06 
+ 28 KSP Residual norm 3.616883521753e-06 
+ 29 KSP Residual norm 1.927687542905e-06 
+ 30 KSP Residual norm 1.097317584706e-06 
+ 31 KSP Residual norm 6.645172612925e-07 
+ 32 KSP Residual norm 4.038914688807e-07 
+ 33 KSP Residual norm 2.421154141703e-07 
+ 34 KSP Residual norm 1.368043177499e-07 
+ 35 KSP Residual norm 7.933098750685e-08 
+ 36 KSP Residual norm 4.577979032327e-08 
+ 37 KSP Residual norm 2.543297308856e-08 
+ 38 KSP Residual norm 1.437371590175e-08 
+ 39 KSP Residual norm 8.307450686750e-09 
+ 40 KSP Residual norm 4.585580123350e-09 
+ 41 KSP Residual norm 2.466822799634e-09 
+ 42 KSP Residual norm 1.323009724896e-09 
+ 43 KSP Residual norm 7.168618299929e-10 
+ 44 KSP Residual norm 3.909392799759e-10 
+ 45 KSP Residual norm 1.966229131349e-10 
+ 46 KSP Residual norm 9.817258490956e-11 
+ 47 KSP Residual norm 5.119466550651e-11 
+ 48 KSP Residual norm 2.495741631575e-11 
+ 49 KSP Residual norm 1.165140051718e-11 
+ 50 KSP Residual norm 5.753946852818e-12 
+ 51 KSP Residual norm 2.963021064593e-12 
+ 52 KSP Residual norm 1.575324311189e-12 
+ 53 KSP Residual norm 8.523050516079e-13 
+ 54 KSP Residual norm 4.959289795552e-13 
+ 55 KSP Residual norm 2.977882801440e-13 
+ 56 KSP Residual norm 1.764127600791e-13 
+ 57 KSP Residual norm 1.039039735464e-13 
+ 58 KSP Residual norm 6.038140797707e-14 
+ 59 KSP Residual norm 3.508901490659e-14 
+ 60 KSP Residual norm 1.914465912567e-14 
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Computing convergence rates
+
+
+Computing convergence rates
+
+
+Computing convergence rates
+
+
+Computing convergence rates
+
+
+Computing convergence rates
+
+
+Computing convergence rates
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 0, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 0, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 0, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 0, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 0, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 0, and parameter set scpc_hypre
+
+  Residual norms for firedrake_18_static_condensation_ solve.
+  0 KSP Residual norm 7.991503000516e+00 
+  1 KSP Residual norm 4.493927312540e+00 
+  2 KSP Residual norm 2.965477209697e+00 
+  3 KSP Residual norm 2.489233275450e+00 
+  4 KSP Residual norm 1.373186480963e+00 
+  5 KSP Residual norm 1.243559965089e+00 
+  6 KSP Residual norm 6.654423473522e-01 
+  7 KSP Residual norm 4.166507231607e-01 
+  8 KSP Residual norm 1.901324906405e-01 
+  9 KSP Residual norm 7.970429660018e-02 
+ 10 KSP Residual norm 4.463387486839e-02 
+ 11 KSP Residual norm 2.516581892992e-02 
+ 12 KSP Residual norm 1.388712977289e-02 
+ 13 KSP Residual norm 7.980584560675e-03 
+ 14 KSP Residual norm 3.534658089544e-03 
+ 15 KSP Residual norm 1.764522250260e-03 
+ 16 KSP Residual norm 9.648166858043e-04 
+ 17 KSP Residual norm 5.824769713635e-04 
+ 18 KSP Residual norm 2.765910659054e-04 
+ 19 KSP Residual norm 1.500384606725e-04 
+ 20 KSP Residual norm 8.183541079656e-05 
+ 21 KSP Residual norm 4.281760993366e-05 
+ 22 KSP Residual norm 2.524475503859e-05 
+ 23 KSP Residual norm 1.274071394908e-05 
+ 24 KSP Residual norm 6.464102816769e-06 
+ 25 KSP Residual norm 3.463763874772e-06 
+ 26 KSP Residual norm 2.581121451762e-06 
+ 27 KSP Residual norm 1.445645819379e-06 
+ 28 KSP Residual norm 9.423184137140e-07 
+ 29 KSP Residual norm 4.374887744806e-07 
+ 30 KSP Residual norm 2.621985154115e-07 
+ 31 KSP Residual norm 1.084699106958e-07 
+ 32 KSP Residual norm 5.083782325311e-08 
+ 33 KSP Residual norm 2.929144451358e-08 
+ 34 KSP Residual norm 1.609081699984e-08 
+ 35 KSP Residual norm 6.226923439943e-09 
+ 36 KSP Residual norm 2.946802976721e-09 
+ 37 KSP Residual norm 1.566281430231e-09 
+ 38 KSP Residual norm 7.079510499757e-10 
+ 39 KSP Residual norm 3.449395715382e-10 
+ 40 KSP Residual norm 1.720251028089e-10 
+ 41 KSP Residual norm 8.397434424095e-11 
+ 42 KSP Residual norm 4.620072526649e-11 
+ 43 KSP Residual norm 2.285806651140e-11 
+ 44 KSP Residual norm 1.070830108272e-11 
+ 45 KSP Residual norm 5.589842145819e-12 
+ 46 KSP Residual norm 2.818148432343e-12 
+ 47 KSP Residual norm 1.760561317005e-12 
+ 48 KSP Residual norm 7.366318553835e-13 
+ 49 KSP Residual norm 3.718227521220e-13 
+ 50 KSP Residual norm 1.903692574103e-13 
+ 51 KSP Residual norm 8.559085595232e-14 
+ 52 KSP Residual norm 4.680011199846e-14 
+ 53 KSP Residual norm 2.345007005574e-14 
+ 54 KSP Residual norm 1.063052799595e-14 
+ 55 KSP Residual norm 4.937102107022e-15 
+ 56 KSP Residual norm 2.164947015122e-15 
+ 57 KSP Residual norm 1.136532153688e-15 
+ 58 KSP Residual norm 6.639100678953e-16 
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 1, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 1, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 1, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 1, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 1, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 1, and parameter set scpc_hypre
+
+  Residual norms for firedrake_19_static_condensation_ solve.
+  0 KSP Residual norm 6.934932115079e+00 
+  1 KSP Residual norm 3.745788089687e+00 
+  2 KSP Residual norm 1.189355949082e+00 
+  3 KSP Residual norm 8.172185976820e-01 
+  4 KSP Residual norm 3.687065729823e-01 
+  5 KSP Residual norm 2.474275191196e-01 
+  6 KSP Residual norm 1.264491527211e-01 
+  7 KSP Residual norm 9.966928168103e-02 
+  8 KSP Residual norm 6.747500613269e-02 
+  9 KSP Residual norm 3.641304048184e-02 
+ 10 KSP Residual norm 2.156742675683e-02 
+ 11 KSP Residual norm 1.190279499431e-02 
+ 12 KSP Residual norm 6.805027924562e-03 
+ 13 KSP Residual norm 3.207364838722e-03 
+ 14 KSP Residual norm 1.949791986921e-03 
+ 15 KSP Residual norm 1.080428205408e-03 
+ 16 KSP Residual norm 6.741575513030e-04 
+ 17 KSP Residual norm 3.702191989903e-04 
+ 18 KSP Residual norm 2.363609872873e-04 
+ 19 KSP Residual norm 1.373247526654e-04 
+ 20 KSP Residual norm 8.206911701266e-05 
+ 21 KSP Residual norm 4.465426648841e-05 
+ 22 KSP Residual norm 2.621803433297e-05 
+ 23 KSP Residual norm 1.467852440302e-05 
+ 24 KSP Residual norm 9.178236033928e-06 
+ 25 KSP Residual norm 5.527266605389e-06 
+ 26 KSP Residual norm 3.256154880490e-06 
+ 27 KSP Residual norm 2.209193589193e-06 
+ 28 KSP Residual norm 1.471300974750e-06 
+ 29 KSP Residual norm 8.362903848653e-07 
+ 30 KSP Residual norm 5.166560256100e-07 
+ 31 KSP Residual norm 3.350639744863e-07 
+ 32 KSP Residual norm 1.968671399362e-07 
+ 33 KSP Residual norm 1.124299208948e-07 
+ 34 KSP Residual norm 5.519290135457e-08 
+ 35 KSP Residual norm 2.687233851759e-08 
+ 36 KSP Residual norm 1.445837345149e-08 
+ 37 KSP Residual norm 8.055989878268e-09 
+ 38 KSP Residual norm 4.807670731393e-09 
+ 39 KSP Residual norm 2.440707765885e-09 
+ 40 KSP Residual norm 1.353220157672e-09 
+ 41 KSP Residual norm 8.926877352366e-10 
+ 42 KSP Residual norm 5.237256023411e-10 
+ 43 KSP Residual norm 3.028807177405e-10 
+ 44 KSP Residual norm 1.746355899938e-10 
+ 45 KSP Residual norm 9.164466995365e-11 
+ 46 KSP Residual norm 4.617665349214e-11 
+ 47 KSP Residual norm 2.245650701651e-11 
+ 48 KSP Residual norm 1.034361819584e-11 
+ 49 KSP Residual norm 5.297686908016e-12 
+ 50 KSP Residual norm 2.832464760628e-12 
+ 51 KSP Residual norm 1.535463476311e-12 
+ 52 KSP Residual norm 9.048727057217e-13 
+ 53 KSP Residual norm 5.468033849821e-13 
+ 54 KSP Residual norm 3.152720085699e-13 
+ 55 KSP Residual norm 1.916686905341e-13 
+ 56 KSP Residual norm 1.177510390006e-13 
+ 57 KSP Residual norm 6.672231177975e-14 
+ 58 KSP Residual norm 3.383520687393e-14 
+ 59 KSP Residual norm 1.682801197412e-14 
+ 60 KSP Residual norm 8.692112064118e-15 
+ 61 KSP Residual norm 4.378119251796e-15 
+ 62 KSP Residual norm 2.182651022710e-15 
+ 63 KSP Residual norm 1.058510042625e-15 
+ 64 KSP Residual norm 4.796474295588e-16 
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 2, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 2, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 2, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 2, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 2, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 2, and parameter set scpc_hypre
+
+  Residual norms for firedrake_20_static_condensation_ solve.
+  0 KSP Residual norm 1.427327576754e+01 
+  1 KSP Residual norm 4.537057555125e+00 
+  2 KSP Residual norm 2.407718773709e+00 
+  3 KSP Residual norm 1.258968668279e+00 
+  4 KSP Residual norm 7.096199179623e-01 
+  5 KSP Residual norm 3.717998948560e-01 
+  6 KSP Residual norm 2.259462857119e-01 
+  7 KSP Residual norm 1.202086358663e-01 
+  8 KSP Residual norm 6.313983877869e-02 
+  9 KSP Residual norm 3.509516704948e-02 
+ 10 KSP Residual norm 2.039716423949e-02 
+ 11 KSP Residual norm 1.264599582099e-02 
+ 12 KSP Residual norm 7.927627837747e-03 
+ 13 KSP Residual norm 5.291408922628e-03 
+ 14 KSP Residual norm 3.363560471384e-03 
+ 15 KSP Residual norm 2.123821450285e-03 
+ 16 KSP Residual norm 1.283935264692e-03 
+ 17 KSP Residual norm 7.890748905081e-04 
+ 18 KSP Residual norm 4.442449481710e-04 
+ 19 KSP Residual norm 2.682299093717e-04 
+ 20 KSP Residual norm 1.612352599781e-04 
+ 21 KSP Residual norm 9.379179226943e-05 
+ 22 KSP Residual norm 5.631005013038e-05 
+ 23 KSP Residual norm 3.280001439534e-05 
+ 24 KSP Residual norm 1.848421905380e-05 
+ 25 KSP Residual norm 1.162521660302e-05 
+ 26 KSP Residual norm 7.002236599686e-06 
+ 27 KSP Residual norm 4.184041234142e-06 
+ 28 KSP Residual norm 2.611665247812e-06 
+ 29 KSP Residual norm 1.617831976325e-06 
+ 30 KSP Residual norm 9.481367596194e-07 
+ 31 KSP Residual norm 5.499896398390e-07 
+ 32 KSP Residual norm 3.244624289566e-07 
+ 33 KSP Residual norm 2.029213801404e-07 
+ 34 KSP Residual norm 1.229353740603e-07 
+ 35 KSP Residual norm 7.412756491186e-08 
+ 36 KSP Residual norm 4.611993832636e-08 
+ 37 KSP Residual norm 2.865764335299e-08 
+ 38 KSP Residual norm 1.774210162862e-08 
+ 39 KSP Residual norm 1.278958479548e-08 
+ 40 KSP Residual norm 9.205188792469e-09 
+ 41 KSP Residual norm 5.759112399762e-09 
+ 42 KSP Residual norm 3.637661156644e-09 
+ 43 KSP Residual norm 2.399653432820e-09 
+ 44 KSP Residual norm 1.447729071177e-09 
+ 45 KSP Residual norm 8.098852324976e-10 
+ 46 KSP Residual norm 4.736234629430e-10 
+ 47 KSP Residual norm 2.480614178860e-10 
+ 48 KSP Residual norm 1.313235508174e-10 
+ 49 KSP Residual norm 7.260165927145e-11 
+ 50 KSP Residual norm 3.943163233123e-11 
+ 51 KSP Residual norm 2.374849489080e-11 
+ 52 KSP Residual norm 1.371599534951e-11 
+ 53 KSP Residual norm 8.185115719472e-12 
+ 54 KSP Residual norm 4.870598591260e-12 
+ 55 KSP Residual norm 2.925450292163e-12 
+ 56 KSP Residual norm 1.773424360340e-12 
+ 57 KSP Residual norm 1.048293304099e-12 
+ 58 KSP Residual norm 6.073953523086e-13 
+ 59 KSP Residual norm 3.484557265470e-13 
+ 60 KSP Residual norm 1.959115383228e-13 
+ 61 KSP Residual norm 1.084379142400e-13 
+ 62 KSP Residual norm 7.052446683765e-14 
+ 63 KSP Residual norm 4.131505482704e-14 
+ 64 KSP Residual norm 2.548164299847e-14 
+ 65 KSP Residual norm 1.579893586531e-14 
+ 66 KSP Residual norm 9.041432081521e-15 
+ 67 KSP Residual norm 5.335594115884e-15 
+ 68 KSP Residual norm 3.015932161343e-15 
+ 69 KSP Residual norm 1.775234223253e-15 
+ 70 KSP Residual norm 1.013703790533e-15 
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 3, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 3, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 3, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 3, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 3, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 3, and parameter set scpc_hypre
+
+  Residual norms for firedrake_21_static_condensation_ solve.
+  0 KSP Residual norm 3.762638585948e+01 
+  1 KSP Residual norm 6.128695463318e+00 
+  2 KSP Residual norm 3.766617364089e+00 
+  3 KSP Residual norm 2.045359396551e+00 
+  4 KSP Residual norm 1.320573660814e+00 
+  5 KSP Residual norm 8.209025954670e-01 
+  6 KSP Residual norm 4.821695578938e-01 
+  7 KSP Residual norm 2.766055468755e-01 
+  8 KSP Residual norm 1.527705500695e-01 
+  9 KSP Residual norm 8.607710598786e-02 
+ 10 KSP Residual norm 4.864437223620e-02 
+ 11 KSP Residual norm 2.720725296178e-02 
+ 12 KSP Residual norm 1.664360489266e-02 
+ 13 KSP Residual norm 1.078762548391e-02 
+ 14 KSP Residual norm 7.143956460387e-03 
+ 15 KSP Residual norm 4.608980696603e-03 
+ 16 KSP Residual norm 2.837626577679e-03 
+ 17 KSP Residual norm 1.696154218699e-03 
+ 18 KSP Residual norm 1.031408843688e-03 
+ 19 KSP Residual norm 6.504908088184e-04 
+ 20 KSP Residual norm 3.979736387014e-04 
+ 21 KSP Residual norm 2.337986551794e-04 
+ 22 KSP Residual norm 1.475063745722e-04 
+ 23 KSP Residual norm 9.017272831667e-05 
+ 24 KSP Residual norm 5.359575332803e-05 
+ 25 KSP Residual norm 3.182277148813e-05 
+ 26 KSP Residual norm 1.955207042516e-05 
+ 27 KSP Residual norm 1.152213596529e-05 
+ 28 KSP Residual norm 6.990728976974e-06 
+ 29 KSP Residual norm 4.287714030907e-06 
+ 30 KSP Residual norm 2.455680941898e-06 
+ 31 KSP Residual norm 1.526236568843e-06 
+ 32 KSP Residual norm 9.030549927548e-07 
+ 33 KSP Residual norm 5.050825458929e-07 
+ 34 KSP Residual norm 2.932995330195e-07 
+ 35 KSP Residual norm 1.764324494768e-07 
+ 36 KSP Residual norm 1.049775234586e-07 
+ 37 KSP Residual norm 6.487561387402e-08 
+ 38 KSP Residual norm 3.866786521467e-08 
+ 39 KSP Residual norm 2.275939855836e-08 
+ 40 KSP Residual norm 1.367429975646e-08 
+ 41 KSP Residual norm 8.668352064769e-09 
+ 42 KSP Residual norm 5.481127637937e-09 
+ 43 KSP Residual norm 3.386457983532e-09 
+ 44 KSP Residual norm 2.186696557895e-09 
+ 45 KSP Residual norm 1.352346626748e-09 
+ 46 KSP Residual norm 8.611886120074e-10 
+ 47 KSP Residual norm 5.160763400642e-10 
+ 48 KSP Residual norm 3.054585076755e-10 
+ 49 KSP Residual norm 1.805465064423e-10 
+ 50 KSP Residual norm 9.912352129596e-11 
+ 51 KSP Residual norm 5.803042049901e-11 
+ 52 KSP Residual norm 3.339123687042e-11 
+ 53 KSP Residual norm 1.898584286165e-11 
+ 54 KSP Residual norm 1.117316636141e-11 
+ 55 KSP Residual norm 6.628804501843e-12 
+ 56 KSP Residual norm 3.837182053244e-12 
+ 57 KSP Residual norm 2.328475977020e-12 
+ 58 KSP Residual norm 1.377222292331e-12 
+ 59 KSP Residual norm 7.910779696616e-13 
+ 60 KSP Residual norm 4.822797857001e-13 
+ 61 KSP Residual norm 2.758309473025e-13 
+ 62 KSP Residual norm 1.652851254904e-13 
+ 63 KSP Residual norm 1.006042076503e-13 
+ 64 KSP Residual norm 5.719880816047e-14 
+ 65 KSP Residual norm 3.432486909033e-14 
+ 66 KSP Residual norm 1.933108301911e-14 
+ 67 KSP Residual norm 1.132891996396e-14 
+ 68 KSP Residual norm 6.487409382197e-15 
+ 69 KSP Residual norm 3.710397758566e-15 
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 4, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 4, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 4, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 4, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 4, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 4, and parameter set scpc_hypre
+
+  Residual norms for firedrake_22_static_condensation_ solve.
+  0 KSP Residual norm 9.588846678797e+01 
+  1 KSP Residual norm 9.975425048411e+00 
+  2 KSP Residual norm 6.546577254436e+00 
+  3 KSP Residual norm 3.483059752088e+00 
+  4 KSP Residual norm 2.919600904170e+00 
+  5 KSP Residual norm 1.997012181890e+00 
+  6 KSP Residual norm 1.110992710453e+00 
+  7 KSP Residual norm 6.396143581285e-01 
+  8 KSP Residual norm 3.428508135340e-01 
+  9 KSP Residual norm 1.853557013713e-01 
+ 10 KSP Residual norm 1.029253303663e-01 
+ 11 KSP Residual norm 5.056495686804e-02 
+ 12 KSP Residual norm 2.887988703922e-02 
+ 13 KSP Residual norm 1.667044571134e-02 
+ 14 KSP Residual norm 9.330778755209e-03 
+ 15 KSP Residual norm 5.251065713661e-03 
+ 16 KSP Residual norm 3.133598697677e-03 
+ 17 KSP Residual norm 1.828548831182e-03 
+ 18 KSP Residual norm 1.144362380303e-03 
+ 19 KSP Residual norm 6.922908755163e-04 
+ 20 KSP Residual norm 4.116809854658e-04 
+ 21 KSP Residual norm 2.285511665301e-04 
+ 22 KSP Residual norm 1.265248560177e-04 
+ 23 KSP Residual norm 7.840064413977e-05 
+ 24 KSP Residual norm 4.908543646094e-05 
+ 25 KSP Residual norm 3.006316012875e-05 
+ 26 KSP Residual norm 1.800019354057e-05 
+ 27 KSP Residual norm 1.021780606060e-05 
+ 28 KSP Residual norm 6.027625522853e-06 
+ 29 KSP Residual norm 3.534180806295e-06 
+ 30 KSP Residual norm 2.007937254534e-06 
+ 31 KSP Residual norm 1.125969651298e-06 
+ 32 KSP Residual norm 6.748848441666e-07 
+ 33 KSP Residual norm 4.022458257770e-07 
+ 34 KSP Residual norm 2.468797070948e-07 
+ 35 KSP Residual norm 1.487939221996e-07 
+ 36 KSP Residual norm 9.490316316866e-08 
+ 37 KSP Residual norm 5.707259845270e-08 
+ 38 KSP Residual norm 3.243846557553e-08 
+ 39 KSP Residual norm 1.844445913560e-08 
+ 40 KSP Residual norm 1.061924117622e-08 
+ 41 KSP Residual norm 6.071019770385e-09 
+ 42 KSP Residual norm 3.625963436243e-09 
+ 43 KSP Residual norm 2.130770719611e-09 
+ 44 KSP Residual norm 1.178054408038e-09 
+ 45 KSP Residual norm 7.032453875221e-10 
+ 46 KSP Residual norm 4.121589720469e-10 
+ 47 KSP Residual norm 2.330185868940e-10 
+ 48 KSP Residual norm 1.323652848355e-10 
+ 49 KSP Residual norm 7.308805560905e-11 
+ 50 KSP Residual norm 4.048622365508e-11 
+ 51 KSP Residual norm 2.262515104923e-11 
+ 52 KSP Residual norm 1.312657677505e-11 
+ 53 KSP Residual norm 7.635321075441e-12 
+ 54 KSP Residual norm 4.468601617520e-12 
+ 55 KSP Residual norm 2.615024608025e-12 
+ 56 KSP Residual norm 1.558212386903e-12 
+ 57 KSP Residual norm 9.380906991964e-13 
+ 58 KSP Residual norm 5.393290067700e-13 
+ 59 KSP Residual norm 3.187867738828e-13 
+ 60 KSP Residual norm 1.906358229026e-13 
+ 61 KSP Residual norm 1.130910949492e-13 
+ 62 KSP Residual norm 6.775178875910e-14 
+ 63 KSP Residual norm 3.917513229126e-14 
+ 64 KSP Residual norm 2.278473199098e-14 
+ 65 KSP Residual norm 1.425211252282e-14 
+ 66 KSP Residual norm 8.304290312687e-15 
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 5, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 5, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 5, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 5, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 5, and parameter set scpc_hypre
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 5, and parameter set scpc_hypre
+
+  Residual norms for firedrake_23_static_condensation_ solve.
+  0 KSP Residual norm 2.414877140254e+02 
+  1 KSP Residual norm 2.105527513559e+01 
+  2 KSP Residual norm 1.335389536327e+01 
+  3 KSP Residual norm 7.052491652950e+00 
+  4 KSP Residual norm 7.298631908466e+00 
+  5 KSP Residual norm 5.048293292505e+00 
+  6 KSP Residual norm 2.966555102079e+00 
+  7 KSP Residual norm 1.712844215598e+00 
+  8 KSP Residual norm 8.589008463930e-01 
+  9 KSP Residual norm 4.536206168356e-01 
+ 10 KSP Residual norm 2.639796512680e-01 
+ 11 KSP Residual norm 1.470331848777e-01 
+ 12 KSP Residual norm 8.295364361784e-02 
+ 13 KSP Residual norm 4.518197957277e-02 
+ 14 KSP Residual norm 2.451562626334e-02 
+ 15 KSP Residual norm 1.258964683413e-02 
+ 16 KSP Residual norm 7.711385313761e-03 
+ 17 KSP Residual norm 4.962979638688e-03 
+ 18 KSP Residual norm 3.322948575817e-03 
+ 19 KSP Residual norm 2.132601967875e-03 
+ 20 KSP Residual norm 1.215182784921e-03 
+ 21 KSP Residual norm 6.849169428679e-04 
+ 22 KSP Residual norm 4.124633471160e-04 
+ 23 KSP Residual norm 2.531625069846e-04 
+ 24 KSP Residual norm 1.558689913020e-04 
+ 25 KSP Residual norm 9.828669463369e-05 
+ 26 KSP Residual norm 5.809710920547e-05 
+ 27 KSP Residual norm 3.545223904157e-05 
+ 28 KSP Residual norm 2.307181424998e-05 
+ 29 KSP Residual norm 1.423493522603e-05 
+ 30 KSP Residual norm 8.294236282817e-06 
+ 31 KSP Residual norm 4.673718020257e-06 
+ 32 KSP Residual norm 2.881101474999e-06 
+ 33 KSP Residual norm 1.849333803798e-06 
+ 34 KSP Residual norm 1.107992899272e-06 
+ 35 KSP Residual norm 7.094625318399e-07 
+ 36 KSP Residual norm 4.407141560404e-07 
+ 37 KSP Residual norm 2.618234117688e-07 
+ 38 KSP Residual norm 1.602627702610e-07 
+ 39 KSP Residual norm 9.358838559569e-08 
+ 40 KSP Residual norm 5.525360970009e-08 
+ 41 KSP Residual norm 3.388951630670e-08 
+ 42 KSP Residual norm 1.951732204394e-08 
+ 43 KSP Residual norm 1.114849599830e-08 
+ 44 KSP Residual norm 6.593632737126e-09 
+ 45 KSP Residual norm 4.021340075931e-09 
+ 46 KSP Residual norm 2.486513794128e-09 
+ 47 KSP Residual norm 1.450538202283e-09 
+ 48 KSP Residual norm 8.238295589141e-10 
+ 49 KSP Residual norm 4.647666890485e-10 
+ 50 KSP Residual norm 2.636960175835e-10 
+ 51 KSP Residual norm 1.566688442218e-10 
+ 52 KSP Residual norm 8.749559921265e-11 
+ 53 KSP Residual norm 4.602482802427e-11 
+ 54 KSP Residual norm 2.556420896198e-11 
+ 55 KSP Residual norm 1.441126259152e-11 
+ 56 KSP Residual norm 8.053405829745e-12 
+ 57 KSP Residual norm 4.723538799876e-12 
+ 58 KSP Residual norm 2.692319113480e-12 
+ 59 KSP Residual norm 1.413142525365e-12 
+ 60 KSP Residual norm 7.999943948071e-13 
+ 61 KSP Residual norm 4.458672544175e-13 
+ 62 KSP Residual norm 2.521926711666e-13 
+ 63 KSP Residual norm 1.575311251316e-13 
+ 64 KSP Residual norm 9.003266103201e-14 
+ 65 KSP Residual norm 5.229070966142e-14 
+ 66 KSP Residual norm 3.186368664953e-14 
+ 67 KSP Residual norm 1.869447162284e-14 
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Computing convergence rates
+
+
+Computing convergence rates
+
+
+Computing convergence rates
+
+
+Computing convergence rates
+
+
+Computing convergence rates
+
+
+Computing convergence rates
+
+************************************************************************************************************************
+***             WIDEN YOUR WINDOW TO 120 CHARACTERS.  Use 'enscript -r -fCourier9' to print this document            ***
+************************************************************************************************************************
+
+---------------------------------------------- PETSc Performance Summary: ----------------------------------------------
+
+run-helmholtz.py on a arch-python-linux-x86_64 named mpe1 with 6 processors, by tg2115 Mon Dec 18 19:38:47 2017
+Using Petsc Development GIT revision: v3.4.2-19002-g3c589c1  GIT Date: 2017-12-11 13:30:46 -0600
+
+                         Max       Max/Min        Avg      Total 
+Time (sec):           4.614e+03      1.00000   4.614e+03
+Objects:              1.022e+04      1.18075   8.938e+03
+Flop:                 7.737e+12      1.00052   7.735e+12  4.641e+13
+Flop/sec:            1.677e+09      1.00052   1.676e+09  1.006e+10
+MPI Messages:         2.068e+04      1.25615   1.806e+04  1.083e+05
+MPI Message Lengths:  1.826e+09      1.30212   8.886e+04  9.627e+09
+MPI Reductions:       7.810e+03      1.00000
+
+Flop counting convention: 1 flop = 1 real number operation of type (multiply/divide/add/subtract)
+                            e.g., VecAXPY() for real vectors of length N --> 2N flop
+                            and VecAXPY() for complex vectors of length N --> 8N flop
+
+Summary of Stages:   ----- Time ------  ----- Flop -----  --- Messages ---  -- Message Lengths --  -- Reductions --
+                        Avg     %Total     Avg     %Total   counts   %Total     Avg         %Total   counts   %Total 
+ 0:      Main Stage: 4.6141e+03 100.0%  4.6412e+13 100.0%  1.083e+05 100.0%  8.886e+04      100.0%  7.803e+03  99.9% 
+
+------------------------------------------------------------------------------------------------------------------------
+See the 'Profiling' chapter of the users' manual for details on interpreting output.
+Phase summary info:
+   Count: number of times phase was executed
+   Time and Flop: Max - maximum over all processors
+                   Ratio - ratio of maximum to minimum over all processors
+   Mess: number of messages sent
+   Avg. len: average message length (bytes)
+   Reduct: number of global reductions
+   Global: entire computation
+   Stage: stages of a computation. Set stages with PetscLogStagePush() and PetscLogStagePop().
+      %T - percent time in this phase         %F - percent flop in this phase
+      %M - percent messages in this phase     %L - percent message lengths in this phase
+      %R - percent reductions in this phase
+   Total Mflop/s: 10e-6 * (sum of flop over all processors)/(max time over all processors)
+------------------------------------------------------------------------------------------------------------------------
+Event                Count      Time (sec)     Flop                             --- Global ---  --- Stage ---   Total
+                   Max Ratio  Max     Ratio   Max  Ratio  Mess   Avg len Reduct  %T %F %M %L %R  %T %F %M %L %R Mflop/s
+------------------------------------------------------------------------------------------------------------------------
+
+--- Event Stage 0: Main Stage
+
+BuildTwoSided       1032 1.0 2.1863e+0028.1 0.00e+00 0.0 8.5e+03 4.0e+00 0.0e+00  0  0  8  0  0   0  0  8  0  0     0
+VecTDot             2482 1.0 3.7981e+00 1.6 8.53e+08 1.1 0.0e+00 0.0e+00 2.5e+03  0  0  0  0 32   0  0  0  0 32  1314
+VecNorm             1289 1.0 8.3099e+0011.3 4.43e+08 1.1 0.0e+00 0.0e+00 1.3e+03  0  0  0  0 17   0  0  0  0 17   312
+VecCopy              216 1.0 3.7384e-01 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+VecSet              1433 1.0 9.8548e-01 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+VecAXPY             2506 1.0 3.4419e+00 1.1 8.63e+08 1.1 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0  1467
+VecAYPX             1241 1.0 1.4858e+00 1.1 4.24e+08 1.1 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0  1671
+VecScatterBegin     1265 1.0 2.8766e-01 3.0 0.00e+00 0.0 3.2e+04 4.0e+04 0.0e+00  0  0 30 13  0   0  0 30 13  0     0
+VecScatterEnd       1265 1.0 4.8634e+00 7.8 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+MatMult             1265 1.0 1.3762e+02 1.0 6.90e+10 1.1 3.2e+04 4.0e+04 0.0e+00  3  1 30 13  0   3  1 30 13  0  2926
+MatConvert            24 1.0 1.1640e+01 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 9.6e+01  0  0  0  0  1   0  0  0  0  1     0
+MatAssemblyBegin     288 1.0 1.0212e+02 2.5 0.00e+00 0.0 5.3e+03 1.4e+06 3.8e+02  2  0  5 77  5   2  0  5 77  5     0
+MatAssemblyEnd       288 1.0 2.9478e+01 1.4 0.00e+00 0.0 2.4e+03 1.0e+04 4.8e+02  1  0  2  0  6   1  0  2  0  6     0
+MatGetRowIJ           48 1.0 6.3658e-05 1.6 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+MatZeroEntries        48 1.0 9.4421e+00 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+PCSetUp               48 1.0 1.2149e+03 1.0 3.27e+12 1.0 5.0e+03 6.9e+05 7.7e+02 26 42  5 36 10  26 42  5 36 10 16130
+PCApply               24 1.0 1.1593e+03 1.0 1.05e+12 1.0 3.8e+04 3.6e+04 4.1e+03 25 14 35 14 53  25 14 35 14 53  5412
+KSPSetUp              72 1.0 2.0894e-01 1.2 0.00e+00 0.0 0.0e+00 0.0e+00 4.8e+01  0  0  0  0  1   0  0  0  0  1     0
+KSPSolve              24 1.0 2.3307e+03 1.0 4.31e+12 1.0 4.3e+04 1.1e+05 4.8e+03 51 56 40 50 61  51 56 40 50 62 11100
+SNESSolve             24 1.0 2.6592e+03 1.0 7.63e+12 1.0 4.5e+04 1.4e+05 4.9e+03 58 99 42 64 63  58 99 42 64 63 17222
+SNESFunctionEval      24 1.0 8.6631e+00 1.0 7.36e+10 1.0 1.2e+03 3.8e+04 0.0e+00  0  1  1  0  0   0  1  1  0  0 50980
+SNESJacobianEval      24 1.0 3.2012e+02 1.0 3.25e+12 1.0 8.8e+02 1.5e+06 9.6e+01  7 42  1 14  1   7 42  1 14  1 60860
+Mesh Partition        48 1.0 3.3096e+00 1.0 0.00e+00 0.0 1.7e+04 4.9e+03 2.4e+02  0  0 16  1  3   0  0 16  1  3     0
+Mesh Migration        48 1.0 2.1618e+00 1.0 0.00e+00 0.0 3.5e+04 1.5e+04 1.4e+03  0  0 32  5 18   0  0 32  5 18     0
+DMPlexInterp          24 1.0 4.2815e+00 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 1.2e+02  0  0  0  0  2   0  0  0  0  2     0
+DMPlexDistribute      24 1.0 4.4430e+00 1.0 0.00e+00 0.0 1.1e+04 5.4e+04 6.2e+02  0  0 10  6  8   0  0 10  6  8     0
+DMPlexDistCones       48 1.0 5.8471e-01 1.0 0.00e+00 0.0 5.7e+03 3.4e+04 0.0e+00  0  0  5  2  0   0  0  5  2  0     0
+DMPlexDistLabels      48 1.0 1.1056e+00 1.0 0.00e+00 0.0 1.9e+04 1.4e+04 9.1e+02  0  0 18  3 12   0  0 18  3 12     0
+DMPlexDistribOL       24 1.0 1.0984e+00 1.0 0.00e+00 0.0 4.2e+04 1.9e+03 1.1e+03  0  0 39  1 14   0  0 39  1 14     0
+DMPlexDistField       72 1.0 7.4724e-02 1.0 0.00e+00 0.0 7.7e+03 3.6e+03 4.8e+01  0  0  7  0  1   0  0  7  0  1     0
+DMPlexDistData        48 1.0 2.1104e+0026.2 0.00e+00 0.0 1.0e+04 4.6e+03 0.0e+00  0  0 10  0  0   0  0 10  0  0     0
+DMPlexStratify       120 1.0 4.6813e+00 3.7 0.00e+00 0.0 0.0e+00 0.0e+00 1.2e+02  0  0  0  0  2   0  0  0  0  2     0
+SFSetGraph          1128 1.0 1.5857e-02 1.4 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+SFBcastBegin        2328 1.0 2.7948e+00 2.9 0.00e+00 0.0 6.2e+04 1.3e+04 0.0e+00  0  0 58  8  0   0  0 58  8  0     0
+SFBcastEnd          2328 1.0 4.6437e+01 6.5 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  1  0  0  0  0   1  0  0  0  0     0
+SFReduceBegin        192 1.0 5.0245e-02 1.3 0.00e+00 0.0 5.5e+03 1.9e+04 0.0e+00  0  0  5  1  0   0  0  5  1  0     0
+SFReduceEnd          192 1.0 1.0729e+0129.9 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+SFFetchOpBegin        24 1.0 1.8811e-04 7.0 0.00e+00 0.0 2.9e+02 1.3e+03 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+SFFetchOpEnd          24 1.0 2.1594e-03 3.6 0.00e+00 0.0 2.9e+02 1.3e+03 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+CreateMesh            96 1.0 7.3093e+00 1.1 0.00e+00 0.0 5.3e+04 1.3e+04 1.8e+03  0  0 49  7 23   0  0 49  7 23     0
+CreateFunctionSpace      96 1.0 6.0600e+02 1.1 0.00e+00 0.0 4.4e+04 2.0e+03 1.2e+03 13  0 41  1 15  13  0 41  1 15     0
+Mesh: reorder         24 1.0 6.4886e-02 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 4.8e+01  0  0  0  0  1   0  0  0  0  1     0
+Mesh: numbering       24 1.0 4.5950e-01 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 4.8e+01  0  0  0  0  1   0  0  0  0  1     0
+CreateSparsity        48 1.0 7.7684e+02 1.0 0.00e+00 0.0 4.1e+03 6.0e+05 3.8e+02 17  0  4 26  5  17  0  4 26  5     0
+MatZeroInitial        48 1.0 9.8662e+01 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  2  0  0  0  0   2  0  0  0  0     0
+ParLoopExecute       384 1.0 8.2477e+02 1.0 7.67e+12 1.0 1.1e+04 2.2e+04 1.9e+02 18 99 10  2  2  18 99 10  2  2 55766
+ParLoopset_4           6 1.0 2.8412e-03 1.2 7.00e+01 3.5 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopRednBegin     384 1.0 3.8212e+0040.8 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopRednEnd       384 1.0 2.9583e-03 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopCells         480 1.0 7.3504e+02 1.0 7.67e+12 1.0 0.0e+00 0.0e+00 0.0e+00 16 99  0  0  0  16 99  0  0  0 62573
+SCInit                24 1.0 1.1770e+03 1.0 3.27e+12 1.0 5.0e+03 6.9e+05 6.7e+02 25 42  5 36  9  25 42  5 36  9 16650
+SCTransfer            24 1.0 5.7626e+0054.0 0.00e+00 0.0 0.0e+00 0.0e+00 2.4e+01  0  0  0  0  0   0  0  0  0  0     0
+SCTransferResidual      24 1.0 4.5859e-02 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+SCRHS                 24 1.0 6.7676e-02 1.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+SCSolve               24 1.0 1.0865e+03 1.0 5.59e+11 1.0 3.6e+04 3.7e+04 4.1e+03 24  7 33 14 52  24  7 33 14 52  3075
+ParLoopset_6           4 1.0 1.2238e-03 1.6 3.40e+01 3.8 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+SCRecover             24 1.0 6.6988e+01 1.0 4.89e+11 1.0 1.7e+03 1.6e+04 2.4e+01  1  6  2  0  0   1  6  2  0  0 43777
+SCRecon               24 1.0 6.3491e-02 1.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+SCAssembleInterior      24 1.0 1.3515e-02 1.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+SCReconSolution       24 1.0 4.9664e-02 1.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_5           2 1.0 4.0054e-05 1.5 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_12          6 1.0 9.1791e-05 1.1 3.10e+02 1.6 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0    16
+ParLoopset_14          4 1.0 4.2915e-05 1.1 1.47e+02 1.7 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0    16
+ParLoopset_13          2 1.0 2.3842e-05 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_20          6 1.0 9.5129e-05 1.2 1.94e+03 1.4 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   103
+ParLoopset_22          4 1.0 4.8399e-05 1.1 9.05e+02 1.5 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0    94
+ParLoopset_21          2 1.0 2.4319e-05 1.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_28          6 1.0 1.4091e-04 1.2 1.30e+04 1.2 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   510
+ParLoopset_30          4 1.0 6.1035e-05 1.2 5.96e+03 1.2 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   538
+ParLoopset_29          2 1.0 3.9816e-05 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_36          6 1.0 5.4908e-04 1.2 9.61e+04 1.1 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0  1000
+ParLoopset_38          4 1.0 2.7680e-04 1.3 4.40e+04 1.1 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   903
+ParLoopset_37          2 1.0 5.6982e-05 1.3 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_44          6 1.0 5.5604e-03 1.1 7.32e+05 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   772
+ParLoopset_46          4 1.0 6.6106e-03 1.1 3.33e+05 1.1 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   295
+ParLoopset_45          2 1.0 1.2016e-04 1.6 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_52          6 1.0 9.1791e-05 1.1 1.12e+02 2.8 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     5
+ParLoopset_54          4 1.0 4.9114e-05 1.2 5.20e+01 3.2 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     4
+ParLoopset_53          2 1.0 4.3154e-05 2.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_60          6 1.0 1.0180e-04 1.2 5.42e+02 1.5 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0    26
+ParLoopset_62          4 1.0 4.4107e-05 1.1 2.39e+02 1.6 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0    26
+ParLoopset_61          2 1.0 2.3127e-05 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_68          6 1.0 1.3232e-04 1.4 3.54e+03 1.3 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   140
+ParLoopset_70          4 1.0 4.8876e-05 1.1 1.52e+03 1.4 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   158
+ParLoopset_69          2 1.0 3.0994e-05 1.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_76          6 1.0 2.1386e-04 1.2 2.45e+04 1.1 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   645
+ParLoopset_78          4 1.0 8.1062e-05 1.1 1.02e+04 1.2 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   699
+ParLoopset_77          2 1.0 4.6015e-05 1.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_84          6 1.0 1.5097e-03 1.5 1.84e+05 1.1 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   704
+ParLoopset_86          4 1.0 9.2530e-04 1.2 7.57e+04 1.1 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   468
+ParLoopset_85          2 1.0 8.8930e-05 1.6 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_92          6 1.0 1.0185e-02 1.2 1.42e+06 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   819
+ParLoopset_94          4 1.0 1.0671e-02 1.1 5.78e+05 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   317
+ParLoopset_93          2 1.0 5.8389e-04 1.7 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_100         6 1.0 1.0300e-04 1.1 1.68e+02 2.4 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     7
+ParLoopset_102         4 1.0 5.6267e-05 1.1 7.40e+01 3.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     5
+ParLoopset_101         2 1.0 4.2915e-05 1.9 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_108         6 1.0 1.0967e-04 1.3 8.68e+02 1.4 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0    40
+ParLoopset_110         4 1.0 4.7684e-05 1.1 3.54e+02 1.6 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0    36
+ParLoopset_109         2 1.0 2.5272e-05 1.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_116         6 1.0 1.2827e-04 1.2 5.85e+03 1.3 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   244
+ParLoopset_118         4 1.0 5.9366e-05 1.2 2.28e+03 1.4 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   199
+ParLoopset_117         2 1.0 4.2915e-05 1.3 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_124         6 1.0 2.9373e-04 1.1 4.14e+04 1.1 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   801
+ParLoopset_126         4 1.0 1.2207e-04 1.3 1.56e+04 1.2 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   712
+ParLoopset_125         2 1.0 6.7234e-05 1.7 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_132         6 1.0 2.1110e-03 1.4 3.14e+05 1.1 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   865
+ParLoopset_134         4 1.0 1.5206e-03 1.6 1.16e+05 1.1 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   439
+ParLoopset_133         2 1.0 1.8382e-04 2.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_140         6 1.0 1.9313e-02 1.2 2.43e+06 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   744
+ParLoopset_142         4 1.0 1.5350e-02 1.2 8.89e+05 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   340
+ParLoopset_141         2 1.0 2.3160e-03 1.3 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_148         6 1.0 1.2994e-04 1.4 2.40e+02 2.1 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     8
+ParLoopset_150         4 1.0 5.3167e-05 1.1 1.00e+02 2.8 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     7
+ParLoopset_149         2 1.0 3.6955e-05 1.6 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_156         6 1.0 1.0610e-04 1.2 1.30e+03 1.3 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0    64
+ParLoopset_158         4 1.0 5.0783e-05 1.2 4.92e+02 1.5 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0    48
+ParLoopset_157         2 1.0 2.5034e-05 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_164         6 1.0 1.3900e-04 1.1 8.99e+03 1.2 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   351
+ParLoopset_166         4 1.0 6.9857e-05 1.2 3.22e+03 1.4 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   239
+ParLoopset_165         2 1.0 5.1260e-05 1.6 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_172         6 1.0 4.7612e-04 1.1 6.46e+04 1.1 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   778
+ParLoopset_174         4 1.0 1.4663e-04 1.2 2.21e+04 1.1 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   844
+ParLoopset_173         2 1.0 8.4877e-05 1.8 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_180         6 1.0 3.8583e-03 1.3 4.95e+05 1.1 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   748
+ParLoopset_182         4 1.0 2.3210e-03 1.7 1.65e+05 1.1 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   410
+ParLoopset_181         2 1.0 2.9302e-04 1.7 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_188         6 1.0 2.7106e-02 1.1 3.85e+06 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   840
+ParLoopset_190         4 1.0 2.1256e-02 1.2 1.27e+06 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   351
+ParLoopset_189         2 1.0 4.7228e-03 1.5 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+------------------------------------------------------------------------------------------------------------------------
+
+Memory usage is given in bytes:
+
+Object Type          Creations   Destructions     Memory  Descendants' Mem.
+Reports information only for process 0.
+
+--- Event Stage 0: Main Stage
+
+              Viewer    25             24        20160     0.
+           Index Set  4312           4312    104162256     0.
+   IS L to G Mapping   144            144     78864464     0.
+             Section  1632           1632      1148928     0.
+              Vector   816            816    469305928     0.
+      Vector Scatter    48             48        52608     0.
+              Matrix   336            336  15503694240     0.
+      Preconditioner    72             72        75648     0.
+       Krylov Solver    72             72       500160     0.
+     DMKSP interface    24             24        15744     0.
+                SNES    24             24        32832     0.
+      SNESLineSearch    24             24        23808     0.
+              DMSNES    24             24        16128     0.
+    Distributed Mesh   384            384      1849728     0.
+    GraphPartitioner   120            120        73440     0.
+   Star Forest Graph  1776           1776      1499520     0.
+     Discrete System   384            384       353280     0.
+========================================================================================================================
+Average time to get PetscTime(): 0.
+Average time for MPI_Barrier(): 1.23978e-06
+Average time for zero size MPI_Send(): 8.34465e-07
+#PETSc Option Table entries:
+-log_view
+#End of PETSc Option Table entries
+Compiled without FORTRAN kernels
+Compiled with full precision matrices (default)
+sizeof(short) 2 sizeof(int) 4 sizeof(long) 8 sizeof(void*) 8 sizeof(PetscScalar) 8 sizeof(PetscInt) 4
+Configure options: --prefix=/scratch/tgibson/src/firedrake/lib/python3.5/site-packages/petsc PETSC_ARCH=arch-python-linux-x86_64 --with-shared-libraries=1 --with-debugging=0 --with-c2html=0 --with-cc=/usr/bin/mpicc --with-cxx=/usr/bin/mpicxx --with-fc=/usr/bin/mpif90 --download-eigen=/scratch/tgibson/src/firedrake/src/eigen-3.3.3.tgz --download-chaco --download-metis --download-parmetis --download-scalapack --download-hypre --download-mumps --download-netcdf --download-hdf5 --download-exodusii
+-----------------------------------------
+Libraries compiled on Fri Dec 15 01:16:36 2017 on mpe1 
+Machine characteristics: Linux-4.4.0-83-generic-x86_64-with-Ubuntu-16.04-xenial
+Using PETSc directory: /tmp/pip-1c2iwwx_-build
+Using PETSc arch: arch-python-linux-x86_64
+-----------------------------------------
+
+Using C compiler: /usr/bin/mpicc  -fPIC  -Wall -Wwrite-strings -Wno-strict-aliasing -Wno-unknown-pragmas -fstack-protector -fvisibility=hidden -g -O  ${COPTFLAGS} ${CFLAGS}
+Using Fortran compiler: /usr/bin/mpif90  -fPIC -Wall -ffree-line-length-0 -Wno-unused-dummy-argument -g -O   ${FOPTFLAGS} ${FFLAGS} 
+-----------------------------------------
+
+Using include paths: -I/tmp/pip-1c2iwwx_-build/arch-python-linux-x86_64/include -I/tmp/pip-1c2iwwx_-build/include -I/tmp/pip-1c2iwwx_-build/include -I/tmp/pip-1c2iwwx_-build/arch-python-linux-x86_64/include -I/scratch/tgibson/src/firedrake/lib/python3.5/site-packages/petsc/include -I/scratch/tgibson/src/firedrake/lib/python3.5/site-packages/petsc/include/eigen3
+-----------------------------------------
+
+Using C linker: /usr/bin/mpicc
+Using Fortran linker: /usr/bin/mpif90
+Using libraries: -Wl,-rpath,/tmp/pip-1c2iwwx_-build/arch-python-linux-x86_64/lib -L/tmp/pip-1c2iwwx_-build/arch-python-linux-x86_64/lib -lpetsc -Wl,-rpath,/scratch/tgibson/src/firedrake/lib/python3.5/site-packages/petsc/lib -L/scratch/tgibson/src/firedrake/lib/python3.5/site-packages/petsc/lib -Wl,-rpath,/usr/lib/openmpi/lib -L/usr/lib/openmpi/lib -Wl,-rpath,/usr/lib/gcc/x86_64-linux-gnu/5 -L/usr/lib/gcc/x86_64-linux-gnu/5 -Wl,-rpath,/usr/lib/x86_64-linux-gnu -L/usr/lib/x86_64-linux-gnu -Wl,-rpath,/lib/x86_64-linux-gnu -L/lib/x86_64-linux-gnu -lcmumps -ldmumps -lsmumps -lzmumps -lmumps_common -lpord -lscalapack -lHYPRE -llapack -lblas -lparmetis -lmetis -lexodus -lnetcdf -lhdf5hl_fortran -lhdf5_fortran -lhdf5_hl -lhdf5 -lchaco -lm -lX11 -lmpi_usempif08 -lmpi_usempi_ignore_tkr -lmpi_mpifh -lgfortran -lm -lgfortran -lm -lquadmath -lmpi_cxx -lstdc++ -lm -ldl -lmpi -lgcc_s -lpthread -ldl
+-----------------------------------------
+
