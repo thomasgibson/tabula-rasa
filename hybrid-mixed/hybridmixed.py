@@ -118,7 +118,7 @@ def run_mixed_hybrid_poisson(r, degree, mixed_method, write=False):
     print("Solving hybrid-mixed system using static condensation.\n")
     bcs = DirichletBC(W[2], 0.0, "on_boundary")
     params = {'snes_type': 'ksponly',
-              'mat_type': 'matfree',
+              'pmat_type': 'matfree',
               'ksp_type': 'preonly',
               'pc_type': 'python',
               # Use the static condensation PC for hybridized problems
@@ -127,13 +127,10 @@ def run_mixed_hybrid_poisson(r, degree, mixed_method, write=False):
               'hybrid_sc': {'ksp_type': 'preonly',
                             'pc_type': 'lu',
                             'pc_factor_mat_solver_package': 'mumps'}}
-    r0 = assemble(F)
     problem = NonlinearVariationalProblem(F, s, bcs=bcs)
     solver = NonlinearVariationalSolver(problem, solver_parameters=params)
     solver.solve()
     print("Solver finished.\n")
-    r1 = assemble(F)
-    r_factor = r1.dat.norm/r0.dat.norm
 
     # Computed flux, scalar, and trace
     q_h, u_h, lambdar_h = s.split()
@@ -153,8 +150,7 @@ def run_mixed_hybrid_poisson(r, degree, mixed_method, write=False):
 
     # We keep track of all metrics using a Python dictionary
     error_dictionary = {"scalar_error": scalar_error,
-                        "flux_error": flux_error,
-                        "r_factor": r_factor}
+                        "flux_error": flux_error}
 
     # Scalar post-processing:
     # This gives an approximation in DG(k+1) via solving for
@@ -271,7 +267,6 @@ def run_mixed_hybrid_convergence(degree, method):
     flux_errors = []
     flux_jumps = []
     num_cells = []
-    reductions = []
     # Run over mesh parameters and collect error metrics
     for r in range(1, 7):
         r_array.append(r)
@@ -286,7 +281,6 @@ def run_mixed_hybrid_convergence(degree, method):
         flux_errors.append(error_dict["flux_error"])
         flux_jumps.append(error_dict["flux_jump"])
         num_cells.append(mesh.num_cells())
-        reductions.append(error_dict["r_factor"])
 
     # Now that all error metrics are collected, we can compute the rates:
     scalar_rates = compute_conv_rates(scalar_errors)
@@ -300,7 +294,6 @@ def run_mixed_hybrid_convergence(degree, method):
 
     degrees = [degree] * len(r_array)
     data = {"Mesh": r_array,
-            "ResidualReductions": reductions,
             "Degree": degrees,
             "NumCells": num_cells,
             "ScalarErrors": scalar_errors,

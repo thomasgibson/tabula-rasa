@@ -139,7 +139,7 @@ def run_LDG_H_poisson(r, degree, tau_order, write=False):
     F = a - L
     print("Solving using static condensation.\n")
     params = {'snes_type': 'ksponly',
-              'mat_type': 'matfree',
+              'pmat_type': 'matfree',
               'ksp_type': 'preonly',
               'pc_type': 'python',
               # Use the static condensation PC for hybridized problems
@@ -148,13 +148,10 @@ def run_LDG_H_poisson(r, degree, tau_order, write=False):
               'hybrid_sc': {'ksp_type': 'preonly',
                             'pc_type': 'lu',
                             'pc_factor_mat_solver_package': 'mumps'}}
-    r0 = assemble(F, mat_type="aij")
     problem = NonlinearVariationalProblem(F, s)
     solver = NonlinearVariationalSolver(problem, solver_parameters=params)
     solver.solve()
     print("Solver finished.\n")
-    r1 = assemble(F, mat_type="aij")
-    r_factor = r1.dat.norm/r0.dat.norm
 
     # Computed flux, scalar, and trace
     q_h, u_h, uhat_h = s.split()
@@ -183,8 +180,7 @@ def run_LDG_H_poisson(r, degree, tau_order, write=False):
 
     # We keep track of all metrics using a Python dictionary
     error_dictionary = {"scalar_error": scalar_error,
-                        "flux_error": flux_error,
-                        "r_factor": r_factor}
+                        "flux_error": flux_error}
 
     # Now we use Slate to perform element-wise post-processing
 
@@ -356,7 +352,6 @@ def run_LDG_H_convergence(degree, tau_order):
     flux_pp_div_errors = []
     flux_pp_jumps = []
     num_cells = []
-    reductions = []
     # Run over mesh parameters and collect error metrics
     for r in range(1, 7):
         r_array.append(r)
@@ -373,7 +368,6 @@ def run_LDG_H_convergence(degree, tau_order):
         flux_pp_div_errors.append(error_dict["flux_pp_div_error"])
         flux_pp_jumps.append(error_dict["flux_pp_jump"])
         num_cells.append(mesh.num_cells())
-        reductions.append(error_dict["r_factor"])
 
     # Now that all error metrics are collected, we can compute the rates:
     scalar_rates = compute_conv_rates(scalar_errors)
@@ -396,7 +390,6 @@ def run_LDG_H_convergence(degree, tau_order):
 
     degrees = [degree] * len(r_array)
     data = {"Mesh": r_array,
-            "ResidualReductions": reductions,
             "Degree": degrees,
             "NumCells": num_cells,
             "ScalarErrors": scalar_errors,
