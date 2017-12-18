@@ -28,7 +28,11 @@ parser.add_argument("--verbose",
 parser.add_argument("--verification",
                     action="store_true",
                     help=("Turn verification mode on? "
-                          "This enables GMRES residual monitors"))
+                          "This computes residual reductions."))
+
+parser.add_argument("--gmres",
+                    action="store_true",
+                    help="Wrap GMRES in outer loop of implicit solve.")
 
 parser.add_argument("--model_degree",
                     action="store",
@@ -57,6 +61,10 @@ parser.add_argument("--refinements",
 parser.add_argument("--profile",
                     action="store_true",
                     help="Turn profiling on for 20 timesteps.")
+
+parser.add_argument("--warmup",
+                    action="store_true",
+                    help="Turn off all output for warmup run.")
 
 parser.add_argument("--help",
                     action="store_true",
@@ -205,8 +213,9 @@ def run_williamson5(refinement_level=3, dumpfreq=100, test=False,
 
     # Stage 3: Implicit linear solve for u, D increments
     W = MixedFunctionSpace((Vu, VD))
+    DU = Function(W)
     w, phi = TestFunctions(W)
-    du, dD = TrialFunctions(W)
+    du, dD = split(DU)
 
     uDlhs = (
         inner(w, du + 0.5*dt*f*perp(du)) - 0.5*dt*div(w)*g*dD +
@@ -220,23 +229,26 @@ def run_williamson5(refinement_level=3, dumpfreq=100, test=False,
         + phi*(Dp - Dps)*dx
     )
 
-    DU = Function(W)
-    DUproblem = LinearVariationalProblem(uDlhs, uDrhs, DU)
+    FuD = uDlhs - uDrhs
+    DUproblem = NonlinearVariationalProblem(FuD, DU)
 
     if hybridization:
-        parameters = {'ksp_type': 'preonly',
-                      'mat_type': 'matfree',
+        parameters = {'snes_type': 'ksponly',
+                      'ksp_type': 'preonly',
+                      'pmat_type': 'matfree',
                       'pc_type': 'python',
                       'pc_python_type': 'scpc.HybridizationPC',
                       'hybridization': {'ksp_type': 'cg',
                                         'pc_type': 'gamg',
+                                        'ksp_rtol': 1e-8,
                                         'mg_levels': {'ksp_type': 'chebyshev',
                                                       'ksp_max_it': 2,
                                                       'pc_type': 'bjacobi',
                                                       'sub_pc_type': 'ilu'}}}
 
     else:
-        parameters = {'ksp_type': 'gmres',
+        parameters = {'snes_type': 'ksponly',
+                      'ksp_type': 'gmres',
                       'pc_type': 'fieldsplit',
                       'pc_fieldsplit_type': 'schur',
                       'ksp_type': 'gmres',
@@ -249,28 +261,23 @@ def run_williamson5(refinement_level=3, dumpfreq=100, test=False,
                                        'sub_pc_type': 'ilu'},
                       'fieldsplit_1': {'ksp_type': 'cg',
                                        'pc_type': 'gamg',
+                                       'ksp_rtol': 1e-8,
                                        'mg_levels': {'ksp_type': 'chebyshev',
                                                      'ksp_max_it': 2,
                                                      'pc_type': 'bjacobi',
                                                      'sub_pc_type': 'ilu'}}}
 
-    if verification:
+    if args.gmres:
         parameters['ksp_converged_reason'] = True
         parameters['ksp_monitor'] = True
         parameters['ksp_monitor_true_residual'] = True
 
-        # Ensure the residual is computed accurately in fGMRES
-        # to verify convergence. Should take on average 1 iteration.
-        # NOTE: Scale of the problem heavily influnces the update
-        # in fGMRES
         if hybridization:
             parameters['ksp_type'] = 'fgmres'
-            parameters['mat_type'] = 'aij'
-            parameters['pmat_type'] = 'matfree'
 
-    DUsolver = LinearVariationalSolver(DUproblem,
-                                       solver_parameters=parameters,
-                                       options_prefix="implicit-solve")
+    DUsolver = NonlinearVariationalSolver(DUproblem,
+                                          solver_parameters=parameters,
+                                          options_prefix="implicit-solve")
     deltau, deltaD = DU.split()
 
     dumpcount = dumpfreq
@@ -310,6 +317,9 @@ def run_williamson5(refinement_level=3, dumpfreq=100, test=False,
     setup_times = []
     apply_times = []
     solve_times = []
+    # At t=0, no solve has occured and therefore the reduction factor:
+    # ||b - Ax*||_2 / ||b - Ax^0||_2 = ||b||_2/||b||_2 = 1.
+    reductions = [1.0]
     while t < tmax - Dt/2:
         t += Dt
 
@@ -318,6 +328,7 @@ def run_williamson5(refinement_level=3, dumpfreq=100, test=False,
         Dp.assign(Dn)
 
         # Picard iteration
+        res_reductions = []
         for i in range(4):
             with timed_stage("Advection"):
                 # Update layer depth
@@ -332,6 +343,15 @@ def run_williamson5(refinement_level=3, dumpfreq=100, test=False,
                     "Implicit solve finished for Picard iteration %s "
                     "at t=%s.\n" % (i + 1, t)
                 )
+
+            # x^0 == 0 (Preonly+hybrid)
+            # => r0 == ||b||_2
+            r0 = assemble(uDrhs)
+            r1 = DUsolver.snes.ksp.buildResidual()
+            r0norm = r0.dat.norm
+            r1norm = r1.norm()
+            r_factor = r1norm/r0norm
+            res_reductions.append(r_factor)
 
             up += deltau
             Dp += deltaD
@@ -376,33 +396,44 @@ def run_williamson5(refinement_level=3, dumpfreq=100, test=False,
         # Simulation time (in days)
         sim_time.append(t/day)
 
+        # Add average residual reductions over picard iterations
+        if hybridization:
+            reductions.append(sum(res_reductions)/len(res_reductions))
+        else:
+            # The above computation applies to 'preonly' applications
+            # Residual is monitored by PETSc for GMRES
+            # (set at a default rtol of 1e-8).
+            reductions.append('N/A')
+
     avg_outer_its = int(sum(ksp_outer_its)/len(ksp_outer_its))
     avg_inner_its = int(sum(ksp_inner_its)/len(ksp_inner_its))
     csolve_time = sum(solve_times)
     capply_time = sum(apply_times)
     csetup_time = sum(setup_times)
 
-    if COMM_WORLD.rank == 0:
-        if hybridization:
-            results_profile = "hybrid_profile_W5_ref%s.csv" % refinement_level
-            results_energy = "hybrid_energy_W5_ref%s.csv" % refinement_level
-        else:
-            results_profile = "profile_W5_ref%s.csv" % refinement_level
-            results_energy = "energy_W5_ref%s.csv" % refinement_level
+    if not args.warmup:
+        if COMM_WORLD.rank == 0:
+            if hybridization:
+                results_profile = "hybrid_profile_W5_ref%s.csv" % refinement_level
+                results_diagnostics = "hybrid_diagnostics_W5_ref%s.csv" % refinement_level
+            else:
+                results_profile = "profile_W5_ref%s.csv" % refinement_level
+                results_diagnostics = "diagnostics_W5_ref%s.csv" % refinement_level
 
-        data_profile = {"SolveTime": csolve_time,
-                        "SetUpTime": csetup_time,
-                        "ApplyTime": capply_time,
-                        "AvgOuterIters": avg_outer_its,
-                        "AvgInnerIters": avg_inner_its}
+            data_profile = {"SolveTime": csolve_time,
+                            "SetUpTime": csetup_time,
+                            "ApplyTime": capply_time,
+                            "AvgOuterIters": avg_outer_its,
+                            "AvgInnerIters": avg_inner_its}
 
-        data_energy = {"SimTime": sim_time,
-                       "Energy": energy}
+            data_diagnostics = {"SimTime": sim_time,
+                                "ResidualReductions": reductions,
+                                "Energy": energy}
 
-        df_profile = pd.DataFrame(data_profile, index=[0])
-        df_profile.to_csv(results_profile, index=False, mode="w", header=True)
-        df_energy = pd.DataFrame(data_energy)
-        df_energy.to_csv(results_energy, index=False, mode="w", header=True)
+            df_profile = pd.DataFrame(data_profile, index=[0])
+            df_profile.to_csv(results_profile, index=False, mode="w", header=True)
+            df_diagnostics = pd.DataFrame(data_diagnostics)
+            df_diagnostics.to_csv(results_diagnostics, index=False, mode="w", header=True)
 
 
 run_williamson5(refinement_level=args.refinements,
