@@ -46,13 +46,13 @@ def run_convergence_test(degree, write=False):
     name = "HelmholtzProblem"
     param_set = "scpc_hypre"
     params = {"snes_type": "ksponly",
-              "mat_type": "matfree",
+              "pmat_type": "matfree",
               "ksp_type": "preonly",
               "pc_type": "python",
               "pc_python_type": "scpc.SCCG",
               # HYPRE on the reduced system
               "static_condensation": {"ksp_type": "cg",
-                                      "ksp_rtol": 1e-18,
+                                      "ksp_rtol": 1e-16,
                                       "ksp_monitor": True,
                                       "pc_type": "hypre",
                                       "pc_hypre_type": "boomeramg",
@@ -63,13 +63,12 @@ def run_convergence_test(degree, write=False):
                                       "pc_hypre_boomeramg_agg_nl": 1}}
 
     if args.verify:
-        # Wrap PC in GMRES to monitor convergence. This should
-        # take only 1 GMRES iteration if the PC is working properly.
+        # Wrap PC in GMRES to monitor convergence.
         print("Wrapping solver options in GMRES outer loop.")
         params["ksp_type"] = "gmres"
         params["ksp_monitor"] = True
 
-    r_params = range(1, 7)
+    r_params = range(0, 6)
     l2_errors = []
     gmres_its = []
     sc_ksp_its = []
@@ -103,8 +102,8 @@ def run_convergence_test(degree, write=False):
                                           r,
                                           param_set))
         solver.solve()
-        r1 = assemble(F)
-        reductions.append(r1.dat.norm/r0.dat.norm)
+        r1 = solver.snes.ksp.buildResidual()
+        reductions.append(r1.norm()/r0.dat.norm)
         u_h = problem.u
         u_a = Function(FunctionSpace(mesh, "CG", degree + 1), name="analytic")
         sol = cos(3*pi*x)*cos(3*pi*y)*cos(3*pi*z)
