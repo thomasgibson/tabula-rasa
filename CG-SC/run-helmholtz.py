@@ -1,4 +1,5 @@
 from firedrake import *
+from firedrake.petsc import PETSc
 from mpi4py import MPI
 from argparse import ArgumentParser
 import numpy as np
@@ -96,11 +97,11 @@ def run_convergence_test(degree, write=False):
                                                      r,
                                                      param_set)
 
-        print("\nSolving 3D %s problem of degree %s, mesh size %s, "
-              "and parameter set %s\n" % (name,
-                                          degree,
-                                          r,
-                                          param_set))
+        PETSc.Sys.Print("\nSolving 3D %s problem of degree %s, mesh size %s, "
+                        "and parameter set %s\n" % (name,
+                                                    degree,
+                                                    r,
+                                                    param_set))
         solver.solve()
         r1 = solver.snes.ksp.buildResidual()
         reductions.append(r1.norm()/r0.dat.norm)
@@ -115,37 +116,39 @@ def run_convergence_test(degree, write=False):
         num_cells.append(mesh.comm.allreduce(mesh.cell_set.size,
                                              op=MPI.SUM))
 
-        print("\n Solver complete...\n")
+        PETSc.Sys.Print("\n Solver complete...\n")
 
-        print("\n Computing L2 errors\n")
+        PETSc.Sys.Print("\n Computing L2 errors\n")
         l2_errors.append(errornorm(sol, u_h, norm_type="L2"))
 
         # Only write output for the final solve
         if write:
-            if r == len(r_params):
-                print("\n Writing output to pvd file\n")
-                File(output_file + ".pvd").write(u_h, u_a)
+            if COMM_WORLD.rank == 0:
+                if r == len(r_params):
+                    PETSc.Sys.Print("\n Writing output to pvd file\n")
+                    File(output_file + ".pvd").write(u_h, u_a)
 
-    print("\nComputing convergence rates\n")
+    PETSc.Sys.Print("\nComputing convergence rates\n")
     l2_errors = np.array(l2_errors)
     rates = list(np.log2(l2_errors[:-1] / l2_errors[1:]))
     # Insert '---' in first slot, as there is rate to compute
     rates.insert(0, '---')
     degrees = [degree]*len(l2_errors)
 
-    data = {"Mesh": r_params,
-            "ResidualReductions": reductions,
-            "L2Errors": l2_errors,
-            "ConvRates": rates,
-            "GMRESIterations": gmres_its,
-            "SCPCIterations": sc_ksp_its,
-            "NumDOFS": num_dofs,
-            "NumCells": num_cells,
-            "Degree": degrees}
+    if COMM_WORLD.rank == 0:
+        data = {"Mesh": r_params,
+                "ResidualReductions": reductions,
+                "L2Errors": l2_errors,
+                "ConvRates": rates,
+                "GMRESIterations": gmres_its,
+                "SCPCIterations": sc_ksp_its,
+                "NumDOFS": num_dofs,
+                "NumCells": num_cells,
+                "Degree": degrees}
 
-    df = pd.DataFrame(data)
-    result = "helmholtz_conv-d-%d.csv" % degree
-    df.to_csv(result, index=False, mode="w")
+        df = pd.DataFrame(data)
+        result = "helmholtz_conv-d-%d.csv" % degree
+        df.to_csv(result, index=False, mode="w")
 
 
 if args.degree:
