@@ -35,9 +35,9 @@ uhat = u + tau*(p - phat)*n
 #     [G]
 #     [H]
 R = Tensor(dot(w, mu*u)*dx - div(w)*p*dx - dot(grad(phi), u)*dx + phi*c*p*dx +
-           lambdar*jump(w, n=n)*dS + lambdar*dot(w, n)*ds +
-           phi*jump(uhat, n=n)*dS + phi*dot(uhat, n)*ds +
-           gammar*jump(uhat, n=n)*dS + gammar*dot(uhat, n)*ds(2) +
+           2*avg(lambdar*dot(w, n))*dS + lambdar*dot(w, n)*ds +
+           2*avg(phi*dot(uhat, n))*dS + phi*dot(uhat, n)*ds +
+           2*avg(gammar*dot(uhat, n))*dS + gammar*dot(uhat, n)*ds(2) +
            gammar*lambdar*ds(1))
 Z = Tensor(phi*f*dx + gammar*g*ds(2) + gammar*p0*ds(1))
 
