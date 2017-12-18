@@ -12,7 +12,7 @@ FONTSIZE = 12
 # MARKERSIZE = 10
 # LINEWIDTH = 3
 
-rt_data = ["hybrid-mixed/H-RT-degree-%d.csv" % i for i in range(0, 5)]
+rt_data = ["hybrid-mixed/H-RT-degree-%d.csv" % i for i in range(0, 4)]
 
 for data in rt_data:
     if not os.path.exists(data):
@@ -101,66 +101,66 @@ annotation.slope_marker((0.1, 0.15), 1, ax=ax1,
                         invert=False,
                         text_kwargs={'fontsize': FONTSIZE-2,
                                      'color': colors[0],
-                                     'position': (0.062, 0.125)},
+                                     'position': (0.055, 0.125)},
                         poly_kwargs={'facecolor': colors[0]})
 annotation.slope_marker((0.0625, 0.0001), 3, ax=ax1,
                         invert=False,
                         text_kwargs={'fontsize': FONTSIZE-2,
                                      'color': colors[2],
-                                     'position': (0.04, 0.000065)},
+                                     'position': (0.034, 0.0000525)},
                         poly_kwargs={'facecolor': colors[2]})
-annotation.slope_marker((0.13, 1e-7), 5, ax=ax1,
+annotation.slope_marker((0.0575, 1e-7), 4, ax=ax1,
                         text_kwargs={'fontsize': FONTSIZE-2,
-                                     'color': colors[4],
-                                     'position': (0.2000, 2.25e-7)},
-                        invert=True, poly_kwargs={'facecolor': colors[4]})
+                                     'color': colors[3],
+                                     'position': (0.105, 1.75e-7)},
+                        invert=True, poly_kwargs={'facecolor': colors[3]})
 
 # Slope markers for post-processed scalar
 annotation.slope_marker((0.1, 0.015), 2, ax=ax2,
                         invert=False,
                         text_kwargs={'fontsize': FONTSIZE-2,
                                      'color': colors[0],
-                                     'position': (0.062, 0.01)},
+                                     'position': (0.055, 0.01)},
                         poly_kwargs={'facecolor': colors[0]})
 
-annotation.slope_marker((0.05, 0.000001), 4, ax=ax2,
+annotation.slope_marker((0.05, 0.0000015), 4, ax=ax2,
                         invert=False,
                         text_kwargs={'fontsize': FONTSIZE-2,
                                      'color': colors[2],
-                                     'position': (0.0325, 0.00000065)},
+                                     'position': (0.0275, 0.0000006)},
                         poly_kwargs={'facecolor': colors[2]})
-annotation.slope_marker((0.13, 1e-8), 6, ax=ax2,
+annotation.slope_marker((0.075, 1e-8), 5, ax=ax2,
                         text_kwargs={'fontsize': FONTSIZE-2,
-                                     'color': colors[4],
-                                     'position': (0.2000, 2.25e-8)},
-                        invert=True, poly_kwargs={'facecolor': colors[4]})
+                                     'color': colors[3],
+                                     'position': (0.14, 2.0e-8)},
+                        invert=True, poly_kwargs={'facecolor': colors[3]})
 
 # Slope markers for flux
 annotation.slope_marker((0.1, 0.50), 1, ax=ax3,
                         invert=False,
                         text_kwargs={'fontsize': FONTSIZE-2,
                                      'color': colors[0],
-                                     'position': (0.062, 0.475)},
+                                     'position': (0.055, 0.475)},
                         poly_kwargs={'facecolor': colors[0]})
 annotation.slope_marker((0.05, 0.0001), 3, ax=ax3,
                         invert=False,
                         text_kwargs={'fontsize': FONTSIZE-2,
                                      'color': colors[2],
-                                     'position': (0.0325, 0.000065)},
+                                     'position': (0.0275, 0.00005)},
                         poly_kwargs={'facecolor': colors[2]})
-annotation.slope_marker((0.13, 1e-7), 5, ax=ax3,
+annotation.slope_marker((0.0525, 1e-7), 4, ax=ax3,
                         text_kwargs={'fontsize': FONTSIZE-2,
-                                     'color': colors[4],
-                                     'position': (0.2000, 2.25e-7)},
-                        invert=True, poly_kwargs={'facecolor': colors[4]})
+                                     'color': colors[3],
+                                     'position': (0.095, 1.75e-7)},
+                        invert=True, poly_kwargs={'facecolor': colors[3]})
 
 ax1.set_title("Scalar", fontsize=FONTSIZE)
 ax2.set_title("Post-processed scalar", fontsize=FONTSIZE)
 ax3.set_title("Flux", fontsize=FONTSIZE)
 
 for ax in [ax1, ax2, ax3]:
-    ax.set_xticklabels(["$2^{-%d}$\n(%d)" % (r, n)
-                        for (r, n) in zip(r_values, num_cells)])
+    ax.set_xticklabels(["$2^{-%d}$" % r
+                        for r in r_values])
     for tick in ax.get_xticklabels():
         tick.set_fontsize(FONTSIZE)
 
@@ -172,8 +172,8 @@ for tick in ax1.get_yticklabels():
     tick.set_fontsize(FONTSIZE)
 
 fig.subplots_adjust(wspace=0.15)
-xlabel = fig.text(0.5, -0.3,
-                  "Mesh size $h=2^{-r}$\n(Number of cells)",
+xlabel = fig.text(0.5, -0.15,
+                  "Mesh size $h=2^{-r}$",
                   ha='center',
                   fontsize=FONTSIZE+2)
 

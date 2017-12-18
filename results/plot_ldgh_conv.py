@@ -42,7 +42,7 @@ colors = ['#30a2da', '#fc4f30', '#e5ae38', '#6d904f', '#8b8b8b']
 # colors = seaborn.cubehelix_palette(3, start=.5, rot=-.75, light=.65)
 markers = ["o", "s", "^"]
 
-fig, axes = plt.subplots(2, 2, figsize=(9, 5), squeeze=False)
+fig, axes = plt.subplots(2, 2, figsize=(7, 5), squeeze=False)
 axes = axes.flatten()
 ax1, ax2, ax3, ax4 = axes
 
@@ -176,7 +176,7 @@ annotation.slope_marker((0.035, 2e-3), 2, ax=ax1,
 annotation.slope_marker((0.02, 2e-7), 3, ax=ax1,
                         text_kwargs={'fontsize': FONTSIZE-2,
                                      'color': colors[2],
-                                     'position': (0.035, 5e-7)},
+                                     'position': (0.035, 2.75e-7)},
                         invert=True, poly_kwargs={'facecolor': colors[2]})
 
 # Slope markers for post-processed scalar
@@ -191,7 +191,7 @@ annotation.slope_marker((0.025, 0.75e-7), 4, ax=ax2,
                         invert=False,
                         text_kwargs={'fontsize': FONTSIZE-2,
                                      'color': colors[1],
-                                     'position': (0.0135, 0.25e-7)},
+                                     'position': (0.0125, 0.275e-7)},
                         poly_kwargs={'facecolor': colors[1]})
 
 annotation.slope_marker((0.035, 0.25e-9), 5, ax=ax2,
@@ -259,8 +259,8 @@ for ax in [ax1, ax2]:
     ax.tick_params(direction="inout", which="both", axis="x")
 
 for ax in [ax3, ax4]:
-    ax.set_xticklabels(["$2^{-%d}$\n(%d)" % (r, n)
-                        for (r, n) in zip(r_values, num_cells)])
+    ax.set_xticklabels(["$2^{-%d}$" % r
+                        for r in r_values])
     for tick in ax.get_xticklabels():
         tick.set_fontsize(FONTSIZE)
 
@@ -269,8 +269,8 @@ for ax in [ax1, ax3]:
         tick.set_fontsize(FONTSIZE)
 
 fig.subplots_adjust(wspace=0.1, hspace=0.25)
-xlabel = fig.text(0.5, -0.125,
-                  "Mesh size $h=2^{-r}$\n(Number of cells)",
+xlabel = fig.text(0.5, -0.0275,
+                  "Mesh size $h=2^{-r}$",
                   ha='center',
                   fontsize=FONTSIZE)
 
