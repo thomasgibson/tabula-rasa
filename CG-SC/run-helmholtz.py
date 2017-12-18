@@ -18,6 +18,17 @@ parser.add_argument("--verify",
                         "converges in one iteration."
                     ))
 
+parser.add_argument("--degree",
+                    default=None,
+                    type=int,
+                    action="store",
+                    help="Degree of approximation.")
+
+parser.add_argument("--write",
+                    default=False,
+                    action="store_true",
+                    help="Write solution to output?")
+
 parser.add_argument("--help",
                     action="store_true",
                     help="Show help")
@@ -54,6 +65,7 @@ def run_convergence_test(degree, write=False):
     if args.verify:
         # Wrap PC in GMRES to monitor convergence. This should
         # take only 1 GMRES iteration if the PC is working properly.
+        print("Wrapping solver options in GMRES outer loop.")
         params["ksp_type"] = "gmres"
         params["ksp_monitor"] = True
 
@@ -137,5 +149,9 @@ def run_convergence_test(degree, write=False):
     df.to_csv(result, index=False, mode="w")
 
 
-for degree in range(4, 8):
-    run_convergence_test(degree)
+if args.degree:
+    run_convergence_test(degree=args.degree, write=args.write)
+else:
+    # If no degree provided, run full convergence test
+    for degree in range(4, 8):
+        run_convergence_test(degree=degree, write=args.write)
