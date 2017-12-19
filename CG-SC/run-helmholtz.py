@@ -10,15 +10,6 @@ import sys
 parser = ArgumentParser(description=("""Convergence test for the 3D Helmholtz."""),
                         add_help=False)
 
-parser.add_argument("--verify",
-                    default=False,
-                    type=bool,
-                    action="store",
-                    help=(
-                        "Verify static condensation with GMRES "
-                        "converges in one iteration."
-                    ))
-
 parser.add_argument("--degree",
                     default=None,
                     type=int,
@@ -45,33 +36,24 @@ if args.help:
 def run_convergence_test(degree, write=False):
 
     name = "HelmholtzProblem"
-    param_set = "scpc_hypre"
+    param_set = "scpc_gamg"
     params = {"snes_type": "ksponly",
               "pmat_type": "matfree",
               "ksp_type": "preonly",
               "pc_type": "python",
               "pc_python_type": "scpc.SCCG",
-              # HYPRE on the reduced system
+              # CG+GAMG on the reduced system
               "static_condensation": {"ksp_type": "cg",
-                                      "ksp_rtol": 1e-16,
-                                      "ksp_monitor": True,
-                                      "pc_type": "hypre",
-                                      "pc_hypre_type": "boomeramg",
-                                      "pc_hypre_boomeramg_no_CF": True,
-                                      "pc_hypre_boomeramg_coarsen_type": "HMIS",
-                                      "pc_hypre_boomeramg_interp_type": "ext+i",
-                                      "pc_hypre_boomeramg_P_max": 4,
-                                      "pc_hypre_boomeramg_agg_nl": 1}}
-
-    if args.verify:
-        # Wrap PC in GMRES to monitor convergence.
-        print("Wrapping solver options in GMRES outer loop.")
-        params["ksp_type"] = "gmres"
-        params["ksp_monitor"] = True
+                                      "ksp_rtol": 1e-20,
+                                      "pc_type": "gamg",
+                                      "mg_levels": {"ksp_type": "chebyshev",
+                                                    "ksp_max_it": 4,
+                                                    "pc_type": "bjacobi",
+                                                    "sub_pc_type": "ilu"}}}
 
     r_params = range(0, 6)
     l2_errors = []
-    gmres_its = []
+    outer_its = []
     sc_ksp_its = []
     num_dofs = []
     num_cells = []
@@ -87,7 +69,6 @@ def run_convergence_test(degree, write=False):
         f = Function(V)
         f.interpolate((1 + 27*pi*pi)*cos(3*pi*x)*cos(3*pi*y)*cos(3*pi*z))
         F = inner(grad(v), grad(u))*dx + v*u*dx - inner(v, f)*dx
-        r0 = assemble(F)
         problem = NonlinearVariationalProblem(F, u)
         solver = NonlinearVariationalSolver(problem,
                                             solver_parameters=params)
@@ -103,18 +84,23 @@ def run_convergence_test(degree, write=False):
                                                     r,
                                                     param_set))
         solver.solve()
-        r1 = solver.snes.ksp.buildResidual()
-        reductions.append(r1.norm()/r0.dat.norm)
+        ksp = solver.snes.ksp
+        r0 = ksp.getRhs()
+        r1 = ksp.buildResidual()
+        r0norm = r0.norm()
+        r1norm = r1.norm()
+        r_factor = r1norm/r0norm
+        reductions.append(r_factor)
         u_h = problem.u
         u_a = Function(FunctionSpace(mesh, "CG", degree + 1), name="analytic")
         sol = cos(3*pi*x)*cos(3*pi*y)*cos(3*pi*z)
         u_a.interpolate(sol)
 
-        gmres_its.append(solver.snes.getLinearSolveIterations())
-        sc_ksp_its.append(solver.snes.ksp.getPC().getPythonContext().sc_ksp.getIterationNumber())
+        outer_its.append(solver.snes.getLinearSolveIterations())
+        scksp = ksp.getPC().getPythonContext().sc_ksp
+        sc_ksp_its.append(scksp.getIterationNumber())
         num_dofs.append(problem.u.dof_dset.layout_vec.getSize())
-        num_cells.append(mesh.comm.allreduce(mesh.cell_set.size,
-                                             op=MPI.SUM))
+        num_cells.append(mesh.comm.allreduce(mesh.cell_set.size, op=MPI.SUM))
 
         PETSc.Sys.Print("\n Solver complete...\n")
 
@@ -140,7 +126,7 @@ def run_convergence_test(degree, write=False):
                 "ResidualReductions": reductions,
                 "L2Errors": l2_errors,
                 "ConvRates": rates,
-                "GMRESIterations": gmres_its,
+                "OuterIterations": outer_its,
                 "SCPCIterations": sc_ksp_its,
                 "NumDOFS": num_dofs,
                 "NumCells": num_cells,
