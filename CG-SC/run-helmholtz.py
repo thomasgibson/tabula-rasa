@@ -53,7 +53,7 @@ def run_convergence_test(degree, write=False):
                                       "pc_hypre_boomeramg_P_max": 4,
                                       "pc_hypre_boomeramg_agg_nl": 1}}
 
-    r_params = range(0, 5)
+    r_params = range(0, 6)
     l2_errors = []
     outer_its = []
     sc_ksp_its = []
