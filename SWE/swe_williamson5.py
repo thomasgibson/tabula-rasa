@@ -2,7 +2,6 @@ from firedrake import *
 from firedrake.petsc import PETSc
 from pyop2.profiling import timed_stage
 from argparse import ArgumentParser
-from mpi4py import MPI
 import pandas as pd
 
 
@@ -29,10 +28,6 @@ parser.add_argument("--verification",
                     action="store_true",
                     help=("Turn verification mode on? "
                           "This computes residual reductions."))
-
-parser.add_argument("--gmres",
-                    action="store_true",
-                    help="Wrap GMRES in outer loop of implicit solve.")
 
 parser.add_argument("--model_degree",
                     action="store",
@@ -267,14 +262,6 @@ def run_williamson5(refinement_level=3, dumpfreq=100, test=False,
                                                      'pc_type': 'bjacobi',
                                                      'sub_pc_type': 'ilu'}}}
 
-    if args.gmres:
-        parameters['ksp_converged_reason'] = True
-        parameters['ksp_monitor'] = True
-        parameters['ksp_monitor_true_residual'] = True
-
-        if hybridization:
-            parameters['ksp_type'] = 'fgmres'
-
     DUsolver = NonlinearVariationalSolver(DUproblem,
                                           solver_parameters=parameters,
                                           options_prefix="implicit-solve")
@@ -314,9 +301,6 @@ def run_williamson5(refinement_level=3, dumpfreq=100, test=False,
     ksp_outer_its = []
     ksp_inner_its = []
     sim_time = [0.0]
-    setup_times = []
-    apply_times = []
-    solve_times = []
     # At t=0, no solve has occured and therefore the reduction factor:
     # ||b - Ax*||_2 / ||b - Ax^0||_2 = ||b||_2/||b||_2 = 1.
     reductions = [1.0]
@@ -346,12 +330,20 @@ def run_williamson5(refinement_level=3, dumpfreq=100, test=False,
 
             # x^0 == 0 (Preonly+hybrid)
             # => r0 == ||b||_2
-            r0 = assemble(uDrhs)
-            r1 = DUsolver.snes.ksp.buildResidual()
-            r0norm = r0.dat.norm
-            r1norm = r1.norm()
-            r_factor = r1norm/r0norm
-            res_reductions.append(r_factor)
+            if verification:
+                if hybridization:
+                    r0 = DUsolver.snes.ksp.getRhs()
+                    r1 = DUsolver.snes.ksp.buildResidual()
+                    r0norm = r0.norm()
+                    r1norm = r1.norm()
+                else:
+                    r0 = DUsolver.snes.ksp.getRhs()
+                    # Assemble the problem residual
+                    r1 = assemble(FuD, mat_type="aij")
+                    r0norm = r0.norm()
+                    r1norm = r1.dat.norm
+                r_factor = r1norm/r0norm
+                res_reductions.append(r_factor)
 
             up += deltau
             Dp += deltaD
@@ -368,18 +360,6 @@ def run_williamson5(refinement_level=3, dumpfreq=100, test=False,
             ksp_outer_its.append(outer_ksp.getIterationNumber())
             ksp_inner_its.append(inner_ksp.getIterationNumber())
 
-            # Collect times
-            ksp_solve = PETSc.Log.Event("KSPSolve").getPerfInfo()
-            pc_setup = PETSc.Log.Event("PCSetUp").getPerfInfo()
-            pc_apply = PETSc.Log.Event("PCApply").getPerfInfo()
-
-            setup_time = mesh.comm.allreduce(pc_setup["time"], op=MPI.SUM)
-            apply_time = mesh.comm.allreduce(pc_apply["time"], op=MPI.SUM)
-            ksp_time = mesh.comm.allreduce(ksp_solve["time"], op=MPI.SUM)
-            setup_times.append(setup_time)
-            apply_times.append(apply_time)
-            solve_times.append(ksp_time)
-
         un.assign(up)
         Dn.assign(Dp)
 
@@ -393,23 +373,17 @@ def run_williamson5(refinement_level=3, dumpfreq=100, test=False,
             if verbose:
                 PETSc.Sys.Print("Energy: %s" % energy_t)
 
-        # Simulation time (in days)
-        sim_time.append(t/day)
+        # Simulation time (s)
+        sim_time.append(t)
 
         # Add average residual reductions over picard iterations
-        if hybridization:
+        if verification:
             reductions.append(sum(res_reductions)/len(res_reductions))
         else:
-            # The above computation applies to 'preonly' applications
-            # Residual is monitored by PETSc for GMRES
-            # (set at a default rtol of 1e-8).
             reductions.append('N/A')
 
     avg_outer_its = int(sum(ksp_outer_its)/len(ksp_outer_its))
     avg_inner_its = int(sum(ksp_inner_its)/len(ksp_inner_its))
-    csolve_time = sum(solve_times)
-    capply_time = sum(apply_times)
-    csetup_time = sum(setup_times)
 
     if not args.warmup:
         if COMM_WORLD.rank == 0:
@@ -420,10 +394,7 @@ def run_williamson5(refinement_level=3, dumpfreq=100, test=False,
                 results_profile = "profile_W5_ref%s.csv" % refinement_level
                 results_diagnostics = "diagnostics_W5_ref%s.csv" % refinement_level
 
-            data_profile = {"SolveTime": csolve_time,
-                            "SetUpTime": csetup_time,
-                            "ApplyTime": capply_time,
-                            "AvgOuterIters": avg_outer_its,
+            data_profile = {"AvgOuterIters": avg_outer_its,
                             "AvgInnerIters": avg_inner_its}
 
             data_diagnostics = {"SimTime": sim_time,
