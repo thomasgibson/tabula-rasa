@@ -36,22 +36,24 @@ if args.help:
 def run_convergence_test(degree, write=False):
 
     name = "HelmholtzProblem"
-    param_set = "scpc_gamg"
+    param_set = "scpc_hypre"
     params = {"snes_type": "ksponly",
               "pmat_type": "matfree",
               "ksp_type": "preonly",
               "pc_type": "python",
               "pc_python_type": "scpc.SCCG",
-              # CG+GAMG on the reduced system
+              # CG+hypre on the reduced system
               "static_condensation": {"ksp_type": "cg",
                                       "ksp_rtol": 1e-20,
-                                      "pc_type": "gamg",
-                                      "mg_levels": {"ksp_type": "chebyshev",
-                                                    "ksp_max_it": 4,
-                                                    "pc_type": "bjacobi",
-                                                    "sub_pc_type": "ilu"}}}
+                                      "pc_type": "hypre",
+                                      "pc_hypre_type": "boomeramg",
+                                      "pc_hypre_boomeramg_no_CF": True,
+                                      "pc_hypre_boomeramg_coarsen_type": "HMIS",
+                                      "pc_hypre_boomeramg_interp_type": "ext+i",
+                                      "pc_hypre_boomeramg_P_max": 4,
+                                      "pc_hypre_boomeramg_agg_nl": 1}}
 
-    r_params = range(0, 6)
+    r_params = range(0, 5)
     l2_errors = []
     outer_its = []
     sc_ksp_its = []
