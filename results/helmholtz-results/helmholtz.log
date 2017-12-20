@@ -1,0 +1,462 @@
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 0, and parameter set scpc_hypre
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 1, and parameter set scpc_hypre
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 2, and parameter set scpc_hypre
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 3, and parameter set scpc_hypre
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 4, and parameter set scpc_hypre
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 4, mesh size 5, and parameter set scpc_hypre
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Computing convergence rates
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 0, and parameter set scpc_hypre
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 1, and parameter set scpc_hypre
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 2, and parameter set scpc_hypre
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 3, and parameter set scpc_hypre
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 4, and parameter set scpc_hypre
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 5, mesh size 5, and parameter set scpc_hypre
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Computing convergence rates
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 0, and parameter set scpc_hypre
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 1, and parameter set scpc_hypre
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 2, and parameter set scpc_hypre
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 3, and parameter set scpc_hypre
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 4, and parameter set scpc_hypre
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 6, mesh size 5, and parameter set scpc_hypre
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Computing convergence rates
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 0, and parameter set scpc_hypre
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 1, and parameter set scpc_hypre
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 2, and parameter set scpc_hypre
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 3, and parameter set scpc_hypre
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 4, and parameter set scpc_hypre
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Solving 3D HelmholtzProblem problem of degree 7, mesh size 5, and parameter set scpc_hypre
+
+
+ Solver complete...
+
+
+ Computing L2 errors
+
+
+Computing convergence rates
+
+************************************************************************************************************************
+***             WIDEN YOUR WINDOW TO 120 CHARACTERS.  Use 'enscript -r -fCourier9' to print this document            ***
+************************************************************************************************************************
+
+---------------------------------------------- PETSc Performance Summary: ----------------------------------------------
+
+run-helmholtz.py on a arch-python-linux-x86_64 named mpe1 with 6 processors, by tg2115 Tue Dec 19 23:33:45 2017
+Using Petsc Development GIT revision: v3.4.2-19002-g3c589c1  GIT Date: 2017-12-11 13:30:46 -0600
+
+                         Max       Max/Min        Avg      Total 
+Time (sec):           4.623e+03      1.00000   4.623e+03
+Objects:              1.019e+04      1.18125   8.914e+03
+Flop:                 7.681e+12      1.00066   7.679e+12  4.607e+13
+Flop/sec:            1.662e+09      1.00066   1.661e+09  9.966e+09
+MPI Messages:         2.174e+04      1.24566   1.912e+04  1.147e+05
+MPI Message Lengths:  1.872e+09      1.29635   8.631e+04  9.901e+09
+MPI Reductions:       8.722e+03      1.00000
+
+Flop counting convention: 1 flop = 1 real number operation of type (multiply/divide/add/subtract)
+                            e.g., VecAXPY() for real vectors of length N --> 2N flop
+                            and VecAXPY() for complex vectors of length N --> 8N flop
+
+Summary of Stages:   ----- Time ------  ----- Flop -----  --- Messages ---  -- Message Lengths --  -- Reductions --
+                        Avg     %Total     Avg     %Total   counts   %Total     Avg         %Total   counts   %Total 
+ 0:      Main Stage: 4.6229e+03 100.0%  4.6073e+13 100.0%  1.147e+05 100.0%  8.631e+04      100.0%  8.715e+03  99.9% 
+
+------------------------------------------------------------------------------------------------------------------------
+See the 'Profiling' chapter of the users' manual for details on interpreting output.
+Phase summary info:
+   Count: number of times phase was executed
+   Time and Flop: Max - maximum over all processors
+                   Ratio - ratio of maximum to minimum over all processors
+   Mess: number of messages sent
+   Avg. len: average message length (bytes)
+   Reduct: number of global reductions
+   Global: entire computation
+   Stage: stages of a computation. Set stages with PetscLogStagePush() and PetscLogStagePop().
+      %T - percent time in this phase         %F - percent flop in this phase
+      %M - percent messages in this phase     %L - percent message lengths in this phase
+      %R - percent reductions in this phase
+   Total Mflop/s: 10e-6 * (sum of flop over all processors)/(max time over all processors)
+------------------------------------------------------------------------------------------------------------------------
+Event                Count      Time (sec)     Flop                             --- Global ---  --- Stage ---   Total
+                   Max Ratio  Max     Ratio   Max  Ratio  Mess   Avg len Reduct  %T %F %M %L %R  %T %F %M %L %R Mflop/s
+------------------------------------------------------------------------------------------------------------------------
+
+--- Event Stage 0: Main Stage
+
+BuildTwoSided       1032 1.0 2.1973e+0027.1 0.00e+00 0.0 8.5e+03 4.0e+00 0.0e+00  0  0  7  0  0   0  0  7  0  0     0
+VecTDot             3074 1.0 5.0641e+00 1.7 1.07e+09 1.1 0.0e+00 0.0e+00 3.1e+03  0  0  0  0 35   0  0  0  0 35  1233
+VecNorm             1609 1.0 9.8300e+00 8.8 5.60e+08 1.1 0.0e+00 0.0e+00 1.6e+03  0  0  0  0 18   0  0  0  0 18   333
+VecCopy              216 1.0 3.6922e-01 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+VecSet              1729 1.0 1.2065e+00 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+VecAXPY             3098 1.0 4.3745e+00 1.1 1.08e+09 1.1 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0  1440
+VecAYPX             1537 1.0 1.8580e+00 1.1 5.31e+08 1.1 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0  1673
+VecScatterBegin     1561 1.0 3.6881e-01 3.4 0.00e+00 0.0 4.0e+04 4.1e+04 0.0e+00  0  0 35 16  0   0  0 35 16  0     0
+VecScatterEnd       1561 1.0 6.3758e+00 9.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+MatMult             1561 1.0 1.7107e+02 1.0 8.60e+10 1.1 4.0e+04 4.1e+04 0.0e+00  4  1 35 16  0   4  1 35 16  0  2935
+MatConvert            24 1.0 1.1791e+01 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 9.6e+01  0  0  0  0  1   0  0  0  0  1     0
+MatAssemblyBegin     288 1.0 1.1894e+02 7.3 0.00e+00 0.0 5.3e+03 1.4e+06 3.8e+02  2  0  5 75  4   2  0  5 75  4     0
+MatAssemblyEnd       288 1.0 2.9837e+01 1.4 0.00e+00 0.0 2.4e+03 1.0e+04 4.8e+02  1  0  2  0  6   1  0  2  0  6     0
+MatGetRowIJ           48 1.0 6.4373e-05 1.6 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+MatZeroEntries        48 1.0 9.4059e+00 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+PCSetUp               48 1.0 1.1098e+03 1.0 3.27e+12 1.0 5.0e+03 6.9e+05 7.7e+02 24 43  4 35  9  24 43  4 35  9 17658
+PCApply               24 1.0 1.3664e+03 1.0 1.07e+12 1.0 4.6e+04 3.7e+04 5.0e+03 29 14 40 17 58  29 14 40 17 58  4667
+KSPSetUp              72 1.0 1.7059e-01 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 4.8e+01  0  0  0  0  1   0  0  0  0  1     0
+KSPSolve              24 1.0 2.4331e+03 1.0 4.33e+12 1.0 5.1e+04 1.0e+05 5.7e+03 53 56 44 52 65  53 56 44 52 65 10675
+SNESSolve             24 1.0 2.7579e+03 1.0 7.65e+12 1.0 5.4e+04 1.2e+05 5.8e+03 60100 47 66 67  60100 47 66 67 16643
+SNESFunctionEval      24 1.0 1.0200e+01 1.0 7.39e+10 1.0 2.7e+03 2.9e+04 4.8e+01  0  1  2  1  1   0  1  2  1  1 43500
+SNESJacobianEval      24 1.0 3.1492e+02 1.0 3.25e+12 1.0 8.8e+02 1.5e+06 9.6e+01  7 42  1 13  1   7 42  1 13  1 61865
+Mesh Partition        48 1.0 3.3363e+00 1.0 0.00e+00 0.0 1.7e+04 4.9e+03 2.4e+02  0  0 15  1  3   0  0 15  1  3     0
+Mesh Migration        48 1.0 2.1538e+00 1.0 0.00e+00 0.0 3.5e+04 1.5e+04 1.4e+03  0  0 31  5 17   0  0 31  5 17     0
+DMPlexInterp          24 1.0 4.2779e+00 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 1.2e+02  0  0  0  0  1   0  0  0  0  1     0
+DMPlexDistribute      24 1.0 4.4620e+00 1.0 0.00e+00 0.0 1.1e+04 5.4e+04 6.2e+02  0  0  9  6  7   0  0  9  6  7     0
+DMPlexDistCones       48 1.0 5.8072e-01 1.0 0.00e+00 0.0 5.7e+03 3.4e+04 0.0e+00  0  0  5  2  0   0  0  5  2  0     0
+DMPlexDistLabels      48 1.0 1.0982e+00 1.0 0.00e+00 0.0 1.9e+04 1.4e+04 9.1e+02  0  0 17  3 10   0  0 17  3 10     0
+DMPlexDistribOL       24 1.0 1.0953e+00 1.0 0.00e+00 0.0 4.2e+04 1.9e+03 1.1e+03  0  0 37  1 12   0  0 37  1 12     0
+DMPlexDistField       72 1.0 7.6116e-02 1.0 0.00e+00 0.0 7.7e+03 3.6e+03 4.8e+01  0  0  7  0  1   0  0  7  0  1     0
+DMPlexDistData        48 1.0 2.1290e+0022.7 0.00e+00 0.0 1.0e+04 4.6e+03 0.0e+00  0  0  9  0  0   0  0  9  0  0     0
+DMPlexStratify       120 1.0 4.6784e+00 3.7 0.00e+00 0.0 0.0e+00 0.0e+00 1.2e+02  0  0  0  0  1   0  0  0  0  1     0
+SFSetGraph          1128 1.0 1.4834e-02 1.4 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+SFBcastBegin        2304 1.0 2.7997e+00 2.9 0.00e+00 0.0 6.2e+04 1.3e+04 0.0e+00  0  0 54  8  0   0  0 54  8  0     0
+SFBcastEnd          2304 1.0 3.2422e+01 1.6 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  1  0  0  0  0   1  0  0  0  0     0
+SFReduceBegin        168 1.0 4.8632e-02 1.3 0.00e+00 0.0 4.9e+03 1.7e+04 0.0e+00  0  0  4  1  0   0  0  4  1  0     0
+SFReduceEnd          168 1.0 9.8772e+0037.8 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+SFFetchOpBegin        24 1.0 1.8907e-04 6.8 0.00e+00 0.0 2.9e+02 1.3e+03 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+SFFetchOpEnd          24 1.0 2.4860e-03 4.6 0.00e+00 0.0 2.9e+02 1.3e+03 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+CreateMesh            96 1.0 7.3555e+00 1.1 0.00e+00 0.0 5.3e+04 1.3e+04 1.8e+03  0  0 46  7 20   0  0 46  7 20     0
+CreateFunctionSpace      96 1.0 5.9246e+02 1.1 0.00e+00 0.0 4.4e+04 2.0e+03 1.2e+03 13  0 39  1 14  13  0 39  1 14     0
+Mesh: reorder         24 1.0 6.5776e-02 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 4.8e+01  0  0  0  0  1   0  0  0  0  1     0
+Mesh: numbering       24 1.0 4.6202e-01 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 4.8e+01  0  0  0  0  1   0  0  0  0  1     0
+CreateSparsity        48 1.0 7.7815e+02 1.0 0.00e+00 0.0 4.1e+03 6.0e+05 3.8e+02 17  0  4 25  4  17  0  4 25  4     0
+MatZeroInitial        48 1.0 9.9071e+01 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  2  0  0  0  0   2  0  0  0  0     0
+ParLoopExecute       336 1.0 7.4390e+02 1.0 7.59e+12 1.0 9.6e+03 2.0e+04 1.9e+02 16 99  8  2  2  16 99  8  2  2 61235
+ParLoopset_4           4 1.0 1.8048e-03 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopRednBegin     336 1.0 3.6796e+0042.8 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopRednEnd       336 1.0 2.0449e-03 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopCells         432 1.0 7.2279e+02 1.1 7.59e+12 1.0 0.0e+00 0.0e+00 0.0e+00 15 99  0  0  0  15 99  0  0  0 63023
+SCInit                24 1.0 1.0719e+03 1.0 3.27e+12 1.0 5.0e+03 6.9e+05 6.7e+02 23 43  4 35  8  23 43  4 35  8 18282
+SCTransfer            24 1.0 5.5766e+0018.0 0.00e+00 0.0 0.0e+00 0.0e+00 2.4e+01  0  0  0  0  0   0  0  0  0  0     0
+SCTransferResidual      24 1.0 4.5929e-02 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+SCRHS                 24 1.0 5.9298e-02 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+SCSolve               24 1.0 1.3106e+03 1.0 5.76e+11 1.0 4.4e+04 3.8e+04 5.0e+03 28  7 38 17 57  28  7 38 17 57  2628
+ParLoopset_6           4 1.0 7.6890e-04 1.0 3.40e+01 3.8 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+SCRecover             24 1.0 5.0210e+01 1.0 4.89e+11 1.0 1.7e+03 1.6e+04 2.4e+01  1  6  1  0  0   1  6  1  0  0 58406
+SCRecon               24 1.0 6.0654e-02 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+SCAssembleInterior      24 1.0 1.2341e-02 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+SCReconSolution       24 1.0 4.8021e-02 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_5           2 1.0 3.8147e-05 1.4 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_12          4 1.0 6.1750e-05 1.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_14          4 1.0 5.4359e-05 1.4 1.47e+02 1.7 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0    13
+ParLoopset_13          2 1.0 3.8147e-05 1.7 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_20          4 1.0 7.0810e-05 1.3 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_22          4 1.0 5.5075e-05 1.3 9.05e+02 1.5 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0    82
+ParLoopset_21          2 1.0 2.4080e-05 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_28          4 1.0 9.9897e-05 1.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_30          4 1.0 7.8917e-05 1.5 5.96e+03 1.2 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   416
+ParLoopset_29          2 1.0 4.1246e-05 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_36          4 1.0 2.8110e-04 1.3 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_38          4 1.0 2.5988e-04 1.3 4.40e+04 1.1 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   962
+ParLoopset_37          2 1.0 5.2214e-05 1.3 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_44          4 1.0 3.3991e-03 1.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_46          4 1.0 6.3291e-03 1.1 3.33e+05 1.1 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   308
+ParLoopset_45          2 1.0 1.3185e-04 1.7 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_52          4 1.0 6.4850e-05 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_54          4 1.0 4.7207e-05 1.2 5.20e+01 3.2 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     4
+ParLoopset_53          2 1.0 2.5988e-05 1.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_60          4 1.0 6.0320e-05 1.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_62          4 1.0 4.4584e-05 1.1 2.39e+02 1.6 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0    26
+ParLoopset_61          2 1.0 2.2888e-05 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_68          4 1.0 6.7949e-05 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_70          4 1.0 5.2929e-05 1.2 1.52e+03 1.4 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   146
+ParLoopset_69          2 1.0 3.2902e-05 1.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_76          4 1.0 1.0610e-04 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_78          4 1.0 8.9884e-05 1.2 1.02e+04 1.2 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   630
+ParLoopset_77          2 1.0 4.4823e-05 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_84          4 1.0 8.0061e-04 1.5 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_86          4 1.0 8.9288e-04 1.1 7.57e+04 1.1 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   485
+ParLoopset_85          2 1.0 1.5092e-04 2.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_92          4 1.0 6.7809e-03 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_94          4 1.0 1.0276e-02 1.1 5.78e+05 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   330
+ParLoopset_93          2 1.0 7.3099e-04 2.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_100         4 1.0 7.2718e-05 1.3 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_102         4 1.0 4.9353e-05 1.1 7.40e+01 3.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     6
+ParLoopset_101         2 1.0 2.5034e-05 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_108         4 1.0 6.5804e-05 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_110         4 1.0 4.7922e-05 1.1 3.54e+02 1.6 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0    36
+ParLoopset_109         2 1.0 2.3127e-05 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_116         4 1.0 8.7023e-05 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_118         4 1.0 6.7234e-05 1.2 2.28e+03 1.4 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   175
+ParLoopset_117         2 1.0 4.3154e-05 1.3 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_124         4 1.0 1.6117e-04 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_126         4 1.0 1.4758e-04 1.6 1.56e+04 1.2 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   589
+ParLoopset_125         2 1.0 5.2214e-05 1.4 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_132         4 1.0 1.5638e-03 1.5 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_134         4 1.0 1.5142e-03 1.4 1.16e+05 1.1 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   440
+ParLoopset_133         2 1.0 2.1696e-04 2.4 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_140         4 1.0 1.1352e-02 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_142         4 1.0 1.4581e-02 1.1 8.89e+05 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   358
+ParLoopset_141         2 1.0 2.2120e-03 1.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_148         4 1.0 9.6321e-05 1.4 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_150         4 1.0 7.6771e-05 1.6 1.00e+02 2.8 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     5
+ParLoopset_149         2 1.0 2.4319e-05 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_156         4 1.0 7.2956e-05 1.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_158         4 1.0 5.1975e-05 1.1 4.92e+02 1.5 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0    46
+ParLoopset_157         2 1.0 2.6941e-05 1.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_164         4 1.0 8.0824e-05 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_166         4 1.0 7.8917e-05 1.4 3.22e+03 1.4 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   212
+ParLoopset_165         2 1.0 4.6015e-05 1.4 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_172         4 1.0 2.6679e-04 1.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_174         4 1.0 1.7071e-04 1.3 2.21e+04 1.1 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   725
+ParLoopset_173         2 1.0 7.8201e-05 1.8 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_180         4 1.0 2.2693e-03 1.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_182         4 1.0 2.3248e-03 1.4 1.65e+05 1.1 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   409
+ParLoopset_181         2 1.0 2.4319e-04 1.6 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_188         4 1.0 1.8272e-02 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+ParLoopset_190         4 1.0 1.8898e-02 1.2 1.27e+06 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0   395
+ParLoopset_189         2 1.0 5.0240e-03 1.5 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+------------------------------------------------------------------------------------------------------------------------
+
+Memory usage is given in bytes:
+
+Object Type          Creations   Destructions     Memory  Descendants' Mem.
+Reports information only for process 0.
+
+--- Event Stage 0: Main Stage
+
+              Viewer     1              0            0     0.
+           Index Set  4312           4312    104162256     0.
+   IS L to G Mapping   144            144     78864464     0.
+             Section  1632           1632      1148928     0.
+              Vector   816            816    469305928     0.
+      Vector Scatter    48             48        52608     0.
+              Matrix   336            336  15503694240     0.
+      Preconditioner    72             72        75648     0.
+       Krylov Solver    72             72       500160     0.
+     DMKSP interface    24             24        15744     0.
+                SNES    24             24        32832     0.
+      SNESLineSearch    24             24        23808     0.
+              DMSNES    24             24        16128     0.
+    Distributed Mesh   384            384      1849728     0.
+    GraphPartitioner   120            120        73440     0.
+   Star Forest Graph  1776           1776      1499520     0.
+     Discrete System   384            384       353280     0.
+========================================================================================================================
+Average time to get PetscTime(): 0.
+Average time for MPI_Barrier(): 1.19209e-06
+Average time for zero size MPI_Send(): 9.93411e-07
+#PETSc Option Table entries:
+-log_view
+#End of PETSc Option Table entries
+Compiled without FORTRAN kernels
+Compiled with full precision matrices (default)
+sizeof(short) 2 sizeof(int) 4 sizeof(long) 8 sizeof(void*) 8 sizeof(PetscScalar) 8 sizeof(PetscInt) 4
+Configure options: --prefix=/scratch/tgibson/src/firedrake/lib/python3.5/site-packages/petsc PETSC_ARCH=arch-python-linux-x86_64 --with-shared-libraries=1 --with-debugging=0 --with-c2html=0 --with-cc=/usr/bin/mpicc --with-cxx=/usr/bin/mpicxx --with-fc=/usr/bin/mpif90 --download-eigen=/scratch/tgibson/src/firedrake/src/eigen-3.3.3.tgz --download-chaco --download-metis --download-parmetis --download-scalapack --download-hypre --download-mumps --download-netcdf --download-hdf5 --download-exodusii
+-----------------------------------------
+Libraries compiled on Fri Dec 15 01:16:36 2017 on mpe1 
+Machine characteristics: Linux-4.4.0-83-generic-x86_64-with-Ubuntu-16.04-xenial
+Using PETSc directory: /tmp/pip-1c2iwwx_-build
+Using PETSc arch: arch-python-linux-x86_64
+-----------------------------------------
+
+Using C compiler: /usr/bin/mpicc  -fPIC  -Wall -Wwrite-strings -Wno-strict-aliasing -Wno-unknown-pragmas -fstack-protector -fvisibility=hidden -g -O  ${COPTFLAGS} ${CFLAGS}
+Using Fortran compiler: /usr/bin/mpif90  -fPIC -Wall -ffree-line-length-0 -Wno-unused-dummy-argument -g -O   ${FOPTFLAGS} ${FFLAGS} 
+-----------------------------------------
+
+Using include paths: -I/tmp/pip-1c2iwwx_-build/arch-python-linux-x86_64/include -I/tmp/pip-1c2iwwx_-build/include -I/tmp/pip-1c2iwwx_-build/include -I/tmp/pip-1c2iwwx_-build/arch-python-linux-x86_64/include -I/scratch/tgibson/src/firedrake/lib/python3.5/site-packages/petsc/include -I/scratch/tgibson/src/firedrake/lib/python3.5/site-packages/petsc/include/eigen3
+-----------------------------------------
+
+Using C linker: /usr/bin/mpicc
+Using Fortran linker: /usr/bin/mpif90
+Using libraries: -Wl,-rpath,/tmp/pip-1c2iwwx_-build/arch-python-linux-x86_64/lib -L/tmp/pip-1c2iwwx_-build/arch-python-linux-x86_64/lib -lpetsc -Wl,-rpath,/scratch/tgibson/src/firedrake/lib/python3.5/site-packages/petsc/lib -L/scratch/tgibson/src/firedrake/lib/python3.5/site-packages/petsc/lib -Wl,-rpath,/usr/lib/openmpi/lib -L/usr/lib/openmpi/lib -Wl,-rpath,/usr/lib/gcc/x86_64-linux-gnu/5 -L/usr/lib/gcc/x86_64-linux-gnu/5 -Wl,-rpath,/usr/lib/x86_64-linux-gnu -L/usr/lib/x86_64-linux-gnu -Wl,-rpath,/lib/x86_64-linux-gnu -L/lib/x86_64-linux-gnu -lcmumps -ldmumps -lsmumps -lzmumps -lmumps_common -lpord -lscalapack -lHYPRE -llapack -lblas -lparmetis -lmetis -lexodus -lnetcdf -lhdf5hl_fortran -lhdf5_fortran -lhdf5_hl -lhdf5 -lchaco -lm -lX11 -lmpi_usempif08 -lmpi_usempi_ignore_tkr -lmpi_mpifh -lgfortran -lm -lgfortran -lm -lquadmath -lmpi_cxx -lstdc++ -lm -ldl -lmpi -lgcc_s -lpthread -ldl
+-----------------------------------------
+
