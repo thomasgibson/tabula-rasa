@@ -331,18 +331,13 @@ def run_williamson5(refinement_level=3, dumpfreq=100, test=False,
             # x^0 == 0 (Preonly+hybrid)
             # => r0 == ||b||_2
             if verification:
-                if hybridization:
-                    r0 = DUsolver.snes.ksp.getRhs()
-                    r1 = DUsolver.snes.ksp.buildResidual()
-                    r0norm = r0.norm()
-                    r1norm = r1.norm()
-                else:
-                    r0 = DUsolver.snes.ksp.getRhs()
-                    # Assemble the problem residual
-                    r1 = assemble(FuD, mat_type="aij")
-                    r0norm = r0.norm()
-                    r1norm = r1.dat.norm
-                r_factor = r1norm/r0norm
+                # Get rhs from ksp
+                b = DUsolver.snes.ksp.getRhs()
+                # Assemble the problem residual (b - Ax)
+                res = assemble(FuD, mat_type="aij")
+                bnorm = b.norm()
+                rnorm = res.dat.norm
+                r_factor = rnorm/bnorm
                 res_reductions.append(r_factor)
 
             up += deltau
