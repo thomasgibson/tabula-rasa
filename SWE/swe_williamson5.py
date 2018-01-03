@@ -1,3 +1,24 @@
+"""
+This script runs a nonlinear shallow water system describing
+a simplified atmospheric model on an Earth-sized sphere mesh.
+This model problem is designed from the Williamson test case
+suite (1992), specifically the mountain test case (case 5).
+
+A simple DG-advection scheme is used for the advection of the
+depth-field, and an upwinded-DG method is used for velocity.
+The nonlinear system is solved using a Picard method for computing
+solution updates (currently set to 4 iterations). The implicit
+midpoint rule is employed for time-integration.
+
+The resulting implicit linear system for the updates in each
+Picard iteration is solved using either a precondtioned Schur
+complement method with GMRES, or a single application of a
+Firedrake precondtioner using a mixed-hybrid method. This purpose
+of this script is to compare both approaches via profiling and
+computing the reductions in the problem residual for the implicit
+linear system.
+"""
+
 from firedrake import *
 from firedrake.petsc import PETSc
 from pyop2.profiling import timed_stage
