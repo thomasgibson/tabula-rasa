@@ -1,3 +1,9 @@
+"""
+This module runs a convergence history for a hybridized-DG
+discretization of a model Poisson problem (detailed in the main
+function). The method used is the LDG-H method.
+"""
+
 from firedrake import *
 import numpy as np
 import pandas as pd

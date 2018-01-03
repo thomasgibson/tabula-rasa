@@ -1,3 +1,8 @@
+"""
+This module runs a convergence history for the mixed-hybrid methods
+of a model Poisson problem (detailed in the main function).
+"""
+
 from firedrake import *
 import numpy as np
 import pandas as pd
