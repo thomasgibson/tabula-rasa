@@ -1,3 +1,11 @@
+"""
+This script runs a complete convergence history for a model 3D Helmholtz
+problem using a custom Firedrake precondtioner performing static condensation.
+The degree of approximation can be provided as an argument when running this
+script for individual tests. If no degree is provided, the script will run
+convergence tests for degrees 4, 5, 6, and 7.
+"""
+
 from firedrake import *
 from firedrake.petsc import PETSc
 from mpi4py import MPI
@@ -40,6 +48,14 @@ if args.help:
 
 
 def run_convergence_test(degree, write=False):
+    """
+    Runs a convergence test for a given degree.
+
+    :arg degree: An integer denoting the degree of approximation.
+    :arg write: An optional argument. If ``True``, the output solution
+                for the finest mesh size will be written to a ParaView
+                file. Default behavior is set to ``False``.
+    """
 
     rtol = args.rtol
     assert isinstance(rtol, float)
