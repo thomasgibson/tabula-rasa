@@ -16,6 +16,12 @@ parser.add_argument("--degree",
                     action="store",
                     help="Degree of approximation.")
 
+parser.add_argument("--rtol",
+                    default=1e-16,
+                    type=float,
+                    action="store",
+                    help="Relative tolerance of inner-KSP.")
+
 parser.add_argument("--write",
                     default=False,
                     action="store_true",
@@ -35,6 +41,9 @@ if args.help:
 
 def run_convergence_test(degree, write=False):
 
+    rtol = args.rtol
+    assert isinstance(rtol, float)
+
     name = "HelmholtzProblem"
     param_set = "scpc_hypre"
     params = {"snes_type": "ksponly",
@@ -44,7 +53,7 @@ def run_convergence_test(degree, write=False):
               "pc_python_type": "scpc.SCCG",
               # CG+hypre on the reduced system
               "static_condensation": {"ksp_type": "cg",
-                                      "ksp_rtol": 1e-20,
+                                      "ksp_rtol": rtol,
                                       "pc_type": "hypre",
                                       "pc_hypre_type": "boomeramg",
                                       "pc_hypre_boomeramg_no_CF": True,
@@ -81,10 +90,11 @@ def run_convergence_test(degree, write=False):
                                                      param_set)
 
         PETSc.Sys.Print("\nSolving 3D %s problem of degree %s, mesh size %s, "
-                        "and parameter set %s\n" % (name,
-                                                    degree,
-                                                    r,
-                                                    param_set))
+                        "parameter set %s, and inner rtol: %s\n" % (name,
+                                                                    degree,
+                                                                    r,
+                                                                    param_set,
+                                                                    rtol))
         solver.solve()
         ksp = solver.snes.ksp
         r0 = ksp.getRhs()
@@ -119,7 +129,7 @@ def run_convergence_test(degree, write=False):
     PETSc.Sys.Print("\nComputing convergence rates\n")
     l2_errors = np.array(l2_errors)
     rates = list(np.log2(l2_errors[:-1] / l2_errors[1:]))
-    # Insert '---' in first slot, as there is rate to compute
+    # Insert '---' in first slot, as there is no rate to compute
     rates.insert(0, '---')
     degrees = [degree]*len(l2_errors)
 
