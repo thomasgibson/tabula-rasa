@@ -24,6 +24,7 @@ from firedrake.petsc import PETSc
 from pyop2.profiling import timed_stage
 from argparse import ArgumentParser
 import pandas as pd
+import numpy as np
 
 
 ref_to_dt = {3: 900.0,
@@ -321,10 +322,9 @@ def run_williamson5(refinement_level=3, dumpfreq=100, test=False,
     t = 0.0
     ksp_outer_its = []
     ksp_inner_its = []
-    sim_time = [0.0]
-    # At t=0, no solve has occured and therefore the reduction factor:
-    # ||b - Ax*||_2 / ||b - Ax^0||_2 = ||b||_2/||b||_2 = 1.
-    reductions = [1.0]
+    sim_time = []
+    picard_seq = []
+    reductions = []
     while t < tmax - Dt/2:
         t += Dt
 
@@ -332,9 +332,11 @@ def run_williamson5(refinement_level=3, dumpfreq=100, test=False,
         up.assign(un)
         Dp.assign(Dn)
 
-        # Picard iteration
-        res_reductions = []
+        # Picard cycle
         for i in range(4):
+            sim_time.append(t)
+            picard_seq.append(i+1)
+
             with timed_stage("Advection"):
                 # Update layer depth
                 Dsolver.solve()
@@ -349,8 +351,6 @@ def run_williamson5(refinement_level=3, dumpfreq=100, test=False,
                     "at t=%s.\n" % (i + 1, t)
                 )
 
-            # x^0 == 0 (Preonly+hybrid)
-            # => r0 == ||b||_2
             if verification:
                 # Get rhs from ksp
                 r0 = DUsolver.snes.ksp.getRhs()
@@ -359,7 +359,9 @@ def run_williamson5(refinement_level=3, dumpfreq=100, test=False,
                 bnorm = r0.norm()
                 rnorm = res.dat.norm
                 r_factor = rnorm/bnorm
-                res_reductions.append(r_factor)
+                reductions.append(r_factor)
+            else:
+                reductions.append('N/A')
 
             up += deltau
             Dp += deltaD
@@ -389,38 +391,33 @@ def run_williamson5(refinement_level=3, dumpfreq=100, test=False,
             if verbose:
                 PETSc.Sys.Print("Energy: %s" % energy_t)
 
-        # Simulation time (s)
-        sim_time.append(t)
-
-        # Add average residual reductions over picard iterations
-        if verification:
-            reductions.append(sum(res_reductions)/len(res_reductions))
-        else:
-            reductions.append('N/A')
-
-    avg_outer_its = int(sum(ksp_outer_its)/len(ksp_outer_its))
-    avg_inner_its = int(sum(ksp_inner_its)/len(ksp_inner_its))
-
     if not args.warmup:
         if COMM_WORLD.rank == 0:
+            ref = refinement_level
             if hybridization:
-                results_profile = "hybrid_profile_W5_ref%s.csv" % refinement_level
-                results_diagnostics = "hybrid_diagnostics_W5_ref%s.csv" % refinement_level
+                results_profile = "hybrid_profile_W5_ref%s.csv" % ref
+                results_energy = "hybrid_energy_W5_ref%s.csv" % ref
             else:
-                results_profile = "profile_W5_ref%s.csv" % refinement_level
-                results_diagnostics = "diagnostics_W5_ref%s.csv" % refinement_level
+                results_profile = "profile_W5_ref%s.csv" % ref
+                results_energy = "energy_W5_ref%s.csv" % ref
 
-            data_profile = {"AvgOuterIters": avg_outer_its,
-                            "AvgInnerIters": avg_inner_its}
+            data_profile = {"OuterIters": ksp_outer_its,
+                            "InnerIters": ksp_inner_its,
+                            "PicardIters": picard_seq,
+                            "SimTime": sim_time,
+                            "ResidualReductions": reductions}
 
-            data_diagnostics = {"SimTime": sim_time,
-                                "ResidualReductions": reductions,
-                                "Energy": energy}
+            st = list(np.unique(sim_time))
+            st.insert(0, 0.0)
+            data_energy = {"SimTime": st,
+                           "Energy": energy}
 
-            df_profile = pd.DataFrame(data_profile, index=[0])
-            df_profile.to_csv(results_profile, index=False, mode="w", header=True)
-            df_diagnostics = pd.DataFrame(data_diagnostics)
-            df_diagnostics.to_csv(results_diagnostics, index=False, mode="w", header=True)
+            df_profile = pd.DataFrame(data_profile)
+            df_profile.to_csv(results_profile, index=False,
+                              mode="w", header=True)
+            df_energy = pd.DataFrame(data_energy)
+            df_energy.to_csv(results_energy, index=False,
+                             mode="w", header=True)
 
 
 run_williamson5(refinement_level=args.refinements,
