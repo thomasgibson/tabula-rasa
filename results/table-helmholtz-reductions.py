@@ -28,6 +28,6 @@ lformat = r"""{degree: d} & {reductions:.4g}\\
 for group in groups:
     degree, df = group
     table += lformat.format(degree=degree,
-                            reductions=df["ResidualReductions"].mean())
+                            reductions=max(df["ResidualReductions"].values))
 
 print(table)
