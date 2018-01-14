@@ -13,9 +13,6 @@ for data in data_set:
         print("Cannot find data file '%s'" % data)
         sys.exit(1)
 
-dfs = pd.concat(pd.read_csv(data) for data in data_set)
-groups = dfs.groupby(["Degree"], as_index=False)
-
 table = r"""\resizebox{\textwidth}{!}{%
 \begin{tabular}{| l | c| c | c | c | c | c | c |}
 \hline
