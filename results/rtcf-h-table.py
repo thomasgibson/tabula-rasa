@@ -1,128 +1,65 @@
-import csv
+import os
+import sys
+import pandas as pd
 
-tex_file = open("table-rtcf-h.tex", "w")
 
+data_set = ["hybrid-mixed/H-RTCF-degree-0.csv",
+            "hybrid-mixed/H-RTCF-degree-1.csv",
+            "hybrid-mixed/H-RTCF-degree-2.csv",
+            "hybrid-mixed/H-RTCF-degree-3.csv"]
 
-table = r"""
-\begin{table}
-    \centering
-    \caption{Convergence history for the hybridized Raviart-Thomas method of order $k$ on quadrilaterals ($k=0, \cdots, 4$).}
-    \resizebox{\textwidth}{!}{%
-        \begin{tabular}{l c c c c c c c}
-            \toprule
-            \multicolumn{8}{c}{RTCF-H method} \\
-            \cmidrule{2-8}
-            \multirow{2}{*}{$k$} & mesh &
-            \multicolumn{2}{c}{$\norm{p-p_h}_{L^2(\Omega)} \leq \mathcal{O}(h^{k+1})$} &
-            \multicolumn{2}{c}{
-                $\norm{\boldsymbol{u}-\boldsymbol{u}_h}_{\boldsymbol{L}^2(\Omega)} \leq \mathcal{O}(h^{k+1})$} &
-            \multicolumn{2}{c}{$\norm{p-p_h^{\star}}_{L^2(\Omega)} \leq \mathcal{O}(h^{k+2})$} \\
-            & $r$ & error & order & error & order & error & order \\
-            \bottomrule
-            \multirow{5}{*}{0}
+for data in data_set:
+    if not os.path.exists(data):
+        print("Cannot find data file '%s'" % data)
+        sys.exit(1)
+
+dfs = pd.concat(pd.read_csv(data) for data in data_set)
+groups = dfs.groupby(["Degree"], as_index=False)
+
+table = r"""\resizebox{\textwidth}{!}{%
+\begin{tabular}{| l | c| c | c | c | c | c | c |}
+\hline
+\multicolumn{8}{|c|}{RTCF-H method} \\
+\hline
+\multirow{2}{*}{$k$} & mesh &
+\multicolumn{2}{|c|}{$\norm{p-p_h}_{L^2(\Omega)} \leq \mathcal{O}(h^{k+1})$} &
+\multicolumn{2}{|c|}{
+$\norm{\boldsymbol{u}-\boldsymbol{u}_h}_{\boldsymbol{L}^2(\Omega)} \leq \mathcal{O}(h^{k+1})$} &
+\multicolumn{2}{|c|}{$\norm{p-p_h^{\star}}_{L^2(\Omega)} \leq \mathcal{O}(h^{k+2})$} \\
+\cline{2-8}
+& $r$ & $L^2$-error & rate & $L^2$-error & rate & $L^2$-error & rate \\
 """
 
-with open("hybrid-mixed/H-RTCF-degree-0.csv") as csvfile0:
-    readCSV = csv.reader(csvfile0, delimiter=",")
-    for j, row in enumerate(readCSV):
-        # Ignore first row --- these are just column labels
-        if j == 0:
-            continue
-        else:
-            # Number of columns are labeled 0, ..., n-1.
-            for i in range(0, 7):
-                # Final column, need to insert 'next line' in table.
-                if i == 6:
-                    table += " & " + str(row[i]) + " \\\\ \n"
-                else:
-                    table += " & " + str(row[i])
-
-table += r"""
-\midrule
-\multirow{5}{*}{1}
-"""
-
-with open("hybrid-mixed/H-RTCF-degree-1.csv") as csvfile1:
-    readCSV = csv.reader(csvfile1, delimiter=",")
-    for j, row in enumerate(readCSV):
-        # Ignore first row --- these are just column labels
-        if j == 0:
-            continue
-        else:
-            # Number of columns are labeled 0, ..., n-1.
-            for i in range(0, 7):
-                # Final column, need to insert 'next line' in table.
-                if i == 6:
-                    table += " & " + str(row[i]) + " \\\\ \n"
-                else:
-                    table += " & " + str(row[i])
-
-table += r"""
-\midrule
-\multirow{5}{*}{2}
-"""
-
-with open("hybrid-mixed/H-RTCF-degree-2.csv") as csvfile2:
-    readCSV = csv.reader(csvfile2, delimiter=",")
-    for j, row in enumerate(readCSV):
-        # Ignore first row --- these are just column labels
-        if j == 0:
-            continue
-        else:
-            # Number of columns are labeled 0, ..., n-1.
-            for i in range(0, 7):
-                # Final column, need to insert 'next line' in table.
-                if i == 6:
-                    table += " & " + str(row[i]) + " \\\\ \n"
-                else:
-                    table += " & " + str(row[i])
-
-table += r"""
-\midrule
-\multirow{5}{*}{3}
-"""
-
-with open("hybrid-mixed/H-RTCF-degree-3.csv") as csvfile3:
-    readCSV = csv.reader(csvfile3, delimiter=",")
-    for j, row in enumerate(readCSV):
-        # Ignore first row --- these are just column labels
-        if j == 0:
-            continue
-        else:
-            # Number of columns are labeled 0, ..., n-1.
-            for i in range(0, 7):
-                # Final column, need to insert 'next line' in table.
-                if i == 6:
-                    table += " & " + str(row[i]) + " \\\\ \n"
-                else:
-                    table += " & " + str(row[i])
-
-table += r"""
-\midrule
-\multirow{5}{*}{4}
-"""
-
-with open("hybrid-mixed/H-RTCF-degree-4.csv") as csvfile4:
-    readCSV = csv.reader(csvfile4, delimiter=",")
-    for j, row in enumerate(readCSV):
-        # Ignore first row --- these are just column labels
-        if j == 0:
-            continue
-        else:
-            # Number of columns are labeled 0, ..., n-1.
-            for i in range(0, 7):
-                # Final column, need to insert 'next line' in table.
-                if i == 6:
-                    table += " & " + str(row[i]) + " \\\\ \n"
-                else:
-                    table += " & " + str(row[i])
-
-table += r"""
-        \bottomrule
-    \end{tabular}}
-\end{table}
+lformat = r"""& {mesh: d} & {ScalarErrors:.3e} & {ScalarRates} & {FluxErrors:.3e} & {FluxRates} & {PPScalarErrors:.3e} & {PPScalarRates} \\
 """
 
 
-tex_file.write(table)
-tex_file.close()
+def rate(s):
+    if s == '---':
+        return s
+    else:
+        return "{s:.3f}".format(s=float(s))
+
+
+for data in data_set:
+    df = pd.read_csv(data)
+    df = df.sort_values("Mesh")
+    degree = df.Degree.values[0]
+    table += r"""
+    \hline
+    \multirow{5}{*}{%d}
+    """ % degree
+    for k in df.Mesh:
+        sliced = df.loc[lambda x: x.Mesh == k]
+        table += lformat.format(mesh=k,
+                                ScalarErrors=sliced.ScalarErrors.values[0],
+                                ScalarRates=rate(sliced.ScalarConvRates.values[0]),
+                                FluxErrors=sliced.FluxErrors.values[0],
+                                FluxRates=rate(sliced.FluxConvRates.values[0]),
+                                PPScalarErrors=sliced.PostProcessedScalarErrors.values[0],
+                                PPScalarRates=rate(sliced.PostProcessedScalarRates.values[0]))
+
+table += r"""\hline
+\end{tabular}}
+"""
+print(table)
