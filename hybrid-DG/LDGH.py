@@ -316,7 +316,7 @@ def compute_conv_rates(u):
     return rates
 
 
-def run_single_test(r, degree, tau_order):
+def run_single_test(r, degree, tau_order, write=False):
     # Run a quick test given a degree, tau order, and resolution
 
     resolution_param = r
@@ -327,7 +327,7 @@ def run_single_test(r, degree, tau_order):
     error_dict, _ = run_LDG_H_poisson(r=resolution_param,
                                       degree=degree,
                                       tau_order=tau_order,
-                                      write=False)
+                                      write=write)
 
     print("Error in scalar: %0.8f" %
           error_dict["scalar_error"])

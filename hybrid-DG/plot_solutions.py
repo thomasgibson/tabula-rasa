@@ -7,4 +7,7 @@ degree = int(sys.argv[2])
 tau_order = sys.argv[3]
 
 
-LDGH.run_single_test(r=r, degree=degree, tau_order=tau_order)
+LDGH.run_single_test(r=r,
+                     degree=degree,
+                     tau_order=tau_order,
+                     write=True)
