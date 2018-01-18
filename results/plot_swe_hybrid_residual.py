@@ -1,6 +1,7 @@
 import os
 import sys
 import pandas as pd
+import numpy as np
 import seaborn
 import matplotlib
 
@@ -8,12 +9,12 @@ from matplotlib import pyplot as plt
 
 
 FONTSIZE = 12
-MARKERSIZE = 10
-LINEWIDTH = 3
+MARKERSIZE = 8
+LINEWIDTH = 2.5
 
 
-diagnostic_data = ["williamson-test-case-5/hybrid_diagnostics_W5_ref7.csv",
-                   "williamson-test-case-5/diagnostics_W5_ref7.csv"]
+diagnostic_data = ["williamson-test-case-5/hybrid_profile_W5_ref7.csv",
+                   "williamson-test-case-5/profile_W5_ref7.csv"]
 
 
 for data in diagnostic_data:
@@ -41,19 +42,55 @@ ax.spines["right"].set_visible(False)
 ax.xaxis.set_ticks_position("bottom")
 ax.yaxis.set_ticks_position("left")
 ax.set_yscale('log')
-ax.set_xticks(df["SimTime"].values)
 ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
 
-t_array = list(df["SimTime"].values)
 hybrid_r = list(df["ResidualReductions"].values)
 sc_r = list(df1["ResidualReductions"].values)
-# Remove t=0 values (they're just 1)
-# t_array.pop(0)
-# hybrid_r.pop(0)
-# sc_r.pop(0)
-ax.set_ylim([min(hybrid_r)/2, max(sc_r)])
 
-ax.plot(t_array, hybrid_r,
+hybrid_groups = df.groupby(["SimTime"], as_index=False)
+app_sc_groups = df1.groupby(["SimTime"], as_index=False)
+
+t_array = []
+avg_hybrid_r = []
+avg_app_sc_r = []
+max_hybrid_r = []
+min_hybrid_r = []
+max_app_sc_r = []
+min_app_sc_r = []
+
+for group in hybrid_groups:
+    t, df = group
+    reductions = list(df["ResidualReductions"].values)
+    avg = sum(reductions)/len(reductions)
+    max_r = max(reductions)
+    min_r = min(reductions)
+
+    t_array.append(t)
+    avg_hybrid_r.append(avg)
+    max_hybrid_r.append(max_r)
+    min_hybrid_r.append(min_r)
+
+for group in app_sc_groups:
+    _, df = group
+    reductions = list(df["ResidualReductions"].values)
+    avg = sum(reductions)/len(reductions)
+    max_r = max(reductions)
+    min_r = min(reductions)
+
+    avg_app_sc_r.append(avg)
+    max_app_sc_r.append(max_r)
+    min_app_sc_r.append(min_r)
+
+ax.set_ylim([min(min_hybrid_r), max(max_app_sc_r)])
+
+avg_hybrid_r = np.array(avg_hybrid_r)
+avg_app_sc_r = np.array(avg_app_sc_r)
+max_hybrid_r = np.array(max_hybrid_r)
+max_app_sc_r = np.array(max_app_sc_r)
+min_hybrid_r = np.array(min_hybrid_r)
+min_app_sc_r = np.array(min_app_sc_r)
+
+ax.plot(t_array, avg_hybrid_r,
         label="ksp: preonly\npc: hybridization",
         linewidth=LINEWIDTH,
         linestyle="solid",
@@ -62,7 +99,12 @@ ax.plot(t_array, hybrid_r,
         color=colors[0],
         clip_on=False)
 
-ax.plot(t_array, sc_r,
+ax.fill_between(t_array, min_hybrid_r, max_hybrid_r,
+                alpha=0.2, facecolor=colors[0],
+                edgecolor=colors[0], linewidth=1,
+                antialiased=True)
+
+ax.plot(t_array, avg_app_sc_r,
         label="ksp: gmres\npc: approx-sc",
         linewidth=LINEWIDTH,
         linestyle="solid",
@@ -71,16 +113,14 @@ ax.plot(t_array, sc_r,
         color=colors[1],
         clip_on=False)
 
-ax.plot(df["SimTime"].values, [1e-8]*len(df["SimTime"].values),
-        label="1.0e-8",
-        linewidth=LINEWIDTH,
-        linestyle="dotted",
-        markersize=MARKERSIZE,
-        marker=None,
-        color=colors[2],
-        clip_on=False)
+ax.fill_between(t_array, min_app_sc_r, max_app_sc_r,
+                alpha=0.2, facecolor=colors[1],
+                edgecolor=colors[1], linewidth=1,
+                antialiased=True)
 
-ax.set_xticklabels([t for t in df["SimTime"].values], rotation=45)
+t_array.insert(0, 0.0)
+ax.set_xticks(t_array)
+ax.set_xticklabels(t_array, rotation=45)
 
 for tick in ax.get_xticklabels():
     tick.set_fontsize(FONTSIZE-4)
@@ -97,7 +137,7 @@ legend = fig.legend(handles, labels,
                     loc=9,
                     bbox_to_anchor=(0.5, 1.1),
                     bbox_transform=fig.transFigure,
-                    ncol=3,
+                    ncol=2,
                     handlelength=2,
                     fontsize=FONTSIZE,
                     numpoints=1,
