@@ -55,8 +55,17 @@ manuscript. For the Williamson test case 5, we run this twice using precondition
 preconditioner. PETSc log summaries are produced while the simulation runs. To reproduce the profile runs, execute
 the following:
 
--`mpiexec -n 16 python3 swe_williamson5.py --refinements 7 --profile -log_view > approx-sc_sw5_ref7.log`
--`mpiexec -n 16 python3 swe_williamson5.py --refinements 7 --profile --hybridization -log_view > hybridization_sw5_ref7.log`
+```
+mpiexec -n 16 python3 swe_williamson5.py --refinements 7 --profile -log_view > output1.log
+```
+```
+mpiexec -n 16 python3 swe_williamson5.py --refinements 7 --profile --hybridization -log_view > output2.log
+```
+
+where `outputx.log` can be named however you wish. The first command above will run the simulation using GMRES
+on the linearized system with an approximated Schur complement preconditioner. The second command will run the
+same simulation, but switches out GMRES with a ``preonly" application of the hybridization preconditioner.
+Running `python3 swe_williamson5.py --help` will display a summary of arguments that can be provided.
 
 The `results` directory contains raw data used in the paper. The python scripts in that directory can be used
 to reproduce the plots and tables used in the manuscript and supplementary material. Note that the specific
