@@ -25,6 +25,7 @@ from pyop2.profiling import timed_stage
 from argparse import ArgumentParser
 import pandas as pd
 import numpy as np
+import sys
 
 
 ref_to_dt = {3: 900.0,
