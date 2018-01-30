@@ -47,8 +47,7 @@ for data in data_set:
         sliced = df.loc[lambda x: x.Mesh == k]
         table += lformat.format(mesh=k,
                                 L2Errors=sliced.L2Errors.values[0],
-                                ConvRates=rate(sliced.ConvRates.values[0]),
-                                Reductions=sliced.ResidualReductions.values[0])
+                                ConvRates=rate(sliced.ConvRates.values[0]))
 
 table += r"""\hline
 \end{tabular}
