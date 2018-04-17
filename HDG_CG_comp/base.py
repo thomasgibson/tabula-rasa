@@ -91,3 +91,7 @@ class Problem(object):
     @abstractproperty
     def err(self):
         pass
+
+    @abstractproperty
+    def sol(self):
+        pass

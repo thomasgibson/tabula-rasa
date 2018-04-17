@@ -67,3 +67,9 @@ class CGProblem(base.Problem):
         u_a = Function(self.function_space)
         u_a.interpolate(self.analytic_solution)
         return errornorm(self.u, u_a)
+
+    @cached_property
+    def sol(self):
+        u = Function(self.function_space, name="Analytic")
+        u.interpolate(self.analytic_solution)
+        return u
