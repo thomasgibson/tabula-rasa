@@ -10,25 +10,6 @@ class CGProblem(base.Problem):
 
     name = "CG Helmholtz"
 
-    @staticmethod
-    def argparser():
-
-        parser = ArgumentParser(description="""Set options for CG Helmholtz problem.""",
-                                add_help=False)
-
-        parser.add_argument("--degree", action="store", default=1,
-                            type=int, help="Approximation degree")
-
-        parser.add_argument("--size", action="store", default=10,
-                            type=int, help="Number of cells in each direction.")
-
-        parser.add_argument("--write_output", action="store_true",
-                            help="Write the scalar solution to file for visualization.")
-
-        parser.add_argument("--help", action="store_true", help="Show help.")
-
-        return parser
-
     @cached_property
     def function_space(self):
         return FunctionSpace(self.mesh, "CG", self.degree)
@@ -67,6 +48,10 @@ class CGProblem(base.Problem):
         u_a = Function(self.function_space)
         u_a.interpolate(self.analytic_solution)
         return errornorm(self.u, u_a)
+
+    @cached_property
+    def true_err(self):
+        return errornorm(self.analytic_solution, self.u)
 
     @cached_property
     def sol(self):

@@ -1,8 +1,7 @@
 from firedrake import *
 from firedrake.utils import cached_property
-from firedrake.petsc import PETSc
 
-from abc import ABCMeta, abstractproperty, abstractmethod
+from abc import ABCMeta, abstractproperty
 
 
 class Problem(object):
@@ -12,28 +11,8 @@ class Problem(object):
     def __init__(self, N=None, degree=None):
         super(Problem, self).__init__()
 
-        args, _ = self.argparser().parse_known_args()
-        if args.help:
-            import sys
-            self.argparser().print_help()
-            sys.exit(0)
-
-        self.degree = degree or args.degree
-        self.N = N or args.size
-        self.args = args
-
-    def reinitialize(self, degree=None, size=None):
-        if degree is None:
-            degree = self.degree
-
-        if size is None:
-            size = self.N
-
-        degree_changed = degree != self.degree
-        mesh_changed = size != self.N
-
-        if not (degree_changed or mesh_changed):
-            return
+        self.degree = degree
+        self.N = N
 
     @property
     def comm(self):
@@ -80,16 +59,16 @@ class Problem(object):
 
         return solver
 
-    @abstractmethod
-    def argparser():
-        pass
-
     @abstractproperty
     def output(self):
         pass
 
     @abstractproperty
     def err(self):
+        pass
+
+    @abstractproperty
+    def true_err(self):
         pass
 
     @abstractproperty
