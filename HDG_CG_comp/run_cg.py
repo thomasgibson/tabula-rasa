@@ -21,6 +21,9 @@ parser.add_argument("--results_file", action="store",
 parser.add_argument("--degree", action="store", default=1,
                     type=int, help="Degree of approximation.")
 
+parser.add_argument("--write_output", action="store_true",
+                    help="Plot analytic and computed solution.")
+
 parser.add_argument("--help", action="store_true", help="Show help.")
 
 args, _ = parser.parse_known_args()
@@ -111,6 +114,10 @@ Problem size: %s ^ 3\n
 
     PETSc.Sys.Print("Solving %s(degree=%s, size=%s) ... finished." %
                     (name, problem.degree, problem.N))
+
+    if args.write_output:
+        from firedrake import File
+        File("output.pvd").write(problem.u, problem.sol)
 
 
 degree = args.degree
