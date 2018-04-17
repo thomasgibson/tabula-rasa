@@ -21,6 +21,12 @@ parser.add_argument("--results_file", action="store",
 parser.add_argument("--degree", action="store", default=1,
                     type=int, help="Degree of approximation.")
 
+parser.add_argument("--size", action="store", default=10,
+                    type=int, help="Number of cells in each direction")
+
+parser.add_argument("--rtol", action="store", default=1.0e-8,
+                    type=float, help="Relative tolerance of solver.")
+
 parser.add_argument("--write_output", action="store_true",
                     help="Plot analytic and computed solution.")
 
@@ -92,6 +98,7 @@ Problem size: %s ^ 3\n
         pcapply_time = problem.comm.allreduce(pcapply["time"], op=MPI.SUM) / problem.comm.size
         num_cells = problem.comm.allreduce(problem.mesh.cell_set.size, op=MPI.SUM)
         err = problem.err
+        true_err = problem.true_err
 
         if COMM_WORLD.rank == 0:
             if not os.path.exists(os.path.dirname(results)):
@@ -104,10 +111,11 @@ Problem size: %s ^ 3\n
                     "mesh_size": problem.N,
                     "num_cells": num_cells,
                     "degree": problem.degree,
-                    "parameter_name": name,
+                    "problem_name": name,
                     "dofs": problem.u.dof_dset.layout_vec.getSize(),
                     "name": problem.name,
-                    "disc_error": err}
+                    "disc_error": err,
+                    "true_err": true_err}
 
             df = pd.DataFrame(data, index=[0])
             df.to_csv(results, index=False, mode="w", header=True)
@@ -121,4 +129,6 @@ Problem size: %s ^ 3\n
 
 
 degree = args.degree
-run_solver(problem_cls, degree, size=32, rtol=1e-8)
+size = args.size
+rtol = args.rtol
+run_solver(problem_cls, degree, size, rtol)
