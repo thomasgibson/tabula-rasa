@@ -11,7 +11,7 @@ class HDGProblem(base.Problem):
     @cached_property
     def tau(self):
         # Stability parameter for the HDG method
-        return Constant(100.)
+        return Constant(1.)
 
     @cached_property
     def function_space(self):
@@ -22,7 +22,7 @@ class HDGProblem(base.Problem):
 
     @cached_property
     def forcing(self):
-        f = Function(self.function_space, name="forcing")
+        f = Function(self.function_space[1], name="forcing")
         u = self.analytic_solution
         f.interpolate(-div(grad(u)) + u)
         return f
@@ -40,22 +40,21 @@ class HDGProblem(base.Problem):
             return 2*avg(arg)
 
         a = (dot(sigma, tau)*dx - div(tau)*u*dx +
-             both(sigmahat*dot(tau, n))*dS +
-             sigmahat*dot(tau, n)*ds
-             - dot(grad(v), sigma)*dx +
-             both(dot(sigmahat, n)*v)*dS +
+             lambdar('+')*jump(tau, n=n)*dS +
+             lambdar*dot(tau, n)*ds -
+             dot(grad(v), sigma)*dx +
+             jump(sigmahat, n=n)*v('+')*dS +
              dot(sigmahat, n)*v*ds
-             + both(gamma*dot(sigmahat, n))*dS
-             + gamma*lambdar*ds)
+             + inner(u, v)*dx
+             + gamma('+')*jump(sigmahat, n=n)*dS)
         return a
 
     @cached_property
     def L(self):
         W = self.function_space
-        _, v, gamma = TestFunctions(W)
+        _, v, _ = TestFunctions(W)
         f = self.forcing
-        u0 = Constant(1.0)
-        return inner(f, v)*dx + inner(u0, gamma)*ds
+        return inner(f, v)*dx
 
     @cached_property
     def analytic_flux(self):
@@ -64,8 +63,8 @@ class HDGProblem(base.Problem):
 
     @cached_property
     def bcs(self):
-        # All bcs are weakly enforced
-        return None
+        # Trace variables enforce Dirichlet condition on scalar variable
+        return DirichletBC(self.function_space[2], 1, "on_boundary")
 
     @cached_property
     def output(self):
@@ -76,7 +75,7 @@ class HDGProblem(base.Problem):
     def err(self):
         u_a = Function(self.function_space[1])
         u_a.interpolate(self.analytic_solution)
-        sigma_a = FunctionSpace(self.function_space[0])
+        sigma_a = Function(self.function_space[0])
         sigma_a.project(self.analytic_flux)
         u_err = errornorm(self.u.split()[1], u_a)
         sigma_err = errornorm(self.u.split()[0], sigma_a)
