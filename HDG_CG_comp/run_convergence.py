@@ -49,8 +49,8 @@ def run_solvers(degree, size, rtol):
     return (cg_disc_err, hdg_disc_err, true_err_cg, true_err_hdg)
 
 
-for degree in range(1, 3):
-    for size in [8, 16, 32, 64]:
+for degree in [2]:
+    for size in [64]:
 
         alg_errs_cg = []
         alg_errs_hdg = []
