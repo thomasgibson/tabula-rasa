@@ -110,6 +110,19 @@ Problem size: %s ^ 3\n
         err = problem.err
         true_err = problem.true_err
 
+        # HDG-specific timings
+        HDGinit = PETSc.Log.Event("HybridSCInit").getPerfInfo()
+        HDGrhs = PETSc.Log.Event("HybridSCRHS").getPerfInfo()
+        HDGrecon = PETSc.Log.Event("HybridSCReconstruct").getPerfInfo()
+        HDGSolve = PETSc.Log.Event("HybridSCSolve").getPerfInfo()
+        hdginit_time = problem.comm.allreduce(HDGinit["time"], op=MPI.SUM) / problem.comm.size
+        hdgrhs_time = problem.comm.allreduce(HDGrhs["time"], op=MPI.SUM) / problem.comm.size
+        hdgrecon_time = problem.comm.allreduce(HDGrecon["time"], op=MPI.SUM) / problem.comm.size
+        hdgsolve_time = problem.comm.allreduce(HDGSolve["time"], op=MPI.SUM) / problem.comm.size
+
+        # Should total to KSPSolve time (approximately)
+        hdg_total_time = hdginit_time + hdgrhs_time + hdgsolve_time + hdgrecon_time
+
         if COMM_WORLD.rank == 0:
             if not os.path.exists(os.path.dirname(results)):
                 os.makedirs(os.path.dirname(results))
@@ -122,12 +135,19 @@ Problem size: %s ^ 3\n
                     "num_cells": num_cells,
                     "degree": problem.degree,
                     "problem_name": name,
-                    "dofs": problem.u.dof_dset.layout_vec.getSize(),
+                    "total_dofs": problem.u.dof_dset.layout_vec.getSize(),
+                    "u_dofs": problem.u.split()[1].dof_dset.layout_vec.getSize(),
+                    "trace_dofs": problem.u.split()[2].dof_dset.layout_vec.getSize(),
                     "name": problem.name,
                     "disc_error_sigma": err[0],
                     "disc_error_u": err[1],
                     "true_err_sigma": true_err[0],
-                    "true_err_u": true_err[1]}
+                    "true_err_u": true_err[1],
+                    "HDGInit": hdginit_time,
+                    "HDGRhs": hdgrhs_time,
+                    "HDGRecover": hdgrecon_time,
+                    "HDGSolve": hdgsolve_time,
+                    "HDGTotal": hdg_total_time}
 
             df = pd.DataFrame(data, index=[0])
             df.to_csv(results, index=False, mode="w", header=True)
