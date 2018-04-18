@@ -1,7 +1,5 @@
-from argparse import ArgumentParser
 from firedrake import *
 from firedrake.utils import cached_property
-import numpy as np
 
 import base
 
