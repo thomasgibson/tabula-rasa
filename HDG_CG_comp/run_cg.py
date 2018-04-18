@@ -51,16 +51,20 @@ PETSc.Log.begin()
 
 def run_solver(problem_cls, degree, size, rtol):
 
-    params = {"ksp_type": "cg",
-              "ksp_monitor_true_residual": True,
-              "ksp_rtol": rtol,
-              "pc_type": "hypre",
-              "pc_hypre_type": "boomeramg",
-              "pc_hypre_boomeramg_no_CF": True,
-              "pc_hypre_boomeramg_coarsen_type": "HMIS",
-              "pc_hypre_boomeramg_interp_type": "ext+i",
-              "pc_hypre_boomeramg_P_max": 4,
-              "pc_hypre_boomeramg_agg_nl": 1}
+    # params = {'ksp_type': 'cg',
+    #           'ksp_rtol': rtol,
+    #           'ksp_monitor_true_residual': True,
+    #           'pc_type': 'bjacobi',
+    #           'sub_pc_type': 'ilu'}
+
+    params = {'ksp_type': 'cg',
+              'pc_type': 'gamg',
+              'ksp_rtol': rtol,
+              'ksp_monitor_true_residual': True,
+              'mg_levels': {'ksp_type': 'chebyshev',
+                            'ksp_max_it': 2,
+                            'pc_type': 'bjacobi',
+                            'sub_pc_type': 'ilu'}}
 
     problem = problem_cls(degree=degree, N=size)
     name = getattr(problem, "name")
