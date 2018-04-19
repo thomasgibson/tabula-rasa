@@ -1,5 +1,5 @@
 import pandas as pd
-
+from firedrake import COMM_WORLD
 import hdg_problem as HDG
 import cg_problem as CG
 
@@ -7,10 +7,7 @@ import cg_problem as CG
 rtols = [1.0e-1, 1.0e-2,
          1.0e-3, 1.0e-4,
          1.0e-5, 1.0e-6,
-         1.0e-7, 1.0e-7,
-         1.0e-8, 1.0e-9,
-         1.0e-10, 1.0e-11,
-         1.0e-12, 1.0e-13]
+         1.0e-7, 1.0e-8]
 
 
 def run_solvers(degree, size, rtol):
@@ -49,8 +46,8 @@ def run_solvers(degree, size, rtol):
     return (cg_disc_err, hdg_disc_err, true_err_cg, true_err_hdg)
 
 
-for degree in [2]:
-    for size in [64]:
+for degree in [1, 2]:
+    for size in [8, 16, 32, 64]:
 
         alg_errs_cg = []
         alg_errs_hdg = []
@@ -65,14 +62,16 @@ for degree in [2]:
             l2_err_cg.append(true_err_cg)
             l2_err_hdg.append(true_err_hdg)
 
-        data = {"degree": [degree] * len(l2_err_cg),
-                "size": [size] * len(l2_err_hdg),
-                "L2errorCG": l2_err_cg,
-                "L2errorHDG": l2_err_hdg,
-                "AlgErrCG": alg_errs_cg,
-                "AlgErrHDG": alg_errs_hdg,
-                "rtols": rtols}
+        if COMM_WORLD.rank == 0:
 
-        result = "degree_%s_size_%s_conv_data.csv" % (degree, size)
-        df = pd.DataFrame(data)
-        df.to_csv(result, index=False, mode="w")
+            data = {"degree": [degree] * len(l2_err_cg),
+                    "size": [size] * len(l2_err_hdg),
+                    "L2errorCG": l2_err_cg,
+                    "L2errorHDG": l2_err_hdg,
+                    "AlgErrCG": alg_errs_cg,
+                    "AlgErrHDG": alg_errs_hdg,
+                    "rtols": rtols}
+
+            result = "degree_%s_size_%s_conv_data.csv" % (degree, size)
+            df = pd.DataFrame(data)
+            df.to_csv(result, index=False, mode="w")
