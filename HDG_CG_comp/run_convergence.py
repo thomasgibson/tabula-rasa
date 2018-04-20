@@ -7,13 +7,14 @@ import cg_problem as CG
 rtols = [1.0e-1, 1.0e-2,
          1.0e-3, 1.0e-4,
          1.0e-5, 1.0e-6,
-         1.0e-7, 1.0e-8]
+         1.0e-7, 1.0e-8,
+         1.0e-9, 1.0e-10]
 
 
 def run_solvers(degree, size, rtol):
 
     cgprb = CG.CGProblem(degree=degree, N=size)
-    hdgprb = HDG.HDGProblem(degree=degree, N=size)
+    hdgprb = HDG.HDGProblem(degree=degree-1, N=size)
 
     cg_params = {'ksp_type': 'cg',
                  'pc_type': 'gamg',
@@ -46,8 +47,8 @@ def run_solvers(degree, size, rtol):
     return (cg_disc_err, hdg_disc_err, true_err_cg, true_err_hdg)
 
 
-for degree in [1, 2]:
-    for size in [8, 16, 32, 64]:
+for degree in [1, 2, 3]:
+    for size in [8, 16, 24, 32, 40, 48, 52, 60]:
 
         alg_errs_cg = []
         alg_errs_hdg = []
@@ -64,7 +65,8 @@ for degree in [1, 2]:
 
         if COMM_WORLD.rank == 0:
 
-            data = {"degree": [degree] * len(l2_err_cg),
+            data = {"CGdegree": [degree] * len(l2_err_cg),
+                    "HDGdegree": [degree - 1] * len(l2_err_hdg),
                     "size": [size] * len(l2_err_hdg),
                     "L2errorCG": l2_err_cg,
                     "L2errorHDG": l2_err_hdg,
