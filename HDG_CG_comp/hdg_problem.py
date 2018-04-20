@@ -9,10 +9,15 @@ class HDGProblem(base.Problem):
 
     name = "HDG Helmholtz"
 
+    def __init__(self, N, degree):
+        super(HDGProblem, self).__init__(N=N, degree=degree)
+        self.Vpp = FunctionSpace(self.mesh, "DG", self.degree + 1)
+        self.u_pp = Function(self.Vpp, name="Post-processed scalar")
+
     @cached_property
     def tau(self):
         # Stability parameter for the HDG method
-        return Constant(1.)
+        return Constant(1.0)
 
     @cached_property
     def function_space(self):
@@ -37,9 +42,6 @@ class HDGProblem(base.Problem):
 
         sigmahat = sigma + self.tau*(u - lambdar)*n
 
-        def both(arg):
-            return 2*avg(arg)
-
         a = (dot(sigma, tau)*dx - div(tau)*u*dx +
              lambdar('+')*jump(tau, n=n)*dS +
              lambdar*dot(tau, n)*ds -
@@ -47,15 +49,16 @@ class HDGProblem(base.Problem):
              jump(sigmahat, n=n)*v('+')*dS +
              dot(sigmahat, n)*v*ds
              + inner(u, v)*dx
-             + gamma('+')*jump(sigmahat, n=n)*dS)
+             + gamma('+')*jump(sigmahat, n=n)*dS +
+             gamma*lambdar*ds)
         return a
 
     @cached_property
     def L(self):
         W = self.function_space
-        _, v, _ = TestFunctions(W)
+        _, v, gamma = TestFunctions(W)
         f = self.forcing
-        return inner(f, v)*dx
+        return inner(f, v)*dx + gamma*ds
 
     @cached_property
     def analytic_flux(self):
@@ -65,7 +68,7 @@ class HDGProblem(base.Problem):
     @cached_property
     def bcs(self):
         # Trace variables enforce Dirichlet condition on scalar variable
-        return DirichletBC(self.function_space[2], 1, "on_boundary")
+        return DirichletBC(self.function_space[2], 1.0, "on_boundary")
 
     @cached_property
     def output(self):
@@ -96,10 +99,14 @@ class HDGProblem(base.Problem):
         sigma.project(self.analytic_flux)
         return (sigma, u)
 
-    def post_processed_sol(self):
-        Vpp = FunctionSpace(self.mesh, "DG", self.degree + 1)
-        V0 = FunctionSpace(self.mesh, "DG", 0)
-        Wpp = Vpp * V0
+    @cached_property
+    def post_processed_expr(self):
+        if self.degree == 0:
+            V0 = FunctionSpace(self.mesh, "DG", 0)
+        else:
+            V0 = FunctionSpace(self.mesh, "DG", self.degree - 1)
+
+        Wpp = self.Vpp * V0
 
         up, psi = TrialFunctions(Wpp)
         wp, phi = TestFunctions(Wpp)
@@ -113,13 +120,12 @@ class HDGProblem(base.Problem):
         F = Tensor((-inner(q_h, grad(wp)) +
                     inner(u_h, phi))*dx)
 
-        E = K.inv * F
+        return K.inv * F
+
+    def post_processed_sol(self):
 
         with timed_region("HDGPostprocessing"):
-            u_pp = Function(Vpp, name="Post-processed scalar")
-            assemble(E.block((0,)), tensor=u_pp)
-
-        self.u_pp = u_pp
+            assemble(self.post_processed_expr.block((0,)), tensor=self.u_pp)
 
     @cached_property
     def pp_err(self):
