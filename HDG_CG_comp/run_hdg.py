@@ -96,6 +96,7 @@ Problem size: %s ^ 3\n
 
     solver = problem.solver(parameters=params)
     problem.u.assign(0)
+    problem.u_pp.assign(0)
 
     PETSc.Sys.Print("Timed solve...")
     solver.snes.setConvergenceHistory()
