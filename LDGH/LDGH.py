@@ -130,16 +130,13 @@ def run_LDG_H_poisson(r, degree, tau_order, write=False):
 
     # Formulate the LDG-H method in UFL
     a = ((dot(v, q) - div(v)*u)*dx
-         + Constant(2)*avg(uhat*dot(v, n))*dS
+         + uhat('+')*jump(v, n=n)*dS
          + uhat*dot(v, n)*ds
          - dot(grad(w), q)*dx
-         + Constant(2)*avg(dot(qhat, n)*w)*dS
+         + jump(qhat, n=n)*w('+')*dS
          + dot(qhat, n)*w*ds
          # Transmission condition
-         + Constant(2)*avg(mu*dot(qhat, n))*dS
-         # trace mass term for the boundary conditions
-         # <uhat, mu>ds == <g, mu>ds where g=0 in this example
-         + uhat*mu*ds)
+         + mu('+')*jump(qhat, n=n)*dS)
 
     L = w*f*dx
     F = a - L
@@ -154,7 +151,9 @@ def run_LDG_H_poisson(r, degree, tau_order, write=False):
               'hybrid_sc': {'ksp_type': 'preonly',
                             'pc_type': 'lu',
                             'pc_factor_mat_solver_package': 'mumps'}}
-    problem = NonlinearVariationalProblem(F, s)
+
+    bcs = DirichletBC(W.sub(2), Constant(0.0), "on_boundary")
+    problem = NonlinearVariationalProblem(F, s, bcs=bcs)
     solver = NonlinearVariationalSolver(problem, solver_parameters=params)
     solver.solve()
     print("Solver finished.\n")
