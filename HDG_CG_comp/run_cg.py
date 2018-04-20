@@ -27,6 +27,12 @@ parser.add_argument("--size", action="store", default=10,
 parser.add_argument("--rtol", action="store", default=1.0e-8,
                     type=float, help="Relative tolerance of solver.")
 
+parser.add_argument("--dim", action="store", default=2,
+                    type=int, choices=[2, 3], help="Problem dimension.")
+
+parser.add_argument("--quads", action="store_true",
+                    help="Use quadrilateral elements")
+
 parser.add_argument("--write_output", action="store_true",
                     help="Plot analytic and computed solution.")
 
@@ -49,32 +55,34 @@ warm = defaultdict(bool)
 PETSc.Log.begin()
 
 
-def run_solver(problem_cls, degree, size, rtol):
-
-    # params = {'ksp_type': 'cg',
-    #           'ksp_rtol': rtol,
-    #           'ksp_monitor_true_residual': True,
-    #           'pc_type': 'bjacobi',
-    #           'sub_pc_type': 'ilu'}
+def run_solver(problem_cls, degree, size, rtol, quads, dim):
 
     params = {'ksp_type': 'cg',
-              'pc_type': 'gamg',
               'ksp_rtol': rtol,
               'ksp_monitor_true_residual': True,
-              'mg_levels': {'ksp_type': 'chebyshev',
-                            'ksp_max_it': 2,
-                            'pc_type': 'bjacobi',
-                            'sub_pc_type': 'ilu'}}
+              'pc_type': 'bjacobi',
+              'sub_pc_type': 'ilu'}
 
-    problem = problem_cls(degree=degree, N=size)
+    # params = {'ksp_type': 'cg',
+    #           'pc_type': 'gamg',
+    #           'ksp_rtol': rtol,
+    #           'ksp_monitor_true_residual': True,
+    #           'mg_levels': {'ksp_type': 'chebyshev',
+    #                         'ksp_max_it': 1,
+    #                         'pc_type': 'bjacobi',
+    #                         'sub_pc_type': 'ilu'}}
+
+    problem = problem_cls(degree=degree, N=size,
+                          quadrilaterals=quads, dimension=dim)
     name = getattr(problem, "name")
     solver = problem.solver(parameters=params)
 
     PETSc.Sys.Print("""
 \nSolving problem: %s.\n
 Approximation degree: %s\n
-Problem size: %s ^ 3\n
-""" % (name, problem.degree, problem.N))
+Problem size: %s ^ %s\n
+Quads: %s\n
+""" % (name, problem.degree, problem.N, problem.dim, problem.quads))
 
     if not warm[(name, degree)]:
         PETSc.Sys.Print("Warmup solve\n")
@@ -91,8 +99,8 @@ Problem size: %s ^ 3\n
     PETSc.Sys.Print("Timed solve...")
     solver.snes.setConvergenceHistory()
     solver.snes.ksp.setConvergenceHistory()
-    with PETSc.Log.Stage("%s(degree=%s, size=%s) Warm solve\n" %
-                         (name, degree, size)):
+    with PETSc.Log.Stage("%s(degree=%s, size=%s, dimension=%s) Warm solve\n" %
+                         (name, degree, size, dim)):
         solver.solve()
         ksp = PETSc.Log.Event("KSPSolve").getPerfInfo()
         pcsetup = PETSc.Log.Event("PCSetUp").getPerfInfo()
@@ -124,15 +132,17 @@ Problem size: %s ^ 3\n
             df = pd.DataFrame(data, index=[0])
             df.to_csv(results, index=False, mode="w", header=True)
 
-    PETSc.Sys.Print("Solving %s(degree=%s, size=%s) ... finished." %
-                    (name, problem.degree, problem.N))
+    PETSc.Sys.Print("Solving %s(degree=%s, size=%s, dimension=%s) finished." %
+                    (name, problem.degree, problem.N, problem.dim))
 
     if args.write_output:
         from firedrake import File
-        File("output.pvd").write(problem.u, problem.sol)
+        File("cg_output.pvd").write(problem.u, problem.sol)
 
 
 degree = args.degree
 size = args.size
 rtol = args.rtol
-run_solver(problem_cls, degree, size, rtol)
+dim = args.dim
+quads = args.quads
+run_solver(problem_cls, degree, size, rtol, quads, dim)
