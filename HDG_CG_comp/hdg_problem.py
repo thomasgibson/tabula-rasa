@@ -1,5 +1,6 @@
 from firedrake import *
 from firedrake.utils import cached_property
+from pyop2.profiling import timed_region
 
 import base
 
@@ -94,3 +95,32 @@ class HDGProblem(base.Problem):
         u.interpolate(self.analytic_solution)
         sigma.project(self.analytic_flux)
         return (sigma, u)
+
+    def post_processed_sol(self):
+        Vpp = FunctionSpace(self.mesh, "DG", self.degree + 1)
+        V0 = FunctionSpace(self.mesh, "DG", 0)
+        Wpp = Vpp * V0
+
+        up, psi = TrialFunctions(Wpp)
+        wp, phi = TestFunctions(Wpp)
+
+        K = Tensor((inner(grad(up), grad(wp)) +
+                    inner(psi, wp) +
+                    inner(up, phi))*dx)
+
+        q_h, u_h, _ = self.u.split()
+
+        F = Tensor((-inner(q_h, grad(wp)) +
+                    inner(u_h, phi))*dx)
+
+        E = K.inv * F
+
+        with timed_region("HDGPostprocessing"):
+            u_pp = Function(Vpp, name="Post-processed scalar")
+            assemble(E.block((0,)), tensor=u_pp)
+
+        self.u_pp = u_pp
+
+    @cached_property
+    def pp_err(self):
+        return errornorm(self.analytic_solution, self.u_pp)

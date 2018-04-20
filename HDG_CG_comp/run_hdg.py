@@ -4,6 +4,8 @@ from firedrake import COMM_WORLD, parameters
 from firedrake.petsc import PETSc
 from mpi4py import MPI
 
+from pyop2.profiling import timed_region
+
 import os
 import pandas as pd
 import hdg_problem as module
@@ -88,6 +90,7 @@ Problem size: %s ^ 3\n
 
         with PETSc.Log.Stage("Warmup..."):
             solver.solve()
+            problem.post_processed_sol()
 
         warm[(name, degree)] = True
 
@@ -121,7 +124,14 @@ Problem size: %s ^ 3\n
         hdgsolve_time = problem.comm.allreduce(HDGSolve["time"], op=MPI.SUM) / problem.comm.size
 
         # Should total to KSPSolve time (approximately)
-        hdg_total_time = hdginit_time + hdgrhs_time + hdgsolve_time + hdgrecon_time
+        hdg_total_solve = hdginit_time + hdgrhs_time + hdgsolve_time + hdgrecon_time
+
+        problem.post_processed_sol()
+        HDGPP = PETSc.Log.Event("HDGPostprocessing").getPerfInfo()
+        pp_time = problem.comm.allreduce(HDGPP["time"], op=MPI.SUM) / problem.comm.size
+
+        # Total HDG time (with pp)
+        hdg_total_time = hdg_total_solve + pp_time
 
         if COMM_WORLD.rank == 0:
             if not os.path.exists(os.path.dirname(results)):
@@ -147,7 +157,10 @@ Problem size: %s ^ 3\n
                     "HDGRhs": hdgrhs_time,
                     "HDGRecover": hdgrecon_time,
                     "HDGSolve": hdgsolve_time,
-                    "HDGTotal": hdg_total_time}
+                    "HDGTotalSolve": hdg_total_solve,
+                    "HDGTotal": hdg_total_time,
+                    "HDGPPTime": pp_time,
+                    "ErrorPP": problem.pp_err}
 
             df = pd.DataFrame(data, index=[0])
             df.to_csv(results, index=False, mode="w", header=True)
@@ -158,7 +171,9 @@ Problem size: %s ^ 3\n
     if args.write_output:
         from firedrake import File
         sigma_h, u_h, _ = problem.u.split()
-        File("output.pvd").write(sigma_h, u_h, problem.sol[0], problem.sol[1])
+        u_pp = problem.u_pp
+        File("output.pvd").write(sigma_h, u_h,
+                                 problem.sol[0], problem.sol[1], u_pp)
 
 
 degree = args.degree
