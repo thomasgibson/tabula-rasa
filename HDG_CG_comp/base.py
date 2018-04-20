@@ -8,11 +8,14 @@ class Problem(object):
 
     __metaclass__ = ABCMeta
 
-    def __init__(self, N=None, degree=None):
+    def __init__(self, N=None, degree=None, dimension=None,
+                 quadrilaterals=False):
         super(Problem, self).__init__()
 
         self.degree = degree
         self.N = N
+        self.dim = dimension
+        self.quads = quadrilaterals
 
     @property
     def comm(self):
@@ -20,7 +23,15 @@ class Problem(object):
 
     @cached_property
     def mesh(self):
-        return UnitCubeMesh(self.N, self.N, self.N)
+        if self.dim == 2:
+            return UnitSquareMesh(self.N, self.N, quadrilateral=self.quads)
+        else:
+            assert self.dim == 3
+            if self.quads:
+                base = UnitSquareMesh(self.N, self.N, quadrilateral=self.quads)
+                return ExtrudedMesh(base, self.N, layer_height=1.0/self.N)
+            else:
+                return UnitCubeMesh(self.N, self.N, self.N)
 
     @abstractproperty
     def name(self):
@@ -30,9 +41,9 @@ class Problem(object):
     def function_space(self):
         pass
 
-    @cached_property
+    @abstractproperty
     def u(self):
-        return Function(self.function_space, name="Solution")
+        pass
 
     @abstractproperty
     def a(self):
@@ -48,8 +59,12 @@ class Problem(object):
 
     @cached_property
     def analytic_solution(self):
-        x, y, z = SpatialCoordinate(self.mesh)
-        return exp(sin(pi*x)*sin(pi*y)*sin(pi*z))
+        x = SpatialCoordinate(self.mesh)
+        if self.dim == 2:
+            return exp(sin(3*pi*x[0])*sin(3*pi*x[1]))
+        else:
+            assert self.dim == 3
+            return exp(sin(3*pi*x[0])*sin(3*pi*x[1])*sin(3*pi*x[2]))
 
     def solver(self, parameters=None):
 
