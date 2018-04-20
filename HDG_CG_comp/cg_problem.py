@@ -13,10 +13,14 @@ class CGProblem(base.Problem):
         return FunctionSpace(self.mesh, "CG", self.degree)
 
     @cached_property
+    def u(self):
+        return Function(self.function_space, name="Solution")
+
+    @cached_property
     def forcing(self):
         f = Function(self.function_space, name="forcing")
         u = self.analytic_solution
-        f.interpolate(-div(grad(u)) + u)
+        f.interpolate(-div(grad(u)))
         return f
 
     @cached_property
@@ -24,7 +28,7 @@ class CGProblem(base.Problem):
         V = self.function_space
         u = TrialFunction(V)
         v = TestFunction(V)
-        return dot(grad(u), grad(v))*dx + inner(u, v)*dx
+        return dot(grad(u), grad(v))*dx
 
     @cached_property
     def L(self):
@@ -35,7 +39,15 @@ class CGProblem(base.Problem):
 
     @cached_property
     def bcs(self):
-        return DirichletBC(self.function_space, Constant(1.), "on_boundary")
+        V = self.function_space
+        if self.dim == 3 and self.quads:
+            bcs = [DirichletBC(V, Constant(1), "on_boundary"),
+                   DirichletBC(V, Constant(1), "top"),
+                   DirichletBC(V, Constant(1), "bottom")]
+        else:
+            bcs = DirichletBC(V, Constant(1), "on_boundary")
+
+        return bcs
 
     @cached_property
     def output(self):
@@ -45,11 +57,11 @@ class CGProblem(base.Problem):
     def err(self):
         u_a = Function(self.function_space)
         u_a.interpolate(self.analytic_solution)
-        return errornorm(self.u, u_a)
+        return errornorm(self.u, u_a, norm_type="L2")
 
     @cached_property
     def true_err(self):
-        return errornorm(self.analytic_solution, self.u)
+        return errornorm(self.analytic_solution, self.u, norm_type="L2")
 
     @cached_property
     def sol(self):
