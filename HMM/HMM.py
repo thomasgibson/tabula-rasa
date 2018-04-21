@@ -1,26 +1,25 @@
 """
 This module runs a convergence history for the mixed-hybrid methods
-of a model Poisson problem (detailed in the main function).
+of a model elliptic problem (detailed in the main function).
 """
 
 from firedrake import *
+from firedrake.petsc import PETSc
+from firedrake import COMM_WORLD
 import numpy as np
 import pandas as pd
 
 
-def run_mixed_hybrid_poisson(r, degree, mixed_method, write=False):
+def run_mixed_hybrid_helmholtz(r, degree, mixed_method, write=False):
     """
-    Solves the Dirichlet problem for the Poisson equation:
+    Solves the Dirichlet problem for the elliptic equation:
 
-    -div(grad(u)) = f in [0, 1]^2, u = 0 on the domain boundary.
+    -div(grad(u)) + u = f in [0, 1]^2, u = g on the domain boundary.
 
-    The source function is chosen to be the smooth function:
+    The source function f and g are chosen such that the analytic
+    solution is:
 
-    f(x, y) = (2*pi^2)*sin(x*pi)*sin(y*pi)
-
-    which produces the smooth analytic function:
-
-    u(x, y) = sin(x*pi)*sin(y*pi).
+    u(x, y) = exp(sin(3*x*pi)*sin(3*y*pi)).
 
     This problem was crafted so that we can test the theoretical
     convergence rates for the hybrid-mixed methods. This problem
@@ -97,8 +96,8 @@ def run_mixed_hybrid_poisson(r, degree, mixed_method, write=False):
     W = U * V * T
 
     # These spaces are for the smooth analytic expressions
-    V_a = FunctionSpace(mesh, "DG", degree + 2)
-    U_a = VectorFunctionSpace(mesh, "DG", degree + 2)
+    V_a = FunctionSpace(mesh, "CG", degree + 3)
+    U_a = VectorFunctionSpace(mesh, "CG", degree + 3)
 
     # Mixed space and test/trial functions
     W = U * V * T
@@ -106,22 +105,26 @@ def run_mixed_hybrid_poisson(r, degree, mixed_method, write=False):
     q, u, lambdar = split(s)
     v, w, gammar = TestFunctions(W)
 
-    # Need smooth right-hand side for superconvergence magic
-    Vh = FunctionSpace(mesh, "CG", degree + 2)
-    f = Function(Vh).interpolate((2*pi*pi)*sin(x[0]*pi)*sin(x[1]*pi))
+    u_a = Function(V_a, name="Analytic Scalar")
+    a_scalar = exp(sin(3*pi*x[0])*sin(3*pi*x[1]))
+    u_a.interpolate(a_scalar)
 
-    # This is the formulation described by the Feel++ folks where
-    # the multipliers weakly enforce the Dirichlet condition on
-    # the scalar unknown.
-    adx = (dot(q, v) - div(v)*u + div(q)*w)*dx
+    q_a = Function(U_a, name="Analytic Flux")
+    a_flux = -grad(a_scalar)
+    q_a.project(a_flux)
+
+    Vh = FunctionSpace(mesh, "DG", degree + 3)
+    f = Function(Vh).interpolate(-div(grad(a_scalar))
+                                 + a_scalar)
+
+    adx = (dot(q, v) - div(v)*u + div(q)*w + w*u)*dx
     adS = (jump(q, n=n)*gammar('+') + jump(v, n=n)*lambdar('+'))*dS
-    ads = dot(v, n)*lambdar*ds
-    a = adx + adS + ads
+    a = adx + adS
 
-    L = w*f*dx
+    L = w*f*dx - Constant(1.0)*dot(v, n)*ds
     F = a - L
-    print("Solving hybrid-mixed system using static condensation.\n")
-    bcs = DirichletBC(W[2], 0.0, "on_boundary")
+    PETSc.Sys.Print("Solving hybrid-mixed system using static condensation.\n")
+    bcs = DirichletBC(W.sub(2), 0.0, "on_boundary")
     params = {'snes_type': 'ksponly',
               'pmat_type': 'matfree',
               'ksp_type': 'preonly',
@@ -135,17 +138,10 @@ def run_mixed_hybrid_poisson(r, degree, mixed_method, write=False):
     problem = NonlinearVariationalProblem(F, s, bcs=bcs)
     solver = NonlinearVariationalSolver(problem, solver_parameters=params)
     solver.solve()
-    print("Solver finished.\n")
+    PETSc.Sys.Print("Solver finished.\n")
 
     # Computed flux, scalar, and trace
     q_h, u_h, lambdar_h = s.split()
-
-    # Analytical solutions for u and q
-    u_a = Function(V_a, name="Analytic Scalar")
-    u_a.interpolate(sin(x[0]*pi)*sin(x[1]*pi))
-
-    q_a = Function(U_a, name="Analytic Flux")
-    q_a.project(-grad(sin(x[0]*pi)*sin(x[1]*pi)))
 
     # Now we compute the various metrics. First we
     # simply compute the L2 error between the analytic
@@ -192,7 +188,7 @@ def run_mixed_hybrid_poisson(r, degree, mixed_method, write=False):
 
     E = K.inv * F
 
-    print("Local post-processing of the scalar variable.\n")
+    PETSc.Sys.Print("Local post-processing of the scalar variable.\n")
     u_pp = Function(DGk1, name="Post-processed scalar")
     assemble(E.block((0,)), tensor=u_pp)
 
@@ -201,7 +197,7 @@ def run_mixed_hybrid_poisson(r, degree, mixed_method, write=False):
     scalar_pp_error = errornorm(u_a, u_pp, norm_type="L2")
     error_dictionary.update({"scalar_pp_error": scalar_pp_error})
 
-    print("Post-processing finished.\n")
+    PETSc.Sys.Print("Post-processing finished.\n")
 
     # To verify the hybrid-flux is HDiv conforming, we also
     # evaluate its jump over mesh interiors. This should be
@@ -209,7 +205,7 @@ def run_mixed_hybrid_poisson(r, degree, mixed_method, write=False):
     flux_jump = assemble(jump(q_h, n=n)*dS)
     error_dictionary.update({"flux_jump": np.abs(flux_jump)})
 
-    print("Finished test case for h=1/2^%d.\n" % r)
+    PETSc.Sys.Print("Finished test case for h=1/2^%d.\n" % r)
 
     # If write specified, then write output
     if write:
@@ -240,30 +236,30 @@ def compute_conv_rates(u):
 def run_single_test(r, degree, method):
     # Run a quick test given a degree, mixed method, and resolution
 
-    print("Running Hybrid-%s method of degree %d"
-          " and mesh parameter h=1/2^%d." %
-          (method, degree, r))
+    PETSc.Sys.Print("Running Hybrid-%s method of degree %d"
+                    " and mesh parameter h=1/2^%d." %
+                    (method, degree, r))
 
-    error_dict, _ = run_mixed_hybrid_poisson(r=r,
-                                             degree=degree,
-                                             mixed_method=method,
-                                             write=True)
+    error_dict, _ = run_mixed_hybrid_helmholtz(r=r,
+                                               degree=degree,
+                                               mixed_method=method,
+                                               write=True)
 
-    print("Error in scalar: %0.8f" %
-          error_dict["scalar_error"])
-    print("Error in post-processed scalar: %0.8f" %
-          error_dict["scalar_pp_error"])
-    print("Error in flux: %0.8f" %
-          error_dict["flux_error"])
-    print("Interior jump of the hybrid flux: %0.8f" %
-          np.abs(error_dict["flux_jump"]))
+    PETSc.Sys.Print("Error in scalar: %0.8f" %
+                    error_dict["scalar_error"])
+    PETSc.Sys.Print("Error in post-processed scalar: %0.8f" %
+                    error_dict["scalar_pp_error"])
+    PETSc.Sys.Print("Error in flux: %0.8f" %
+                    error_dict["flux_error"])
+    PETSc.Sys.Print("Interior jump of the hybrid flux: %0.8f" %
+                    np.abs(error_dict["flux_jump"]))
 
 
-def run_mixed_hybrid_convergence(degree, method):
+def run_mixed_hybrid_convergence(degree, method, start, end):
 
-    print("Running convergence test for the hybrid-%s method "
-          "of degree %d"
-          % (method, degree))
+    PETSc.Sys.Print("Running convergence test for the hybrid-%s method "
+                    "of degree %d"
+                    % (method, degree))
 
     # Create arrays to write to CSV file
     r_array = []
@@ -273,12 +269,12 @@ def run_mixed_hybrid_convergence(degree, method):
     flux_jumps = []
     num_cells = []
     # Run over mesh parameters and collect error metrics
-    for r in range(1, 7):
+    for r in range(start, end + 1):
         r_array.append(r)
-        error_dict, mesh = run_mixed_hybrid_poisson(r=r,
-                                                    degree=degree,
-                                                    mixed_method=method,
-                                                    write=False)
+        error_dict, mesh = run_mixed_hybrid_helmholtz(r=r,
+                                                      degree=degree,
+                                                      mixed_method=method,
+                                                      write=False)
 
         # Extract errors and metrics
         scalar_errors.append(error_dict["scalar_error"])
@@ -292,22 +288,23 @@ def run_mixed_hybrid_convergence(degree, method):
     scalar_pp_rates = compute_conv_rates(scalar_pp_errors)
     flux_rates = compute_conv_rates(flux_errors)
 
-    print("Error in scalar: %0.13f" % scalar_errors[-1])
-    print("Error in post-processed scalar: %0.13f" % scalar_pp_errors[-1])
-    print("Error in flux: %0.13f" % flux_errors[-1])
-    print("Interior jump of computed flux: %0.13f" % flux_jumps[-1])
+    PETSc.Sys.Print("Error in scalar: %0.13f" % scalar_errors[-1])
+    PETSc.Sys.Print("Error in post-processed scalar: %0.13f" % scalar_pp_errors[-1])
+    PETSc.Sys.Print("Error in flux: %0.13f" % flux_errors[-1])
+    PETSc.Sys.Print("Interior jump of computed flux: %0.13f" % flux_jumps[-1])
 
-    degrees = [degree] * len(r_array)
-    data = {"Mesh": r_array,
-            "Degree": degrees,
-            "NumCells": num_cells,
-            "ScalarErrors": scalar_errors,
-            "ScalarConvRates": scalar_rates,
-            "FluxErrors": flux_errors,
-            "FluxConvRates": flux_rates,
-            "PostProcessedScalarErrors": scalar_pp_errors,
-            "PostProcessedScalarRates": scalar_pp_rates}
+    if COMM_WORLD.rank == 0:
+        degrees = [degree] * len(r_array)
+        data = {"Mesh": r_array,
+                "Degree": degrees,
+                "NumCells": num_cells,
+                "ScalarErrors": scalar_errors,
+                "ScalarConvRates": scalar_rates,
+                "FluxErrors": flux_errors,
+                "FluxConvRates": flux_rates,
+                "PostProcessedScalarErrors": scalar_pp_errors,
+                "PostProcessedScalarRates": scalar_pp_rates}
 
-    df = pd.DataFrame(data)
-    result = "H-%s-degree-%d.csv" % (method, degree)
-    df.to_csv(result, index=False, mode="w")
+        df = pd.DataFrame(data)
+        result = "H-%s-degree-%d.csv" % (method, degree)
+        df.to_csv(result, index=False, mode="w")
