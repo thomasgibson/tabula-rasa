@@ -15,7 +15,7 @@ parser = ArgumentParser(description="""Profile CG solver.""",
                         add_help=False)
 
 parser.add_argument("--results_file", action="store",
-                    default="CG-timings.csv",
+                    default="CG-timings",
                     help="Where to put the results.")
 
 parser.add_argument("--degree", action="store", default=1,
@@ -130,7 +130,12 @@ Quads: %s\n
                     "true_err": true_err}
 
             df = pd.DataFrame(data, index=[0])
-            df.to_csv(results, index=False, mode="w", header=True)
+            if problem.quads:
+                result_file = results + "_quads.csv"
+            else:
+                result_file = results + ".csv"
+
+            df.to_csv(result_file, index=False, mode="w", header=True)
 
     PETSc.Sys.Print("Solving %s(degree=%s, size=%s, dimension=%s) finished." %
                     (name, problem.degree, problem.N, problem.dim))
