@@ -9,8 +9,10 @@ class HDGProblem(base.Problem):
 
     name = "HDG Helmholtz"
 
-    def __init__(self, N, degree):
-        super(HDGProblem, self).__init__(N=N, degree=degree)
+    def __init__(self, N, degree, quadrilaterals, dimension):
+        super(HDGProblem, self).__init__(N=N, degree=degree,
+                                         quadrilaterals=quadrilaterals,
+                                         dimension=dimension)
         self.Vpp = FunctionSpace(self.mesh, "DG", self.degree + 1)
         self.u_pp = Function(self.Vpp, name="Post-processed scalar")
 
@@ -20,15 +22,25 @@ class HDGProblem(base.Problem):
         return Constant(1.0)
 
     @cached_property
+    def u(self):
+        return Function(self.function_space, name="Solution")
+
+    @cached_property
     def function_space(self):
-        U = VectorFunctionSpace(self.mesh, "DG", self.degree)
-        V = FunctionSpace(self.mesh, "DG", self.degree)
+        if self.quads:
+            dG = "DQ"
+        else:
+            dG = "DG"
+
+        U = VectorFunctionSpace(self.mesh, dG, self.degree)
+        V = FunctionSpace(self.mesh, dG, self.degree)
         T = FunctionSpace(self.mesh, "DGT", self.degree)
         return U * V * T
 
     @cached_property
     def forcing(self):
-        f = Function(self.function_space[1], name="forcing")
+        V = FunctionSpace(self.mesh, "DG", self.degree + 3)
+        f = Function(V, name="forcing")
         u = self.analytic_solution
         f.interpolate(-div(grad(u)) + u)
         return f
@@ -48,17 +60,16 @@ class HDGProblem(base.Problem):
              dot(grad(v), sigma)*dx +
              jump(sigmahat, n=n)*v('+')*dS +
              dot(sigmahat, n)*v*ds
-             + inner(u, v)*dx
-             + gamma('+')*jump(sigmahat, n=n)*dS +
-             gamma*lambdar*ds)
+             + v*u*dx
+             + gamma('+')*jump(sigmahat, n=n)*dS)
         return a
 
     @cached_property
     def L(self):
         W = self.function_space
-        _, v, gamma = TestFunctions(W)
+        _, v, _ = TestFunctions(W)
         f = self.forcing
-        return inner(f, v)*dx + gamma*ds
+        return inner(f, v)*dx
 
     @cached_property
     def analytic_flux(self):
@@ -68,7 +79,16 @@ class HDGProblem(base.Problem):
     @cached_property
     def bcs(self):
         # Trace variables enforce Dirichlet condition on scalar variable
-        return DirichletBC(self.function_space[2], 1.0, "on_boundary")
+        T = self.function_space.sub(2)
+
+        if self.dim == 3 and self.quads:
+            bcs = [DirichletBC(T, Constant(1), "on_boundary"),
+                   DirichletBC(T, Constant(1), "top"),
+                   DirichletBC(T, Constant(1), "bottom")]
+        else:
+            bcs = DirichletBC(T, Constant(1), "on_boundary")
+
+        return bcs
 
     @cached_property
     def output(self):
@@ -79,17 +99,14 @@ class HDGProblem(base.Problem):
     def err(self):
         u_a = Function(self.function_space[1])
         u_a.interpolate(self.analytic_solution)
-        sigma_a = Function(self.function_space[0])
-        sigma_a.project(self.analytic_flux)
-        u_err = errornorm(self.u.split()[1], u_a)
-        sigma_err = errornorm(self.u.split()[0], sigma_a)
-        return (sigma_err, u_err)
+        u_err = errornorm(self.u.split()[1], u_a, norm_type="L2")
+        return u_err
 
     @cached_property
     def true_err(self):
-        u_err = errornorm(self.analytic_solution, self.u.split()[1])
-        sigma_err = errornorm(self.analytic_flux, self.u.split()[0])
-        return (sigma_err, u_err)
+        u_err = errornorm(self.analytic_solution, self.u.split()[1],
+                          norm_type="L2")
+        return u_err
 
     @cached_property
     def sol(self):
@@ -101,10 +118,8 @@ class HDGProblem(base.Problem):
 
     @cached_property
     def post_processed_expr(self):
-        if self.degree == 0:
-            V0 = FunctionSpace(self.mesh, "DG", 0)
-        else:
-            V0 = FunctionSpace(self.mesh, "DG", self.degree - 1)
+
+        V0 = FunctionSpace(self.mesh, "DG", 0)
 
         Wpp = self.Vpp * V0
 
@@ -129,4 +144,4 @@ class HDGProblem(base.Problem):
 
     @cached_property
     def pp_err(self):
-        return errornorm(self.analytic_solution, self.u_pp)
+        return errornorm(self.analytic_solution, self.u_pp, norm_type="L2")

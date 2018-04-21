@@ -18,9 +18,10 @@ class CGProblem(base.Problem):
 
     @cached_property
     def forcing(self):
-        f = Function(self.function_space, name="forcing")
+        V = FunctionSpace(self.mesh, "CG", self.degree + 3)
+        f = Function(V, name="forcing")
         u = self.analytic_solution
-        f.interpolate(-div(grad(u)))
+        f.interpolate(-div(grad(u)) + u)
         return f
 
     @cached_property
@@ -28,7 +29,7 @@ class CGProblem(base.Problem):
         V = self.function_space
         u = TrialFunction(V)
         v = TestFunction(V)
-        return dot(grad(u), grad(v))*dx
+        return dot(grad(u), grad(v))*dx + inner(u, v)*dx
 
     @cached_property
     def L(self):
