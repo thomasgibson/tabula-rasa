@@ -59,20 +59,13 @@ PETSc.Log.begin()
 
 def run_solver(problem_cls, degree, size, rtol, quads, dim):
 
-    pcg_params = {'ksp_type': 'cg',
-                  'ksp_rtol': rtol,
-                  'ksp_monitor_true_residual': True,
-                  'pc_type': 'bjacobi',
-                  'sub_pc_type': 'ilu'}
-
-    # pcg_params = {'ksp_type': 'cg',
-    #               'pc_type': 'gamg',
-    #               'ksp_rtol': rtol,
-    #               'ksp_monitor_true_residual': True,
-    #               'mg_levels': {'ksp_type': 'chebyshev',
-    #                             'ksp_max_it': 1,
-    #                             'pc_type': 'bjacobi',
-    #                             'sub_pc_type': 'ilu'}}
+    pcg_params = {"ksp_type": "cg",
+                  "ksp_monitor_true_residual": True,
+                  "ksp_rtol": rtol,
+                  "pc_type": "hypre",
+                  "pc_hypre_type": "boomeramg",
+                  "pc_hypre_boomeramg_strong_threshold": 0.75,
+                  "pc_hypre_boomeramg_agg_nl": 2}
 
     params = {'mat_type': 'matfree',
               'pmat_type': 'matfree',
