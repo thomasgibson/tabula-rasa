@@ -126,6 +126,7 @@ def run_mixed_hybrid_helmholtz(r, degree, mixed_method, write=False):
     PETSc.Sys.Print("Solving hybrid-mixed system using static condensation.\n")
     bcs = DirichletBC(W.sub(2), 0.0, "on_boundary")
     params = {'snes_type': 'ksponly',
+              'mat_type': 'matfree',
               'pmat_type': 'matfree',
               'ksp_type': 'preonly',
               'pc_type': 'python',

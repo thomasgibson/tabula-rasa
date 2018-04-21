@@ -155,6 +155,7 @@ def run_LDG_H_helmholtz(r, degree, tau_order, write=False):
     F = a - L
     PETSc.Sys.Print("Solving using static condensation.\n")
     params = {'snes_type': 'ksponly',
+              'mat_type': 'matfree',
               'pmat_type': 'matfree',
               'ksp_type': 'preonly',
               'pc_type': 'python',
