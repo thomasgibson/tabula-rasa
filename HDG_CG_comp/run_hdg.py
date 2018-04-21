@@ -29,7 +29,7 @@ parser.add_argument("--size", action="store", default=10,
 parser.add_argument("--rtol", action="store", default=1.0e-8,
                     type=float, help="Relative tolerance of solver.")
 
-parser.add_argument("--dim", action="store", default=2,
+parser.add_argument("--dim", action="store", default=3,
                     type=int, choices=[2, 3], help="Problem dimension.")
 
 parser.add_argument("--quads", action="store_true",
@@ -172,8 +172,13 @@ Quads: %s\n
 
             df.to_csv(result_file, index=False, mode="w", header=True)
 
-    PETSc.Sys.Print("Solving %s(degree=%s, size=%s, dimension=%s) finished." %
+    PETSc.Sys.Print("Solving %s(degree=%s, size=%s, dimension=%s) finished.\n" %
                     (name, problem.degree, problem.N, problem.dim))
+
+    PETSc.Sys.Print("L2 error: %s\n" % true_err)
+    PETSc.Sys.Print("L2 error (post-processed): %s\n" % problem.pp_err)
+    PETSc.Sys.Print("Algebraic error: %s\n" % err)
+    PETSc.Sys.Print("Relative tolerance: %s\n" % rtol)
 
     if args.write_output:
         from firedrake import File
