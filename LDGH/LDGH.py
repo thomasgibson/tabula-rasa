@@ -11,16 +11,16 @@ import numpy as np
 import pandas as pd
 
 
-def run_LDG_H_helmholtz(r, degree, tau_order, write=False):
+def run_LDG_H_problem(r, degree, tau_order, write=False):
     """
     Solves the Dirichlet problem for the elliptic equation:
 
-    -div(grad(u)) + u = f in [0, 1]^2, u = g on the domain boundary.
+    -div(grad(u)) = f in [0, 1]^2, u = g on the domain boundary.
 
     The source function f and g are chosen such that the analytic
     solution is:
 
-    u(x, y) = exp(sin(3*x*pi)*sin(3*y*pi)).
+    u(x, y) = sin(x*pi)*sin(y*pi).
 
     This problem was crafted so that we can test the theoretical
     convergence rates for the hybridized DG method: LDG-H. This
@@ -109,11 +109,11 @@ def run_LDG_H_helmholtz(r, degree, tau_order, write=False):
     v, w, mu = TestFunctions(W)
 
     # Analytical solutions for u and q
-    V_a = FunctionSpace(mesh, "CG", degree + 3)
-    U_a = VectorFunctionSpace(mesh, "CG", degree + 3)
+    V_a = FunctionSpace(mesh, "DG", degree + 3)
+    U_a = VectorFunctionSpace(mesh, "DG", degree + 3)
 
     u_a = Function(V_a, name="Analytic Scalar")
-    a_scalar = exp(sin(3*pi*x[0])*sin(3*pi*x[1]))
+    a_scalar = sin(pi*x[0])*sin(pi*x[1])
     u_a.interpolate(a_scalar)
 
     q_a = Function(U_a, name="Analytic Flux")
@@ -121,8 +121,7 @@ def run_LDG_H_helmholtz(r, degree, tau_order, write=False):
     q_a.project(a_flux)
 
     Vh = FunctionSpace(mesh, "DG", degree + 3)
-    f = Function(Vh).interpolate(-div(grad(a_scalar))
-                                 + a_scalar)
+    f = Function(Vh).interpolate(-div(grad(a_scalar)))
 
     # Determine stability parameter tau
     if tau_order == "1":
@@ -147,7 +146,6 @@ def run_LDG_H_helmholtz(r, degree, tau_order, write=False):
          - dot(grad(w), q)*dx
          + jump(qhat, n=n)*w('+')*dS
          + dot(qhat, n)*w*ds
-         + w*u*dx
          # Transmission condition
          + mu('+')*jump(qhat, n=n)*dS)
 
@@ -166,7 +164,7 @@ def run_LDG_H_helmholtz(r, degree, tau_order, write=False):
                             'pc_type': 'lu',
                             'pc_factor_mat_solver_package': 'mumps'}}
 
-    bcs = DirichletBC(W.sub(2), Constant(1.0), "on_boundary")
+    bcs = DirichletBC(W.sub(2), Constant(0.0), "on_boundary")
     problem = NonlinearVariationalProblem(F, s, bcs=bcs)
     solver = NonlinearVariationalSolver(problem, solver_parameters=params)
     solver.solve()
@@ -316,10 +314,10 @@ def run_single_test(r, degree, tau_order, write=False):
                     "and mesh parameter h=1/2^%d." %
                     (degree, tau_order, resolution_param))
 
-    error_dict, _ = run_LDG_H_helmholtz(r=resolution_param,
-                                        degree=degree,
-                                        tau_order=tau_order,
-                                        write=write)
+    error_dict, _ = run_LDG_H_problem(r=resolution_param,
+                                      degree=degree,
+                                      tau_order=tau_order,
+                                      write=write)
 
     PETSc.Sys.Print("Error in scalar: %0.8f" %
                     error_dict["scalar_error"])
@@ -350,10 +348,10 @@ def run_LDG_H_convergence(degree, tau_order, start, end):
     # Run over mesh parameters and collect error metrics
     for r in range(start, end + 1):
         r_array.append(r)
-        error_dict, mesh = run_LDG_H_helmholtz(r=r,
-                                               degree=degree,
-                                               tau_order=tau_order,
-                                               write=False)
+        error_dict, mesh = run_LDG_H_problem(r=r,
+                                             degree=degree,
+                                             tau_order=tau_order,
+                                             write=False)
 
         # Extract errors and metrics
         scalar_errors.append(error_dict["scalar_error"])

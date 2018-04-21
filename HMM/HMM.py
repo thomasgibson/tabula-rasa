@@ -10,16 +10,16 @@ import numpy as np
 import pandas as pd
 
 
-def run_mixed_hybrid_helmholtz(r, degree, mixed_method, write=False):
+def run_mixed_hybrid_problem(r, degree, mixed_method, write=False):
     """
     Solves the Dirichlet problem for the elliptic equation:
 
-    -div(grad(u)) + u = f in [0, 1]^2, u = g on the domain boundary.
+    -div(grad(u)) = f in [0, 1]^2, u = g on the domain boundary.
 
     The source function f and g are chosen such that the analytic
     solution is:
 
-    u(x, y) = exp(sin(3*x*pi)*sin(3*y*pi)).
+    u(x, y) = sin(x*pi)*sin(y*pi).
 
     This problem was crafted so that we can test the theoretical
     convergence rates for the hybrid-mixed methods. This problem
@@ -95,9 +95,9 @@ def run_mixed_hybrid_helmholtz(r, degree, mixed_method, write=False):
 
     W = U * V * T
 
-    # These spaces are for the smooth analytic expressions
-    V_a = FunctionSpace(mesh, "CG", degree + 3)
-    U_a = VectorFunctionSpace(mesh, "CG", degree + 3)
+    # These spaces are for the analytic expressions
+    V_a = FunctionSpace(mesh, "DG", degree + 3)
+    U_a = VectorFunctionSpace(mesh, "DG", degree + 3)
 
     # Mixed space and test/trial functions
     W = U * V * T
@@ -106,7 +106,7 @@ def run_mixed_hybrid_helmholtz(r, degree, mixed_method, write=False):
     v, w, gammar = TestFunctions(W)
 
     u_a = Function(V_a, name="Analytic Scalar")
-    a_scalar = exp(sin(3*pi*x[0])*sin(3*pi*x[1]))
+    a_scalar = sin(pi*x[0])*sin(pi*x[1])
     u_a.interpolate(a_scalar)
 
     q_a = Function(U_a, name="Analytic Flux")
@@ -114,14 +114,13 @@ def run_mixed_hybrid_helmholtz(r, degree, mixed_method, write=False):
     q_a.project(a_flux)
 
     Vh = FunctionSpace(mesh, "DG", degree + 3)
-    f = Function(Vh).interpolate(-div(grad(a_scalar))
-                                 + a_scalar)
+    f = Function(Vh).interpolate(-div(grad(a_scalar)))
 
-    adx = (dot(q, v) - div(v)*u + div(q)*w + w*u)*dx
+    adx = (dot(q, v) - div(v)*u + div(q)*w)*dx
     adS = (jump(q, n=n)*gammar('+') + jump(v, n=n)*lambdar('+'))*dS
     a = adx + adS
 
-    L = w*f*dx - Constant(1.0)*dot(v, n)*ds
+    L = w*f*dx
     F = a - L
     PETSc.Sys.Print("Solving hybrid-mixed system using static condensation.\n")
     bcs = DirichletBC(W.sub(2), 0.0, "on_boundary")
@@ -241,10 +240,10 @@ def run_single_test(r, degree, method):
                     " and mesh parameter h=1/2^%d." %
                     (method, degree, r))
 
-    error_dict, _ = run_mixed_hybrid_helmholtz(r=r,
-                                               degree=degree,
-                                               mixed_method=method,
-                                               write=True)
+    error_dict, _ = run_mixed_hybrid_problem(r=r,
+                                             degree=degree,
+                                             mixed_method=method,
+                                             write=True)
 
     PETSc.Sys.Print("Error in scalar: %0.8f" %
                     error_dict["scalar_error"])
@@ -272,10 +271,10 @@ def run_mixed_hybrid_convergence(degree, method, start, end):
     # Run over mesh parameters and collect error metrics
     for r in range(start, end + 1):
         r_array.append(r)
-        error_dict, mesh = run_mixed_hybrid_helmholtz(r=r,
-                                                      degree=degree,
-                                                      mixed_method=method,
-                                                      write=False)
+        error_dict, mesh = run_mixed_hybrid_problem(r=r,
+                                                    degree=degree,
+                                                    mixed_method=method,
+                                                    write=False)
 
         # Extract errors and metrics
         scalar_errors.append(error_dict["scalar_error"])
