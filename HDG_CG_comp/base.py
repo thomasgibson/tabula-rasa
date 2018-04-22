@@ -61,10 +61,10 @@ class Problem(object):
     def analytic_solution(self):
         x = SpatialCoordinate(self.mesh)
         if self.dim == 2:
-            return exp(sin(3*pi*x[0])*sin(3*pi*x[1]))
+            return exp(sin(pi*x[0])*sin(pi*x[1]))
         else:
             assert self.dim == 3
-            return exp(sin(3*pi*x[0])*sin(3*pi*x[1])*sin(3*pi*x[2]))
+            return exp(sin(pi*x[0])*sin(pi*x[1])*sin(pi*x[2]))
 
     def solver(self, parameters=None):
 
