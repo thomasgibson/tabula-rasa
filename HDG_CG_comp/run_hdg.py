@@ -17,7 +17,7 @@ parser = ArgumentParser(description="""Profile HDG solver.""",
                         add_help=False)
 
 parser.add_argument("--results_file", action="store",
-                    default="HDG-timings",
+                    default="HDG_data",
                     help="Where to put the results.")
 
 parser.add_argument("--degree", action="store", default=1,
@@ -142,6 +142,7 @@ Quads: %s\n
 
             _, u_h, lambdar_h = problem.u.split()
 
+            ksp = solver.snes.ksp.getPC().getPythonContext().trace_ksp
             data = {"KSPSolve": ksp_time,
                     "PCSetUp": pcsetup_time,
                     "PCApply": pcapply_time,
@@ -162,13 +163,14 @@ Quads: %s\n
                     "HDGTotalSolve": hdg_total_solve,
                     "HDGTotal": hdg_total_time,
                     "HDGPPTime": pp_time,
-                    "ErrorPP": problem.pp_err}
+                    "ErrorPP": problem.pp_err,
+                    "ksp_iters": ksp.getIterationNumber()}
 
             df = pd.DataFrame(data, index=[0])
             if problem.quads:
-                result_file = results + "_quads.csv"
+                result_file = results + "_N%d_deg%d_quads.csv" % (problem.N, problem.degree)
             else:
-                result_file = results + ".csv"
+                result_file = results + "_N%d_deg%d.csv" % (problem.N, problem.degree)
 
             df.to_csv(result_file, index=False, mode="w", header=True)
 

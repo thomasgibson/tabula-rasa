@@ -15,7 +15,7 @@ parser = ArgumentParser(description="""Profile CG solver.""",
                         add_help=False)
 
 parser.add_argument("--results_file", action="store",
-                    default="CG-timings",
+                    default="CG_data",
                     help="Where to put the results.")
 
 parser.add_argument("--degree", action="store", default=1,
@@ -120,13 +120,14 @@ Quads: %s\n
                     "dofs": problem.u.dof_dset.layout_vec.getSize(),
                     "name": problem.name,
                     "disc_error": err,
-                    "true_err": true_err}
+                    "true_err": true_err,
+                    "ksp_iters": solver.snes.ksp.getIterationNumber()}
 
             df = pd.DataFrame(data, index=[0])
             if problem.quads:
-                result_file = results + "_quads.csv"
+                result_file = results + "_N%d_deg%d_quads.csv" % (problem.N, problem.degree)
             else:
-                result_file = results + ".csv"
+                result_file = results + "_N%d_deg%d.csv" % (problem.N, problem.degree)
 
             df.to_csv(result_file, index=False, mode="w", header=True)
 
