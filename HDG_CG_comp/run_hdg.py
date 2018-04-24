@@ -4,8 +4,6 @@ from firedrake import COMM_WORLD, parameters
 from firedrake.petsc import PETSc
 from mpi4py import MPI
 
-from pyop2.profiling import timed_region
-
 import os
 import pandas as pd
 import hdg_problem as module
@@ -20,23 +18,11 @@ parser.add_argument("--results_file", action="store",
                     default="HDG_data",
                     help="Where to put the results.")
 
-parser.add_argument("--degree", action="store", default=1,
-                    type=int, help="Degree of approximation.")
-
-parser.add_argument("--size", action="store", default=10,
-                    type=int, help="Number of cells in each direction")
-
-parser.add_argument("--rtol", action="store", default=1.0e-8,
-                    type=float, help="Relative tolerance of solver.")
-
 parser.add_argument("--dim", action="store", default=3,
                     type=int, choices=[2, 3], help="Problem dimension.")
 
 parser.add_argument("--quads", action="store_true",
                     help="Use quadrilateral elements")
-
-parser.add_argument("--write_output", action="store_true",
-                    help="Plot analytic and computed solution.")
 
 parser.add_argument("--help", action="store_true", help="Show help.")
 
@@ -60,7 +46,6 @@ PETSc.Log.begin()
 def run_solver(problem_cls, degree, size, rtol, quads, dim):
 
     pcg_params = {"ksp_type": "cg",
-                  "ksp_monitor_true_residual": True,
                   "ksp_rtol": rtol,
                   "pc_type": "hypre",
                   "pc_hypre_type": "boomeramg",
@@ -86,7 +71,7 @@ Problem size: %s ^ %s\n
 Quads: %s\n
 """ % (name, problem.degree, problem.N, problem.dim, problem.quads))
 
-    if not warm[(name, degree)]:
+    if not warm[(name, degree, size)]:
         PETSc.Sys.Print("Warmup solve\n")
         problem.u.assign(0)
 
@@ -94,7 +79,7 @@ Quads: %s\n
             solver.solve()
             problem.post_processed_sol()
 
-        warm[(name, degree)] = True
+        warm[(name, degree, size)] = True
 
     solver = problem.solver(parameters=params)
     problem.u.assign(0)
@@ -109,9 +94,11 @@ Quads: %s\n
         ksp = PETSc.Log.Event("KSPSolve").getPerfInfo()
         pcsetup = PETSc.Log.Event("PCSetUp").getPerfInfo()
         pcapply = PETSc.Log.Event("PCApply").getPerfInfo()
+        mat_eval = PETSc.Log.Event("SNESJacobianEval").getPerfInfo()
         ksp_time = problem.comm.allreduce(ksp["time"], op=MPI.SUM) / problem.comm.size
         pcsetup_time = problem.comm.allreduce(pcsetup["time"], op=MPI.SUM) / problem.comm.size
         pcapply_time = problem.comm.allreduce(pcapply["time"], op=MPI.SUM) / problem.comm.size
+        assembly_time = problem.comm.allreduce(mat_eval["time"], op=MPI.SUM) / problem.comm.size
         num_cells = problem.comm.allreduce(problem.mesh.cell_set.size, op=MPI.SUM)
         err = problem.err
         true_err = problem.true_err
@@ -164,7 +151,8 @@ Quads: %s\n
                     "HDGTotal": hdg_total_time,
                     "HDGPPTime": pp_time,
                     "ErrorPP": problem.pp_err,
-                    "ksp_iters": ksp.getIterationNumber()}
+                    "ksp_iters": ksp.getIterationNumber(),
+                    "jac_eval": assembly_time}
 
             df = pd.DataFrame(data, index=[0])
             if problem.quads:
@@ -182,17 +170,31 @@ Quads: %s\n
     PETSc.Sys.Print("Algebraic error: %s\n" % err)
     PETSc.Sys.Print("Relative tolerance: %s\n" % rtol)
 
-    if args.write_output:
-        from firedrake import File
-        sigma_h, u_h, _ = problem.u.split()
-        u_pp = problem.u_pp
-        File("hdg_output.pvd").write(sigma_h, u_h,
-                                     problem.sol[0], problem.sol[1], u_pp)
 
-
-degree = args.degree
-size = args.size
-rtol = args.rtol
 dim = args.dim
+if dim == 3:
+    # (degree, size, rtol)
+    hdg_params = [(1, 8, 1.0e-3),
+                  (1, 16, 1.0e-4),
+                  (1, 32, 1.0e-5),
+                  (1, 64, 1.0e-6),
+                  # (1, 128, 1.0e-7),
+                  # Degree 2 set
+                  (2, 8, 1.0e-5),
+                  (2, 16, 1.0e-6),
+                  (2, 32, 1.0e-7),
+                  (2, 64, 1.0e-8),
+                  # Degree 3 set
+                  (3, 8, 1.0e-7),
+                  (3, 16, 1.0e-8),
+                  (3, 32, 1.0e-9),
+                  (3, 64, 1.0e-10)]
+else:
+    raise NotImplementedError("Dim %s not set up yet." % dim)
+
 quads = args.quads
-run_solver(problem_cls, degree, size, rtol, quads, dim)
+for hdg_param in hdg_params:
+
+    degree, size, rtol = hdg_param
+    run_solver(problem_cls=problem_cls, degree=degree,
+               size=size, rtol=rtol, quads=quads, dim=dim)
