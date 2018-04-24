@@ -141,6 +141,7 @@ class HDGProblem(base.Problem):
 
         with timed_region("HDGPostprocessing"):
             assemble(self.post_processed_expr.block((0,)), tensor=self.u_pp)
+            self.u_pp.dat._force_evaluation()
 
     @cached_property
     def pp_err(self):
