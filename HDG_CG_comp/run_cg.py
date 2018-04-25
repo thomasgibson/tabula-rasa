@@ -71,7 +71,6 @@ Quads: %s\n
 
         warm[(name, degree, size)] = True
 
-    solver = problem.solver(parameters=params)
     problem.u.assign(0)
 
     PETSc.Sys.Print("Timed solve...")
