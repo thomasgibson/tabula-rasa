@@ -1,4 +1,5 @@
 from firedrake import *
+from firedrake.assemble import create_assembly_callable
 from firedrake.utils import cached_property
 from pyop2.profiling import timed_region
 
@@ -15,6 +16,7 @@ class HDGProblem(base.Problem):
                                          dimension=dimension)
         self.Vpp = FunctionSpace(self.mesh, "DG", self.degree + 1)
         self.u_pp = Function(self.Vpp, name="Post-processed scalar")
+        self.set_up_post_processing()
 
     @cached_property
     def tau(self):
@@ -116,8 +118,7 @@ class HDGProblem(base.Problem):
         sigma.project(self.analytic_flux)
         return (sigma, u)
 
-    @cached_property
-    def post_processed_expr(self):
+    def set_up_post_processing(self):
 
         V0 = FunctionSpace(self.mesh, "DG", 0)
 
@@ -135,12 +136,13 @@ class HDGProblem(base.Problem):
         F = Tensor((-inner(q_h, grad(wp)) +
                     inner(u_h, phi))*dx)
 
-        return K.inv * F
+        expr = K.solve(F, decomposition="PartialPivLU")
+        self._assemble_upp = create_assembly_callable(expr.block((0,)),
+                                                      tensor=self.u_pp)
 
     def post_processed_sol(self):
-
         with timed_region("HDGPostprocessing"):
-            assemble(self.post_processed_expr.block((0,)), tensor=self.u_pp)
+            self._assemble_upp()
             self.u_pp.dat._force_evaluation()
 
     @cached_property
