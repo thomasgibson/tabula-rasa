@@ -123,10 +123,6 @@ Quads: %s\n
         # Total HDG time (with pp)
         hdg_total_time = hdg_total_solve + pp_time
 
-        # Slate timing
-        compile_slate = PETSc.Log.Event("CompileSlateExpression").getPerfInfo()
-        compile_time = problem.comm.allreduce(compile_slate["time"], op=MPI.SUM) / problem.comm.size
-
         if COMM_WORLD.rank == 0:
             if not os.path.exists(os.path.dirname(results)):
                 os.makedirs(os.path.dirname(results))
@@ -157,7 +153,6 @@ Quads: %s\n
                     "ErrorPP": problem.pp_err,
                     "ksp_iters": ksp.getIterationNumber(),
                     "jac_eval": assembly_time,
-                    "slate_compile_time": compile_time,
                     "HDGUpdate": hdgupdate_time}
 
             df = pd.DataFrame(data, index=[0])
