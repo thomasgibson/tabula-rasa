@@ -104,6 +104,7 @@ Quads: %s\n
 
         # HDG-specific timings
         HDGinit = PETSc.Log.Event("HybridSCInit").getPerfInfo()
+        HDGUpdate = PETSc.Log.Event("HybridSCUpdate").getPerfInfo()
         HDGrhs = PETSc.Log.Event("HybridSCRHS").getPerfInfo()
         HDGrecon = PETSc.Log.Event("HybridSCReconstruct").getPerfInfo()
         HDGSolve = PETSc.Log.Event("HybridSCSolve").getPerfInfo()
@@ -111,9 +112,9 @@ Quads: %s\n
         hdgrhs_time = problem.comm.allreduce(HDGrhs["time"], op=MPI.SUM) / problem.comm.size
         hdgrecon_time = problem.comm.allreduce(HDGrecon["time"], op=MPI.SUM) / problem.comm.size
         hdgsolve_time = problem.comm.allreduce(HDGSolve["time"], op=MPI.SUM) / problem.comm.size
-
+        hdgupdate_time = problem.comm.allreduce(HDGUpdate["time"], op=MPI.SUM) / problem.comm.size
         # Should total to KSPSolve time (approximately)
-        hdg_total_solve = hdginit_time + hdgrhs_time + hdgsolve_time + hdgrecon_time
+        hdg_total_solve = hdginit_time + hdgrhs_time + hdgsolve_time + hdgrecon_time + hdgupdate_time
 
         problem.post_processed_sol()
         HDGPP = PETSc.Log.Event("HDGPostprocessing").getPerfInfo()
@@ -156,7 +157,8 @@ Quads: %s\n
                     "ErrorPP": problem.pp_err,
                     "ksp_iters": ksp.getIterationNumber(),
                     "jac_eval": assembly_time,
-                    "slate_compile_time": compile_time}
+                    "slate_compile_time": compile_time,
+                    "HDGUpdate": hdgupdate_time}
 
             df = pd.DataFrame(data, index=[0])
             if problem.quads:
