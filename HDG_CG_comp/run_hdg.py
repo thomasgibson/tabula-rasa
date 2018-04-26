@@ -24,6 +24,12 @@ parser.add_argument("--dim", action="store", default=3,
 parser.add_argument("--quads", action="store_true",
                     help="Use quadrilateral elements")
 
+parser.add_argument("--test_N", action="store",
+                    type=int, help="3D test with size N")
+
+parser.add_argument("--test_degree", action="store",
+                    type=int, help="3D test with degree 'degree'")
+
 parser.add_argument("--help", action="store_true", help="Show help.")
 
 args, _ = parser.parse_known_args()
@@ -200,6 +206,9 @@ if dim == 3:
 else:
     # If reviewers want a 2D test, we can give them one.
     raise NotImplementedError("Dim %s not set up yet." % dim)
+
+if args.test_N and args.test_degree:
+    hdg_params = [(args.test_degree, args.test_N, 1.0e-8)]
 
 quads = args.quads
 for hdg_param in hdg_params:
