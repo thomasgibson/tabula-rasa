@@ -188,21 +188,18 @@ if dim == 3:
                   (1, 16, 1.0e-5),
                   (1, 32, 1.0e-6),
                   (1, 64, 1.0e-7),
-                  (1, 128, 1.0e-8),
                   # Degree 2 set
                   (2, 4, 1.0e-5),
                   (2, 8, 1.0e-6),
                   (2, 16, 1.0e-7),
                   (2, 32, 1.0e-8),
                   (2, 64, 1.0e-9),
-                  (2, 128, 1.0e-10),
                   # Degree 3 set
                   (3, 4, 1.0e-7),
                   (3, 8, 1.0e-8),
                   (3, 16, 1.0e-9),
                   (3, 32, 1.0e-10),
-                  (3, 64, 1.0e-11),
-                  (3, 128, 1.0e-12)]
+                  (3, 64, 1.0e-11)]
 else:
     # If reviewers want a 2D test, we can give them one.
     raise NotImplementedError("Dim %s not set up yet." % dim)
