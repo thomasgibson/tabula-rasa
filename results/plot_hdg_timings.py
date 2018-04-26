@@ -1,9 +1,12 @@
 import os
 import pandas as pd
-import matplotlib
 import numpy as np
+import seaborn
+from mpltools import annotation
 
 from matplotlib import pyplot as plt
+
+FONTSIZE = 12
 
 hdg_params = [(4, 1), (4, 2), (4, 3),
               (8, 1), (8, 2), (8, 3),
@@ -27,7 +30,9 @@ for d in hdg_data + cg_data:
         print("Cannot find data file '%s'" % d)
         sys.exit(1)
 
-fig, axes = plt.subplots(2, 2)
+seaborn.set(style="ticks")
+
+fig, axes = plt.subplots(2, 2, figsize=(11, 9), squeeze=False)
 axes = axes.flatten()
 ax1, ax2, ax3, ax4 = axes
 
@@ -54,11 +59,13 @@ for group in cg_groups:
 
         a1 = ax1.bar(ind, ksp_solve, width)
 
+        # ax1.plot(ind, ksp_solve, color='k', linestyle='dotted')
+
         ax1.set_xticklabels(["%s" % dof for dof in dofs])
         ax1.legend((a1[0],), ("Execution time",))
-        ax1.set_title("CG %s" % degree)
-        ax1.set_xlabel("Degrees of freedom")
-        ax1.set_ylabel("Log time (s)")
+        ax1.set_title("$CG_%s$" % degree, fontsize=FONTSIZE)
+        ax1.set_xlabel("Degrees of freedom", fontsize=FONTSIZE)
+        ax1.set_ylabel("Time (s)", fontsize=FONTSIZE)
 
     if degree == 4:
 
@@ -67,11 +74,13 @@ for group in cg_groups:
 
         a1 = ax2.bar(ind, ksp_solve, width)
 
+        # ax2.plot(ind, ksp_solve, color='k', linestyle='dotted')
+
         ax2.set_xticklabels(["%s" % dof for dof in dofs])
-        ax2.legend((a1[0],), ("Execution solve",))
-        ax2.set_title("CG %s" % degree)
-        ax2.set_xlabel("Degrees of freedom")
-        ax2.set_ylabel("Log time (s)")
+        ax2.legend((a1[0],), ("Execution time",))
+        ax2.set_title("$CG_%s$" % degree, fontsize=FONTSIZE)
+        ax2.set_xlabel("Degrees of freedom", fontsize=FONTSIZE)
+        # ax2.set_ylabel("Time (s)")
 
 for group in hdg_groups:
 
@@ -95,12 +104,15 @@ for group in hdg_groups:
         a4 = ax3.bar(ind, pp_times, width,
                      bottom=trace_solves + setup + recovery_times)
 
+        # total = recovery_times + setup + trace_solves
+        # ax3.plot(ind, total, color='k', linestyle='dotted')
+
         ax3.set_xticklabels(["%s" % dof for dof in dofs])
         ax3.legend((a1[0], a2[0], a3[0], a4[0]), ("Linear solve", "RHS Assembly",
                                                   "Local recovery", "Post-processing"))
-        ax3.set_title("HDG %s" % degree)
-        ax3.set_xlabel("Trace degrees of freedom")
-        ax3.set_ylabel("Log time (s)")
+        ax3.set_title("$HDG_%s$" % degree, fontsize=FONTSIZE)
+        ax3.set_xlabel("Trace degrees of freedom", fontsize=FONTSIZE)
+        ax3.set_ylabel("Time (s)", fontsize=FONTSIZE)
 
     if degree == 3:
 
@@ -120,11 +132,27 @@ for group in hdg_groups:
         a4 = ax4.bar(ind, pp_times, width,
                      bottom=trace_solves + setup + recovery_times)
 
+        # total = recovery_times + setup + trace_solves
+        # ax4.plot(ind, total, color='k', linestyle='dotted')
+
         ax4.set_xticklabels(["%s" % dof for dof in dofs])
         ax4.legend((a1[0], a2[0], a3[0], a4[0]), ("Linear solve", "RHS Assembly",
                                                   "Local recovery", "Post-processing"))
-        ax4.set_title("HDG %s" % degree)
-        ax4.set_xlabel("Trace degrees of freedom")
-        ax4.set_ylabel("Log time (s)")
+        ax4.set_title("$HDG_%s$" % degree, fontsize=FONTSIZE)
+        ax4.set_xlabel("Trace degrees of freedom", fontsize=FONTSIZE)
+        # ax4.set_ylabel("Time (s)")
 
-plt.show()
+for ax in [ax1, ax2, ax3, ax4]:
+    for tick in ax.get_xticklabels():
+        tick.set_fontsize(FONTSIZE-2)
+
+    for tick in ax.get_yticklabels():
+        tick.set_fontsize(FONTSIZE-2)
+
+fig.subplots_adjust(wspace=0.15, hspace=0.375)
+seaborn.despine(fig)
+fig.savefig("timings.pdf",
+            orientation="landscape",
+            format="pdf",
+            transparent=True,
+            bbox_inches="tight")
