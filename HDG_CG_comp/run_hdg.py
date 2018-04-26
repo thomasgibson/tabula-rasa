@@ -175,11 +175,11 @@ Quads: %s\n
 dim = args.dim
 if dim == 3:
     # (degree, size, rtol)
-    hdg_params = [(1, 4, 1.0e-3),
-                  (1, 8, 1.0e-4),
+    hdg_params = [(1, 8, 1.0e-4),
                   (1, 16, 1.0e-5),
                   (1, 32, 1.0e-6),
                   (1, 64, 1.0e-7),
+                  (1, 128, 1.0e-8),
                   # Degree 2 set
                   (2, 4, 1.0e-5),
                   (2, 8, 1.0e-6),
