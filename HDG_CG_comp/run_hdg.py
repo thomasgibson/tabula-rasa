@@ -174,31 +174,28 @@ Quads: %s\n
 
 dim = args.dim
 if dim == 3:
-    # (degree, size, rtol)
-    hdg_params = [(1, 8, 1.0e-4),
-                  (1, 16, 1.0e-5),
-                  (1, 32, 1.0e-6),
-                  (1, 64, 1.0e-7),
-                  (1, 128, 1.0e-8),
+    # (degree, size, rtol) NOTE: rtol is chosen such that the
+    # iterative solver reaches the minimal algebraic error
+    # so that we avoid "oversolving"
+    hdg_params = [(1, 4, 1.0e-2),
+                  (1, 8, 1.0e-3),
+                  (1, 16, 1.0e-4),
+                  (1, 32, 1.0e-5),
+                  (1, 64, 1.0e-6),
                   # Degree 2 set
-                  (2, 4, 1.0e-5),
-                  (2, 8, 1.0e-6),
-                  (2, 16, 1.0e-7),
-                  (2, 32, 1.0e-8),
-                  (2, 64, 1.0e-9),
+                  (2, 4, 1.0e-4),
+                  (2, 8, 1.0e-5),
+                  (2, 16, 1.0e-6),
+                  (2, 32, 1.0e-7),
+                  (2, 64, 1.0e-8),
                   # Degree 3 set
-                  (3, 4, 1.0e-7),
-                  (3, 8, 1.0e-8),
-                  (3, 16, 1.0e-9),
-                  (3, 32, 1.0e-10),
-                  (3, 64, 1.0e-11),
-                  # Degree 4 set
-                  (4, 4, 1.0e-9),
-                  (4, 8, 1.0e-10),
-                  (4, 16, 1.0e-11),
-                  (4, 32, 1.0e-12),
-                  (4, 64, 1.0e-13)]
+                  (3, 4, 1.0e-6),
+                  (3, 8, 1.0e-7),
+                  (3, 16, 1.0e-8),
+                  (3, 32, 1.0e-9),
+                  (3, 64, 1.0e-10)]
 else:
+    # If reviewers want a 2D test, we can give them one.
     raise NotImplementedError("Dim %s not set up yet." % dim)
 
 quads = args.quads
