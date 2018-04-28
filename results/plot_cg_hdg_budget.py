@@ -6,8 +6,8 @@ from matplotlib import pyplot as plt
 
 
 FONTSIZE = 16
-MARKERSIZE = 10
-LINEWIDTH = 3
+MARKERSIZE = 8
+LINEWIDTH = 2
 
 
 hdg_params = [(4, 1), (4, 2), (4, 3),
@@ -18,11 +18,11 @@ hdg_params = [(4, 1), (4, 2), (4, 3),
 hdg_data = ["HDG_CG_comp/HDG_data_N%d_deg%d.csv" % param
             for param in hdg_params]
 
-cg_params = [(4, 2), (4, 3), (4, 4),
-             (8, 2), (8, 3), (8, 4),
+cg_params = [(8, 2), (8, 3), (8, 4),
              (16, 2), (16, 3), (16, 4),
              (32, 2), (32, 3), (32, 4),
-             (64, 2), (64, 3), (64, 4)]
+             (64, 2), (64, 3), (64, 4),
+             (128, 2), (128, 3)]
 cg_data = ["HDG_CG_comp/CG_data_N%d_deg%d.csv" % param
            for param in cg_params]
 
@@ -33,17 +33,16 @@ for d in hdg_data + cg_data:
         sys.exit(1)
 
 # FiveThirtyEight color scheme
-colors = ['#30a2da', '#fc4f30', '#e5ae38', '#6d904f', '#8b8b8b']
-# colors = seaborn.cubehelix_palette(4, start=.5, rot=-.75, light=.65)
+colors = ['#30a2da', '#fc4f30', '#8b8b8b', '#e5ae38', '#6d904f']
 markers = ["o", "s", "^", "D"]
 linestyles = ["solid", "dashdot"]
 seaborn.set(style="ticks")
 
-fig, (axes,) = plt.subplots(1, 2, figsize=(9, 4), squeeze=False)
+fig, (axes,) = plt.subplots(1, 2, figsize=(10, 4), squeeze=False)
 (ax1, ax2) = axes
 ax1.set_ylabel("$L^2$ error", fontsize=FONTSIZE+2)
 ymin = 1.0e-10
-ymax = 1
+ymax = 1.0e-2
 for ax in [ax1, ax2]:
     ax.spines["left"].set_position(("outward", 10))
     ax.spines["bottom"].set_position(("outward", 10))
@@ -74,6 +73,8 @@ for group in cg_groups:
                  label=label,
                  color=colors[degree - 2],
                  marker=markers[degree - 2],
+                 linewidth=LINEWIDTH,
+                 markersize=MARKERSIZE,
                  linestyle="solid",
                  clip_on=False)
         label_dct[label] = degree
@@ -86,6 +87,8 @@ for group in cg_groups:
                  label=label,
                  color=colors[degree - 2],
                  marker=markers[degree - 2],
+                 linewidth=LINEWIDTH,
+                 markersize=MARKERSIZE,
                  linestyle="solid",
                  clip_on=False)
         label_dct[label] = degree
@@ -94,28 +97,32 @@ for group in hdg_groups:
     degree, df = group
 
     if degree == 2:
-        solve_times = df.HDGTotal.values
+        solve_times = df.HDGTotalSolve.values
         errors = df.true_err_u.values
         label = "$HDG_%d(p_h)$" % degree
         ax1.plot(solve_times, errors,
                  label=label,
                  color=colors[degree - 2],
                  marker=markers[degree - 2],
+                 linewidth=LINEWIDTH,
+                 markersize=MARKERSIZE,
                  linestyle="dotted",
                  clip_on=False)
-        label_dct[label] = degree + 2
+        label_dct[label] = degree + 4
 
     if degree == 3:
-        solve_times = df.HDGTotal.values
+        solve_times = df.HDGTotalSolve.values
         errors = df.true_err_u.values
         label = "$HDG_%d(p_h)$" % degree
         ax2.plot(solve_times, errors,
                  label=label,
                  color=colors[degree - 2],
                  marker=markers[degree - 2],
+                 linewidth=LINEWIDTH,
+                 markersize=MARKERSIZE,
                  linestyle="dotted",
                  clip_on=False)
-        label_dct[label] = degree + 2
+        label_dct[label] = degree + 4
 
 for group in hdg_groups:
     degree, df = group
@@ -128,9 +135,11 @@ for group in hdg_groups:
                  label=label,
                  color=colors[degree],
                  marker=markers[degree],
+                 linewidth=LINEWIDTH,
+                 markersize=MARKERSIZE,
                  linestyle="dashdot",
                  clip_on=False)
-        label_dct[label] = degree + 4
+        label_dct[label] = degree + 8
 
     if degree == 3:
         solve_times = df.HDGTotal.values
@@ -140,9 +149,11 @@ for group in hdg_groups:
                  label=label,
                  color=colors[degree],
                  marker=markers[degree],
+                 linewidth=LINEWIDTH,
+                 markersize=MARKERSIZE,
                  linestyle="dashdot",
                  clip_on=False)
-        label_dct[label] = degree + 4
+        label_dct[label] = degree + 8
 
 
 for ax in [ax1, ax2]:
