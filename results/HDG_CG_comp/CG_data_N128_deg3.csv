@@ -1,0 +1,2 @@
+KSPSolve,PCApply,PCSetUp,degree,disc_error,dofs,ksp_iters,mat_assembly,mesh_size,name,num_cells,num_processes,problem_name,true_err
+228.88528532981871,202.85723800063133,0.0,3,1.1636179829951162e-09,57066625,44,7.889270782470703e-05,128,CG Helmholtz,12582912,40,CG Helmholtz,1.275334141949572e-09
