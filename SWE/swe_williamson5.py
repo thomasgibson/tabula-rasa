@@ -25,6 +25,7 @@ from firedrake import COMM_WORLD, parameters
 from pyop2.profiling import timed_stage
 from argparse import ArgumentParser
 from collections import defaultdict
+from mpi4py import MPI
 import pandas as pd
 import sys
 
@@ -131,8 +132,8 @@ def run_williamson5(refinement_level=3, model_degree=2, method="BDM",
     bexpr = Expression("2000*(1 - sqrt(fmin(pow(pi/9.0,2), pow(atan2(x[1]/R0,x[0]/R0)+1.0*pi/2.0,2) + pow(asin(x[2]/R0)-pi/6.0,2)))/(pi/9.0))", R0=R)
 
     if args.profile:
-        tmax = 100*Dt
-        PETSc.Sys.Print("Taking 100 time-steps\n")
+        tmax = 10*Dt
+        PETSc.Sys.Print("Taking 10 time-steps\n")
     else:
         tmax = 15*day
         PETSc.Sys.Print("Running 15 day simulation\n")
@@ -258,7 +259,6 @@ def run_williamson5(refinement_level=3, model_degree=2, method="BDM",
 
     gamg_params = {'ksp_type': 'cg',
                    'pc_type': 'gamg',
-                   'pc_gamg_sym_graph': True,
                    'ksp_rtol': 1e-8,
                    'mg_levels': {'ksp_type': 'chebyshev',
                                  'ksp_max_it': 2,
@@ -439,6 +439,13 @@ def run_williamson5(refinement_level=3, model_degree=2, method="BDM",
     PETSc.Sys.Print("Simulation complete (elapsed time: %s).\n" % elapsed_time)
 
     if COMM_WORLD.rank == 0:
+        PETSc.Log.Stage("Linear solve").push()
+        ksp = PETSc.Log.Event("KSPSolve").getPerfInfo()
+        pcsetup = PETSc.Log.Event("PCSetUp").getPerfInfo()
+        pcapply = PETSc.Log.Event("PCApply").getPerfInfo()
+        ksp_time = ksp["time"]
+        pc_setup_time = pcsetup["time"]
+        pc_apply_time = pcapply["time"]
         ref = refinement_level
         if hybridization:
             results_data = "hybrid_%s_data_W5_ref%s.csv" % (method, ref)
@@ -460,7 +467,10 @@ def run_williamson5(refinement_level=3, model_degree=2, method="BDM",
                            time_writing_output +
                            time_getting_ksp_info)
 
-        time_data = {"num_processes": mesh.comm.size,
+        time_data = {"PETScLogKSPSolve": ksp_time,
+                     "PETSCLogPCApply": pc_apply_time,
+                     "PETSCLogPCSetup": pc_setup_time,
+                     "num_processes": mesh.comm.size,
                      "method": method,
                      "model_degree": model_degree,
                      "refinement_level": refinement_level,
@@ -483,6 +493,37 @@ def run_williamson5(refinement_level=3, model_degree=2, method="BDM",
                      "TimeWritingOutput": time_writing_output,
                      "TimeGatheringKSPInfo": time_getting_ksp_info}
 
+        if hybridization:
+            RHS = PETSc.Log.Event("HybridRHS").getPerfInfo()
+            trace = PETSc.Log.Event("HybridSolve").getPerfInfo()
+            recover = PETSc.Log.Event("HybridRecover").getPerfInfo()
+            recon = PETSc.Log.Event("HybridRecon").getPerfInfo()
+            reconstruction = recover["time"] + recon["time"]
+            hybridupdate = PETSc.Log.Event("HybridUpdate").getPerfInfo()
+            update_time = hybridupdate["time"]
+            trace_solve = trace["time"]
+            rhstime = RHS["time"]
+            other = ksp_time - (update_time + trace_solve +
+                                reconstruction + rhstime)
+            updates = {"HybridTraceSolve": trace_solve,
+                       "HybridRHS": rhstime,
+                       "HybridReconstruction": reconstruction,
+                       "HybridUpdate": update_time,
+                       "HybridOther": other}
+
+        else:
+            KSPSchur = PETSc.Log.Event("KSPSolve_FS_Schu").getPerfInfo()
+            schur_time = KSPSchur["time"]
+            KSPF0 = PETSc.Log.Event("KSPSolve_FS_0").getPerfInfo()
+            KSPLow = PETSc.Log.Event("KSPSolve_FS_Low").getPerfInfo()
+            f0_time = KSPF0["time"]
+            other = ksp_time - (schur_time + f0_time + KSPLow["time"])
+            updates = {"KSPSchur": schur_time,
+                       "KSPF0": f0_time,
+                       "KSPother": other}
+
+        time_data.update(updates)
+
         df_data = pd.DataFrame(data)
         df_data.to_csv(results_data, index=False,
                        mode="w", header=True)
@@ -493,23 +534,22 @@ def run_williamson5(refinement_level=3, model_degree=2, method="BDM",
 
 
 if args.profile:
-    params = [("RT", 1), ("RTCF", 1), ("BDM", 2)]
-    for param in params:
-        method, model_degree = param
-        for ref_level in ref_to_dt:
-            PETSc.Sys.Print("""
+    param = (args.method, args.model_degree)
+    method, model_degree = param
+    ref_level = args.refinements
+    PETSc.Sys.Print("""
 Running 100 timesteps for the Williamson 5 test with parameters:\n
 method: %s,\n
 model degree: %d,\n
 refinements: %d,\n
 hybridization: %s.
 """ % (method, model_degree, ref_level, args.hybridization))
-            run_williamson5(refinement_level=ref_level,
-                            model_degree=model_degree,
-                            method=method,
-                            verbose=args.verbose,
-                            hybridization=args.hybridization,
-                            write=args.write)
+    run_williamson5(refinement_level=ref_level,
+                    model_degree=model_degree,
+                    method=method,
+                    verbose=args.verbose,
+                    hybridization=args.hybridization,
+                    write=args.write)
 
 else:
     run_williamson5(refinement_level=args.refinements,
