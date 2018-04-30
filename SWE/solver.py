@@ -66,13 +66,6 @@ class W5Problem(object):
         self.picard_seq = []
         self.reductions = []
 
-        self.DUResidual_time = 0.0
-        self.LinearSolve_time = 0.0
-        self.time_assembling_residuals = 0.0
-        self.time_writing_output = 0.0
-        self.time_getting_ksp_info = 0.0
-        self.elapsed_time = 0.0
-
     def _build_initial_conditions(self):
 
         x = SpatialCoordinate(self.Vm.mesh())
@@ -256,7 +249,7 @@ class W5Problem(object):
 
     @property
     def comm(self):
-        return self.mesh.comm
+        return self.Vm.mesh().comm
 
     @cached_property
     def outward_normals(self):
@@ -333,7 +326,6 @@ tmax: %s
         self.DUsolver.snes.setConvergenceHistory()
         self.DUsolver.snes.ksp.setConvergenceHistory()
 
-        start = PETSc.Log.getTime()
         while t < tmax - self.Dt/2:
             t += self.Dt
 
@@ -345,22 +337,13 @@ tmax: %s
                 self.picard_seq.append(i+1)
 
                 with timed_stage("DU Residuals"):
-                    v1 = PETSc.Log.getTime()
                     self.Dsolver.solve()
                     self.Usolver.solve()
-                    v2 = PETSc.Log.getTime()
-                    self.DUResidual_time += v2 - v1
 
                 with timed_stage("Linear solve"):
-                    s1 = PETSc.Log.getTime()
                     self.DUsolver.solve()
-                    s2 = PETSc.Log.getTime()
-                    self.LinearSolve_time += s2 - s1
 
                 # Here we collect the reductions in the linear residual.
-                # We monitor the time taken to compute these and account
-                # for it when determining the overall simulation time.
-                r1 = PETSc.Log.getTime()
                 # Get rhs from ksp
                 r0 = self.DUsolver.snes.ksp.getRhs()
                 # Assemble the problem residual (b - Ax)
@@ -369,13 +352,10 @@ tmax: %s
                 rnorm = res.dat.norm
                 r_factor = rnorm/bnorm
                 self.reductions.append(r_factor)
-                r2 = PETSc.Log.getTime()
-                self.time_assembling_residuals += r2 - r1
 
                 up += deltau
                 Dp += deltaD
 
-                kspt1 = PETSc.Log.getTime()
                 outer_ksp = self.DUsolver.snes.ksp
                 if self.hybridization:
                     ctx = outer_ksp.getPC().getPythonContext()
@@ -387,19 +367,12 @@ tmax: %s
                 # Collect ksp iterations
                 self.ksp_outer_its.append(outer_ksp.getIterationNumber())
                 self.ksp_inner_its.append(inner_ksp.getIterationNumber())
-                kspt2 = PETSc.Log.getTime()
-                self.time_getting_ksp_info += kspt2 - kspt1
 
             un.assign(up)
             Dn.assign(Dp)
 
-            w1 = PETSc.Log.getTime()
             if write:
                 with timed_stage("Dump output"):
                     dumpcount = self.write(dumpcount, dumpfreq)
-            w2 = PETSc.Log.getTime()
-            self.time_writing_output += w2 - w1
 
-        end = PETSc.Log.getTime()
-        self.elapsed_time += end - start
-        PETSc.Sys.Print("Finished (elapsed time: %s).\n" % self.elapsed_time)
+        PETSc.Sys.Print("Finished.\n")
