@@ -63,6 +63,12 @@ parser.add_argument("--method",
                     choices=["RT", "RTCF", "BDM"],
                     help="Mixed method type for the SWE.")
 
+parser.add_argument("--nsteps",
+                    action="store",
+                    default=20,
+                    type=int,
+                    help="Number to time steps to take.")
+
 parser.add_argument("--dumpfreq",
                     default=10,
                     type=int,
@@ -97,99 +103,109 @@ if args.help:
     sys.exit(1)
 
 
-def run_williamson5(problem, write=False):
+def run_williamson5(problem, write=False, nsteps=20):
 
     if args.profile:
-        tmax = 100*problem.Dt
-        PETSc.Sys.Print("Taking 100 time-steps\n")
+        tmax = nsteps*problem.Dt
+        PETSc.Sys.Print("Taking %d time-steps\n" % nsteps)
     else:
         day = 24.*60.*60.
         tmax = 15*day
         PETSc.Sys.Print("Running 15 day simulation\n")
 
-    with PETSc.Log.Stage("Warmup"):
-        problem.warmup()
+    problem.warmup()
 
-    with PETSc.Log.Stage("Profile run for Williamson 5"):
-        problem.run_simulation(tmax, write=write, dumpfreq=args.dumpfreq)
+    problem.run_simulation(tmax, write=write, dumpfreq=args.dumpfreq)
 
-        comm = problem.comm
-        PETSc.Log.Stage("Linear solve").push()
-        ksp = PETSc.Log.Event("KSPSolve").getPerfInfo()
-        pcsetup = PETSc.Log.Event("PCSetUp").getPerfInfo()
-        pcapply = PETSc.Log.Event("PCApply").getPerfInfo()
-        ksp_time = comm.allreduce(ksp["time"], op=MPI.SUM) / comm.size
-        pc_setup_time = comm.allreduce(pcsetup["time"], op=MPI.SUM) / comm.size
-        pc_apply_time = comm.allreduce(pcapply["time"], op=MPI.SUM) / comm.size
-        ref = problem.refinement_level
+    comm = problem.comm
+    PETSc.Log.Stage("Linear solve").push()
+
+    ksp = PETSc.Log.Event("KSPSolve").getPerfInfo()
+    pcsetup = PETSc.Log.Event("PCSetUp").getPerfInfo()
+    pcapply = PETSc.Log.Event("PCApply").getPerfInfo()
+    ksp_time = comm.allreduce(ksp["time"], op=MPI.SUM) / comm.size
+    pc_setup_time = comm.allreduce(pcsetup["time"], op=MPI.SUM) / comm.size
+    pc_apply_time = comm.allreduce(pcapply["time"], op=MPI.SUM) / comm.size
+    ref = problem.refinement_level
+
+    if problem.hybridization:
+        results_data = "hybrid_%s_data_W5_ref%s.csv" % (problem.method, ref)
+        results_timings = "hybrid_%s_profile_W5_ref%s.csv" % (problem.method, ref)
+
+        RHS = PETSc.Log.Event("HybridRHS").getPerfInfo()
+        trace = PETSc.Log.Event("HybridSolve").getPerfInfo()
+        recover = PETSc.Log.Event("HybridRecover").getPerfInfo()
+        recon = PETSc.Log.Event("HybridRecon").getPerfInfo()
+        hybridbreak = PETSc.Log.Event("HybridBreak").getPerfInfo()
+        hybridupdate = PETSc.Log.Event("HybridUpdate").getPerfInfo()
+
+        recon_time = comm.allreduce(recon["time"], op=MPI.SUM) / comm.size
+        projection = comm.allreduce(recover["time"], op=MPI.SUM) / comm.size
+        transfer = comm.allreduce(hybridbreak["time"], op=MPI.SUM) / comm.size
+        full_recon = projection + recon_time
+        update_time = comm.allreduce(hybridupdate["time"], op=MPI.SUM) / comm.size
+        trace_solve = comm.allreduce(trace["time"], op=MPI.SUM) / comm.size
+        rhstime = comm.allreduce(RHS["time"], op=MPI.SUM) / comm.size
+        other = ksp_time - (trace_solve + transfer
+                            + projection + recon_time + rhstime)
+        full_solve = (transfer + trace_solve + rhstime
+                      + recon_time + projection)
+    else:
+        results_data = "gmres_%s_data_W5_ref%s.csv" % (problem.method, ref)
+        results_timings = "gmres_%s_profile_W5_ref%s.csv" % (problem.method, ref)
+
+        KSPSchur = PETSc.Log.Event("KSPSolve_FS_Schu").getPerfInfo()
+        KSPF0 = PETSc.Log.Event("KSPSolve_FS_0").getPerfInfo()
+        KSPLow = PETSc.Log.Event("KSPSolve_FS_Low").getPerfInfo()
+
+        schur_time = comm.allreduce(KSPSchur["time"], op=MPI.SUM) / comm.size
+        f0_time = comm.allreduce(KSPF0["time"], op=MPI.SUM) / comm.size
+        ksplow_time = comm.allreduce(KSPLow["time"], op=MPI.SUM) / comm.size
+        other = ksp_time - (schur_time + f0_time + ksplow_time)
+
+    if COMM_WORLD.rank == 0:
+        data = {"OuterIters": problem.ksp_outer_its,
+                "InnerIters": problem.ksp_inner_its,
+                "PicardIters": problem.picard_seq,
+                "SimTime": problem.sim_time,
+                "ResidualReductions": problem.reductions}
+
+        dofs = problem.DU.dof_dset.layout_vec.getSize()
+
+        time_data = {"PETScLogKSPSolve": ksp_time,
+                     "PETSCLogPCApply": pc_apply_time,
+                     "PETSCLogPCSetup": pc_setup_time,
+                     "num_processes": problem.comm.size,
+                     "method": problem.method,
+                     "model_degree": problem.model_degree,
+                     "refinement_level": problem.refinement_level,
+                     "total_dofs": dofs}
 
         if problem.hybridization:
-            results_data = "hybrid_%s_data_W5_ref%s.csv" % (problem.method, ref)
-            results_timings = "hybrid_%s_profile_W5_ref%s.csv" % (problem.method, ref)
+            updates = {"HybridTraceSolve": trace_solve,
+                       "HybridRHS": rhstime,
+                       "HybridBreak": transfer,
+                       "HybridReconstruction": recon_time,
+                       "HybridProjection": projection,
+                       "HybridFullRecovery": full_recon,
+                       "HybridUpdate": update_time,
+                       "HybridFullSolveTime": full_solve,
+                       "HybridKSPOther": other}
 
-            RHS = PETSc.Log.Event("HybridRHS").getPerfInfo()
-            trace = PETSc.Log.Event("HybridSolve").getPerfInfo()
-            recover = PETSc.Log.Event("HybridRecover").getPerfInfo()
-            recon = PETSc.Log.Event("HybridRecon").getPerfInfo()
-            reconstruction = (comm.allreduce(recover["time"], op=MPI.SUM) / comm.size
-                              + comm.allreduce(recon["time"], op=MPI.SUM) / comm.size)
-            hybridupdate = PETSc.Log.Event("HybridUpdate").getPerfInfo()
-            update_time = comm.allreduce(hybridupdate["time"], op=MPI.SUM) / comm.size
-            trace_solve = comm.allreduce(trace["time"], op=MPI.SUM) / comm.size
-            rhstime = comm.allreduce(RHS["time"], op=MPI.SUM) / comm.size
-            other = ksp_time - (update_time + trace_solve +
-                                reconstruction + rhstime)
         else:
-            results_data = "gmres_%s_data_W5_ref%s.csv" % (problem.method, ref)
-            results_timings = "gmres_%s_profile_W5_ref%s.csv" % (problem.method, ref)
+            updates = {"KSPSchur": schur_time,
+                       "KSPF0": f0_time,
+                       "KSPother": other}
 
-            KSPSchur = PETSc.Log.Event("KSPSolve_FS_Schu").getPerfInfo()
-            schur_time = comm.allreduce(KSPSchur["time"], op=MPI.SUM) / comm.size
-            KSPF0 = PETSc.Log.Event("KSPSolve_FS_0").getPerfInfo()
-            KSPLow = PETSc.Log.Event("KSPSolve_FS_Low").getPerfInfo()
-            f0_time = comm.allreduce(KSPF0["time"], op=MPI.SUM) / comm.size
-            ksplow_time = comm.allreduce(KSPLow["time"], op=MPI.SUM) / comm.size
-            other = ksp_time - (schur_time + f0_time + ksplow_time)
+        time_data.update(updates)
 
-        if COMM_WORLD.rank == 0:
-            data = {"OuterIters": problem.ksp_outer_its,
-                    "InnerIters": problem.ksp_inner_its,
-                    "PicardIters": problem.picard_seq,
-                    "SimTime": problem.sim_time,
-                    "ResidualReductions": problem.reductions}
+        df_data = pd.DataFrame(data)
+        df_data.to_csv(results_data, index=False,
+                       mode="w", header=True)
 
-            dofs = problem.DU.dof_dset.layout_vec.getSize()
-
-            time_data = {"PETScLogKSPSolve": ksp_time,
-                         "PETSCLogPCApply": pc_apply_time,
-                         "PETSCLogPCSetup": pc_setup_time,
-                         "num_processes": problem.comm.size,
-                         "method": problem.method,
-                         "model_degree": problem.model_degree,
-                         "refinement_level": problem.refinement_level,
-                         "total_dofs": dofs}
-
-            if problem.hybridization:
-                updates = {"HybridTraceSolve": trace_solve,
-                           "HybridRHS": rhstime,
-                           "HybridReconstruction": reconstruction,
-                           "HybridUpdate": update_time,
-                           "HybridOther": other}
-
-            else:
-                updates = {"KSPSchur": schur_time,
-                           "KSPF0": f0_time,
-                           "KSPother": other}
-
-            time_data.update(updates)
-
-            df_data = pd.DataFrame(data)
-            df_data.to_csv(results_data, index=False,
-                           mode="w", header=True)
-
-            df_time = pd.DataFrame(time_data, index=[0])
-            df_time.to_csv(results_timings, index=False,
-                           mode="w", header=True)
+        df_time = pd.DataFrame(time_data, index=[0])
+        df_time.to_csv(results_timings, index=False,
+                       mode="w", header=True)
 
 
 if args.profile:
@@ -208,7 +224,8 @@ if args.profile:
                                  hybridization=args.hybridization,
                                  model_degree=model_degree)
     run_williamson5(W5Problem,
-                    write=args.write)
+                    write=args.write,
+                    nsteps=args.nsteps)
 
 else:
     Dt = ref_to_dt[args.refinements]
@@ -223,4 +240,5 @@ else:
                                  hybridization=args.hybridization,
                                  model_degree=args.model_degree)
     run_williamson5(W5Problem,
-                    write=args.write)
+                    write=args.write,
+                    nsteps=args.nsteps)
