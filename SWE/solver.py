@@ -236,16 +236,14 @@ class W5Problem(object):
         Dn -= self.b
 
     def warmup(self):
-        PETSc.Sys.Print("Warmup linear solver...\n")
-        with timed_stage("Warm up"):
-            un, Dn = self.state
-            up, Dp = self.updates
-            up.assign(un)
-            Dp.assign(Dn)
+        un, Dn = self.state
+        up, Dp = self.updates
+        up.assign(un)
+        Dp.assign(Dn)
 
-            self.Dsolver.solve()
-            self.Usolver.solve()
-            self.DUsolver.solve()
+        self.Dsolver.solve()
+        self.Usolver.solve()
+        self.DUsolver.solve()
 
     @property
     def comm(self):
