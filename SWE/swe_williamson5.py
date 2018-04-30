@@ -256,19 +256,22 @@ def run_williamson5(refinement_level=3, model_degree=2, method="BDM",
     FuD = uDlhs - uDrhs
     DUproblem = NonlinearVariationalProblem(FuD, DU)
 
+    gamg_params = {'ksp_type': 'cg',
+                   'pc_type': 'gamg',
+                   'pc_gamg_sym_graph': True,
+                   'ksp_rtol': 1e-8,
+                   'mg_levels': {'ksp_type': 'chebyshev',
+                                 'ksp_max_it': 2,
+                                 'pc_type': 'bjacobi',
+                                 'sub_pc_type': 'ilu'}}
     if hybridization:
         parameters = {'snes_type': 'ksponly',
                       'ksp_type': 'preonly',
+                      'mat_type': 'matfree',
                       'pmat_type': 'matfree',
                       'pc_type': 'python',
                       'pc_python_type': 'scpc.HybridizationPC',
-                      'hybridization': {'ksp_type': 'cg',
-                                        'pc_type': 'gamg',
-                                        'ksp_rtol': 1e-8,
-                                        'mg_levels': {'ksp_type': 'chebyshev',
-                                                      'ksp_max_it': 1,
-                                                      'pc_type': 'bjacobi',
-                                                      'sub_pc_type': 'ilu'}}}
+                      'hybridization': gamg_params}
 
     else:
         parameters = {'snes_type': 'ksponly',
@@ -284,13 +287,7 @@ def run_williamson5(refinement_level=3, model_degree=2, method="BDM",
                       'fieldsplit_0': {'ksp_type': 'preonly',
                                        'pc_type': 'bjacobi',
                                        'sub_pc_type': 'ilu'},
-                      'fieldsplit_1': {'ksp_type': 'cg',
-                                       'pc_type': 'gamg',
-                                       'ksp_rtol': 1e-8,
-                                       'mg_levels': {'ksp_type': 'chebyshev',
-                                                     'ksp_max_it': 1,
-                                                     'pc_type': 'bjacobi',
-                                                     'sub_pc_type': 'ilu'}}}
+                      'fieldsplit_1': gamg_params}
 
     DUsolver = NonlinearVariationalSolver(DUproblem,
                                           solver_parameters=parameters,
