@@ -103,7 +103,7 @@ if args.help:
     sys.exit(1)
 
 
-def run_williamson5(problem, write=False, nsteps=20):
+def run_williamson5(problem, write=False, nsteps=20, initial=False):
 
     if args.profile:
         tmax = nsteps*problem.Dt
@@ -113,11 +113,21 @@ def run_williamson5(problem, write=False, nsteps=20):
         tmax = 15*day
         PETSc.Sys.Print("Running 15 day simulation\n")
 
-    problem.warmup()
+    if initial:
+        PETSc.Sys.Print("Running code-gen stage for cold caches.\n")
+        problem.warmup()
+        return
+
+    comm = problem.comm
+    with PETSc.Log.Stage("Warm up"):
+        problem.warmup()
+        PETSc.Log.Stage("Warm up").push()
+        pcsetup = PETSc.Log.Event("PCSetUp").getPerfInfo()
+        pre_pc_setup_time = comm.allreduce(pcsetup["time"], op=MPI.SUM) / comm.size
+        PETSc.Log.Stage("Warm up").pop()
 
     problem.run_simulation(tmax, write=write, dumpfreq=args.dumpfreq)
 
-    comm = problem.comm
     PETSc.Log.Stage("Linear solve").push()
 
     ksp = PETSc.Log.Event("KSPSolve").getPerfInfo()
@@ -174,7 +184,8 @@ def run_williamson5(problem, write=False, nsteps=20):
 
         time_data = {"PETScLogKSPSolve": ksp_time,
                      "PETSCLogPCApply": pc_apply_time,
-                     "PETSCLogPCSetup": pc_setup_time,
+                     "PETSCLogPrePCSetup": pre_pc_setup_time,
+                     "PETSCLogPCSetup": pc_setup_time,  # Should be 0.0
                      "num_processes": problem.comm.size,
                      "method": problem.method,
                      "model_degree": problem.model_degree,
@@ -188,7 +199,7 @@ def run_williamson5(problem, write=False, nsteps=20):
                        "HybridReconstruction": recon_time,
                        "HybridProjection": projection,
                        "HybridFullRecovery": full_recon,
-                       "HybridUpdate": update_time,
+                       "HybridUpdate": update_time,  # Should be 0.0
                        "HybridFullSolveTime": full_solve,
                        "HybridKSPOther": other}
 
@@ -216,6 +227,19 @@ if args.profile:
     R = 6371220.0
     H = 5960.0
 
+    # Take one-step with a dummy problem to generate the code
+    run_williamson5(module.W5Problem(refinement_level=ref_level,
+                                     R=R,
+                                     H=H,
+                                     Dt=Dt,
+                                     method=method,
+                                     hybridization=args.hybridization,
+                                     model_degree=model_degree),
+                    write=args.write,
+                    nsteps=1,
+                    initial=True)
+
+    # Now run simulation
     W5Problem = module.W5Problem(refinement_level=ref_level,
                                  R=R,
                                  H=H,
@@ -225,7 +249,8 @@ if args.profile:
                                  model_degree=model_degree)
     run_williamson5(W5Problem,
                     write=args.write,
-                    nsteps=args.nsteps)
+                    nsteps=args.nsteps,
+                    initial=False)
 
 else:
     Dt = ref_to_dt[args.refinements]
