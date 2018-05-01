@@ -83,7 +83,7 @@ parser.add_argument("--refinements",
                     action="store",
                     default=3,
                     type=int,
-                    choices=[3, 4, 5, 6, 7],
+                    choices=[3, 4, 5, 6, 7, 8],
                     help="How many refinements to make to the sphere mesh.")
 
 parser.add_argument("--write",
