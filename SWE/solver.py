@@ -194,6 +194,7 @@ class W5Problem(object):
 
         gamg_params = {'ksp_type': 'cg',
                        'pc_type': 'gamg',
+                       'pc_gamg_reuse_interpolation': True,
                        'ksp_rtol': 1e-8,
                        'mg_levels': {'ksp_type': 'chebyshev',
                                      'ksp_max_it': 2,
@@ -227,25 +228,6 @@ class W5Problem(object):
                                               solver_parameters=parameters,
                                               options_prefix="implicit-solve")
         self.DUsolver = DUsolver
-
-    def initialize(self):
-        self.DU.assign(0.0)
-        self.Ups.assign(0.0)
-        self.Dps.assign(0.0)
-        un, Dn = self.state
-        un.project(self.uexpr)
-        Dn.interpolate(self.Dexpr)
-        Dn -= self.b
-
-    def warmup(self):
-        un, Dn = self.state
-        up, Dp = self.updates
-        up.assign(un)
-        Dp.assign(Dn)
-
-        self.Dsolver.solve()
-        self.Usolver.solve()
-        self.DUsolver.solve()
 
     @cached_property
     def num_cells(self):
@@ -302,6 +284,25 @@ class W5Problem(object):
             self.output_file.write(un, Dn, eta, self.b)
             dumpcount -= dumpfreq
         return dumpcount
+
+    def initialize(self):
+        self.DU.assign(0.0)
+        self.Ups.assign(0.0)
+        self.Dps.assign(0.0)
+        un, Dn = self.state
+        un.project(self.uexpr)
+        Dn.interpolate(self.Dexpr)
+        Dn -= self.b
+
+    def warmup(self):
+        un, Dn = self.state
+        up, Dp = self.updates
+        up.assign(un)
+        Dp.assign(Dn)
+
+        self.Dsolver.solve()
+        self.Usolver.solve()
+        self.DUsolver.solve()
 
     def run_simulation(self, tmax, write=False, dumpfreq=100):
         PETSc.Sys.Print("""
