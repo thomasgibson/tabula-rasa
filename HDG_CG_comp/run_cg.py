@@ -76,9 +76,14 @@ Quads: %s\n
     PETSc.Sys.Print("Timed solve...")
     solver.snes.setConvergenceHistory()
     solver.snes.ksp.setConvergenceHistory()
-    with PETSc.Log.Stage("%s(degree=%s, size=%s, dimension=%s) Warm solve\n" %
-                         (name, degree, size, dim)):
+    warm_stage = "%s(deg=%s, N=%s, dim=%s) Warm solve\n" % (name,
+                                                            degree,
+                                                            size,
+                                                            dim)
+    with PETSc.Log.Stage(warm_stage):
         solver.solve()
+
+        PETSc.Log.Stage(warm_stage).push()
         ksp = PETSc.Log.Event("KSPSolve").getPerfInfo()
         pcsetup = PETSc.Log.Event("PCSetUp").getPerfInfo()
         pcapply = PETSc.Log.Event("PCApply").getPerfInfo()
@@ -91,6 +96,7 @@ Quads: %s\n
         err = problem.err
         true_err = problem.true_err
 
+        PETSc.Log.Stage(warm_stage).pop()
         if COMM_WORLD.rank == 0:
             if not os.path.exists(os.path.dirname(results)):
                 os.makedirs(os.path.dirname(results))

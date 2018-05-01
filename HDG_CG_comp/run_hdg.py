@@ -87,9 +87,14 @@ Quads: %s\n
     PETSc.Sys.Print("Timed solve...")
     solver.snes.setConvergenceHistory()
     solver.snes.ksp.setConvergenceHistory()
-    with PETSc.Log.Stage("%s(degree=%s, size=%s, dimension=%s) Warm solve\n" %
-                         (name, degree, size, dim)):
+    warm_stage = "%s(deg=%s, N=%s, dim=%s) Warm solve\n" % (name,
+                                                            degree,
+                                                            size,
+                                                            dim)
+    with PETSc.Log.Stage(warm_stage):
         solver.solve()
+
+        PETSc.Log.Stage(warm_stage).push()
         ksp = PETSc.Log.Event("KSPSolve").getPerfInfo()
         pcsetup = PETSc.Log.Event("PCSetUp").getPerfInfo()
         pcapply = PETSc.Log.Event("PCApply").getPerfInfo()
@@ -117,12 +122,14 @@ Quads: %s\n
         hdg_total_solve = hdginit_time + hdgrhs_time + hdgsolve_time + hdgrecon_time + hdgupdate_time
 
         problem.post_processed_sol()
+
         HDGPP = PETSc.Log.Event("HDGPostprocessing").getPerfInfo()
         pp_time = problem.comm.allreduce(HDGPP["time"], op=MPI.SUM) / problem.comm.size
 
         # Total HDG time (with pp)
         hdg_total_time = hdg_total_solve + pp_time
 
+        PETSc.Log.Stage(warm_stage).pop()
         if COMM_WORLD.rank == 0:
             if not os.path.exists(os.path.dirname(results)):
                 os.makedirs(os.path.dirname(results))

@@ -178,6 +178,7 @@ def run_williamson5(problem, write=False, nsteps=20):
         gmresortho = comm.allreduce(KSPOrthog["time"], op=MPI.SUM) / comm.size
         other = ksp_time - (schur_time + f0_time + ksplow_time + gmresortho)
 
+    PETSc.Log.Stage("Linear solve").pop()
     if COMM_WORLD.rank == 0:
         data = {"OuterIters": problem.ksp_outer_its,
                 "InnerIters": problem.ksp_inner_its,
