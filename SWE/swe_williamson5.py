@@ -36,10 +36,10 @@ ref_to_dt = {3: 900.0,
              4: 450.0,
              5: 225.0,
              6: 112.5,
-             7: 56.25}
+             7: 56.25,
+             8: 28.125}
 
 
-PETSc.Log.begin()
 parser = ArgumentParser(description="""Run Williamson test case 5""",
                         add_help=False)
 
@@ -118,16 +118,8 @@ def run_williamson5(problem, write=False, nsteps=20, initial=False):
         problem.warmup()
         return
 
-    comm = problem.comm
-    with PETSc.Log.Stage("Warm up"):
-        problem.warmup()
-        PETSc.Log.Stage("Warm up").push()
-        pcsetup = PETSc.Log.Event("PCSetUp").getPerfInfo()
-        pre_pc_setup_time = comm.allreduce(pcsetup["time"], op=MPI.SUM) / comm.size
-        PETSc.Log.Stage("Warm up").pop()
-
     problem.run_simulation(tmax, write=write, dumpfreq=args.dumpfreq)
-
+    comm = problem.comm
     PETSc.Log.Stage("Linear solve").push()
 
     ksp = PETSc.Log.Event("KSPSolve").getPerfInfo()
@@ -148,6 +140,7 @@ def run_williamson5(problem, write=False, nsteps=20, initial=False):
         recon = PETSc.Log.Event("HybridRecon").getPerfInfo()
         hybridbreak = PETSc.Log.Event("HybridBreak").getPerfInfo()
         hybridupdate = PETSc.Log.Event("HybridUpdate").getPerfInfo()
+        hybridinit = PETSc.Log.Event("HybridInit").getPerfInfo()
 
         recon_time = comm.allreduce(recon["time"], op=MPI.SUM) / comm.size
         projection = comm.allreduce(recover["time"], op=MPI.SUM) / comm.size
@@ -156,6 +149,7 @@ def run_williamson5(problem, write=False, nsteps=20, initial=False):
         update_time = comm.allreduce(hybridupdate["time"], op=MPI.SUM) / comm.size
         trace_solve = comm.allreduce(trace["time"], op=MPI.SUM) / comm.size
         rhstime = comm.allreduce(RHS["time"], op=MPI.SUM) / comm.size
+        inittime = comm.allreduce(hybridinit["time"], op=MPI.SUM) / comm.size
         other = ksp_time - (trace_solve + transfer
                             + projection + recon_time + rhstime)
         full_solve = (transfer + trace_solve + rhstime
@@ -167,11 +161,13 @@ def run_williamson5(problem, write=False, nsteps=20, initial=False):
         KSPSchur = PETSc.Log.Event("KSPSolve_FS_Schu").getPerfInfo()
         KSPF0 = PETSc.Log.Event("KSPSolve_FS_0").getPerfInfo()
         KSPLow = PETSc.Log.Event("KSPSolve_FS_Low").getPerfInfo()
+        KSPOrthog = PETSc.Log.Event("KSPGMRESOrthog").getPerfInfo()
 
         schur_time = comm.allreduce(KSPSchur["time"], op=MPI.SUM) / comm.size
         f0_time = comm.allreduce(KSPF0["time"], op=MPI.SUM) / comm.size
         ksplow_time = comm.allreduce(KSPLow["time"], op=MPI.SUM) / comm.size
-        other = ksp_time - (schur_time + f0_time + ksplow_time)
+        gmresortho = comm.allreduce(KSPOrthog["time"], op=MPI.SUM) / comm.size
+        other = ksp_time - (schur_time + f0_time + ksplow_time + gmresortho)
 
     if COMM_WORLD.rank == 0:
         data = {"OuterIters": problem.ksp_outer_its,
@@ -184,8 +180,7 @@ def run_williamson5(problem, write=False, nsteps=20, initial=False):
 
         time_data = {"PETScLogKSPSolve": ksp_time,
                      "PETSCLogPCApply": pc_apply_time,
-                     "PETSCLogPrePCSetup": pre_pc_setup_time,
-                     "PETSCLogPCSetup": pc_setup_time,  # Should be 0.0
+                     "PETSCLogPCSetup": pc_setup_time,
                      "num_processes": problem.comm.size,
                      "method": problem.method,
                      "model_degree": problem.model_degree,
@@ -199,13 +194,16 @@ def run_williamson5(problem, write=False, nsteps=20, initial=False):
                        "HybridReconstruction": recon_time,
                        "HybridProjection": projection,
                        "HybridFullRecovery": full_recon,
-                       "HybridUpdate": update_time,  # Should be 0.0
+                       "HybridUpdate": update_time,
+                       "HybridInit": inittime,
                        "HybridFullSolveTime": full_solve,
                        "HybridKSPOther": other}
 
         else:
             updates = {"KSPSchur": schur_time,
                        "KSPF0": f0_time,
+                       "KSPFSLow": ksplow_time,
+                       "KSPGMRESOrthog": gmresortho,
                        "KSPother": other}
 
         time_data.update(updates)
@@ -247,6 +245,7 @@ if args.profile:
                                  method=method,
                                  hybridization=args.hybridization,
                                  model_degree=model_degree)
+    PETSc.Log.begin()
     run_williamson5(W5Problem,
                     write=args.write,
                     nsteps=args.nsteps,
@@ -264,6 +263,7 @@ else:
                                  method=args.method,
                                  hybridization=args.hybridization,
                                  model_degree=args.model_degree)
+    PETSc.Log.begin()
     run_williamson5(W5Problem,
                     write=args.write,
                     nsteps=args.nsteps)
