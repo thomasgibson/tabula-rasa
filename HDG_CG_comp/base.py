@@ -68,8 +68,10 @@ class Problem(object):
 
     def solver(self, parameters=None):
 
+        # For the rebuilding of the Jacobian to record assembly time
         problem = LinearVariationalProblem(self.a, self.L, self.u,
-                                           bcs=self.bcs)
+                                           bcs=self.bcs,
+                                           constant_jacobian=False)
         solver = LinearVariationalSolver(problem, solver_parameters=parameters)
 
         return solver
