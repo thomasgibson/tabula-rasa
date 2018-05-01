@@ -160,7 +160,7 @@ def run_williamson5(problem, write=False, nsteps=20):
         other = ksp_time - (trace_solve + transfer
                             + projection + recon_time + rhstime)
         full_solve = (transfer + trace_solve + rhstime
-                      + recon_time + projection)
+                      + recon_time + projection + update_time)
     else:
         results_data = "gmres_%s_data_W5_ref%d_NS%d.csv" % (problem.method,
                                                             ref, nsteps)
