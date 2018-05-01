@@ -25,12 +25,14 @@ class W5Problem(object):
         self.R = R
 
         # Earth-sized mesh
+        mesh_degree = 2
         if self.method == "RTCF":
             mesh = CubedSphereMesh(self.R, self.refinement_level,
-                                   degree=3)
+                                   degree=mesh_degree)
         else:
             mesh = OctahedralSphereMesh(self.R, self.refinement_level,
-                                        degree=3, hemisphere="both")
+                                        degree=mesh_degree,
+                                        hemisphere="both")
 
         global_normal = Expression(("x[0]", "x[1]", "x[2]"))
         mesh.init_cell_orientations(global_normal)
@@ -48,7 +50,7 @@ class W5Problem(object):
         VD = FunctionSpace(mesh, "DG", self.model_degree - 1)
 
         self.function_spaces = (Vu, VD)
-        self.Vm = FunctionSpace(mesh, "CG", 3)
+        self.Vm = FunctionSpace(mesh, "CG", mesh_degree)
 
         # Mean depth
         self.H = Constant(H)
