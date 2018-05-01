@@ -38,10 +38,11 @@ results = os.path.abspath(args.results_file)
 
 warm = defaultdict(bool)
 
+
 PETSc.Log.begin()
 
 
-def run_solver(problem_cls, degree, size, rtol, quads, dim):
+def run_solver(problem_cls, degree, size, rtol, quads, dim, cold=False):
 
     params = {"ksp_type": "cg",
               "ksp_rtol": rtol,
@@ -54,6 +55,13 @@ def run_solver(problem_cls, degree, size, rtol, quads, dim):
                           quadrilaterals=quads, dimension=dim)
     name = getattr(problem, "name")
     solver = problem.solver(parameters=params)
+
+    if cold:
+        PETSc.Sys.Print("""
+Running cold solve on coarse mesh for degree %d.\n
+""" % degree)
+        solver.solve()
+        return
 
     PETSc.Sys.Print("""
 \nSolving problem: %s.\n
@@ -83,20 +91,18 @@ Quads: %s\n
     with PETSc.Log.Stage(warm_stage):
         solver.solve()
 
-        PETSc.Log.Stage(warm_stage).push()
         ksp = PETSc.Log.Event("KSPSolve").getPerfInfo()
         pcsetup = PETSc.Log.Event("PCSetUp").getPerfInfo()
         pcapply = PETSc.Log.Event("PCApply").getPerfInfo()
-        mat_eval = PETSc.Log.Event("SNESJacobianEval").getPerfInfo()
+        jac_eval = PETSc.Log.Event("SNESJacobianEval").getPerfInfo()
         ksp_time = problem.comm.allreduce(ksp["time"], op=MPI.SUM) / problem.comm.size
         pcsetup_time = problem.comm.allreduce(pcsetup["time"], op=MPI.SUM) / problem.comm.size
         pcapply_time = problem.comm.allreduce(pcapply["time"], op=MPI.SUM) / problem.comm.size
-        assembly_time = problem.comm.allreduce(mat_eval["time"], op=MPI.SUM) / problem.comm.size
+        jac_time = problem.comm.allreduce(jac_eval["time"], op=MPI.SUM) / problem.comm.size
         num_cells = problem.comm.allreduce(problem.mesh.cell_set.size, op=MPI.SUM)
         err = problem.err
         true_err = problem.true_err
 
-        PETSc.Log.Stage(warm_stage).pop()
         if COMM_WORLD.rank == 0:
             if not os.path.exists(os.path.dirname(results)):
                 os.makedirs(os.path.dirname(results))
@@ -108,28 +114,28 @@ Quads: %s\n
                     "mesh_size": problem.N,
                     "num_cells": num_cells,
                     "degree": problem.degree,
-                    "problem_name": name,
                     "dofs": problem.u.dof_dset.layout_vec.getSize(),
                     "name": problem.name,
                     "disc_error": err,
                     "true_err": true_err,
                     "ksp_iters": solver.snes.ksp.getIterationNumber(),
-                    "mat_assembly": assembly_time}
+                    "SNESJacobianEval": jac_time}
 
             df = pd.DataFrame(data, index=[0])
             if problem.quads:
-                result_file = results + "_N%d_deg%d_quads.csv" % (problem.N, problem.degree)
+                result_file = results + "_N%d_deg%d_quads.csv" % (problem.N,
+                                                                  problem.degree)
             else:
-                result_file = results + "_N%d_deg%d.csv" % (problem.N, problem.degree)
+                result_file = results + "_N%d_deg%d.csv" % (problem.N,
+                                                            problem.degree)
 
             df.to_csv(result_file, index=False, mode="w", header=True)
 
-    PETSc.Sys.Print("Solving %s(degree=%s, size=%s, dimension=%s) finished.\n" %
+    PETSc.Sys.Print("Solving %s(deg=%s, N=%s, dim=%s) finished.\n" %
                     (name, problem.degree, problem.N, problem.dim))
 
     PETSc.Sys.Print("L2 error: %s\n" % true_err)
     PETSc.Sys.Print("Algebraic error: %s\n" % err)
-    PETSc.Sys.Print("Relative tolerance: %s\n" % rtol)
 
 
 dim = args.dim
@@ -156,13 +162,26 @@ if dim == 3:
                  (4, 16, 1.0e-10),
                  (4, 32, 1.0e-11),
                  (4, 64, 1.0e-12)]
+
+    cold_params = [(2, 4, 1.0e-4),
+                   (3, 4, 1.0e-6),
+                   (4, 4, 1.0e-8)]
 else:
+    # If a 2D run is desired, we can set one up.
     raise NotImplementedError("Dim %s not set up yet." % dim)
 
 problem_cls = module.CGProblem
 quads = args.quads
+for cold_param in cold_params:
+    degree, size, rtol = cold_param
+    run_solver(problem_cls=problem_cls, degree=degree,
+               size=size, rtol=rtol, quads=quads, dim=dim,
+               cold=True)
+
+# Now we profile once the code has been generated
 for cg_param in cg_params:
 
     degree, size, rtol = cg_param
     run_solver(problem_cls=problem_cls, degree=degree,
-               size=size, rtol=rtol, quads=quads, dim=dim)
+               size=size, rtol=rtol, quads=quads, dim=dim,
+               cold=False)
