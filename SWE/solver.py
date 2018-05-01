@@ -6,8 +6,7 @@ from pyop2.profiling import timed_stage
 
 
 class W5Problem(object):
-    """
-    """
+    """Williamson test case 5 Problem class."""
 
     def __init__(self, refinement_level, R,
                  H, Dt, method="BDM",
@@ -248,7 +247,11 @@ class W5Problem(object):
         self.Usolver.solve()
         self.DUsolver.solve()
 
-    @property
+    @cached_property
+    def num_cells(self):
+        return self.Vm.mesh().cell_set.size
+
+    @cached_property
     def comm(self):
         return self.Vm.mesh().comm
 
@@ -311,7 +314,6 @@ tmax: %s
 """
                         % (self.method, self.model_degree,
                            self.refinement_level, self.hybridization, tmax))
-        self.initialize()
         t = 0.0
         un, Dn = self.state
         up, Dp = self.updates
@@ -375,5 +377,3 @@ tmax: %s
             if write:
                 with timed_stage("Dump output"):
                     dumpcount = self.write(dumpcount, dumpfreq)
-
-        PETSc.Sys.Print("Finished.\n")
