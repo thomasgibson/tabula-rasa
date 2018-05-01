@@ -299,9 +299,12 @@ class W5Problem(object):
         up.assign(un)
         Dp.assign(Dn)
 
-        self.Dsolver.solve()
-        self.Usolver.solve()
-        self.DUsolver.solve()
+        with timed_stage("Warm up: DU Residuals"):
+            self.Dsolver.solve()
+            self.Usolver.solve()
+
+        with timed_stage("Warm up: Linear solve"):
+            self.DUsolver.solve()
 
     def run_simulation(self, tmax, write=False, dumpfreq=100):
         PETSc.Sys.Print("""
