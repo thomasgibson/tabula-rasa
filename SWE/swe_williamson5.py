@@ -48,10 +48,6 @@ parser.add_argument("--hybridization",
                     action="store_true",
                     help="Turn hybridization on.")
 
-parser.add_argument("--verbose",
-                    action="store_true",
-                    help="Turn on energy and output print statements.")
-
 parser.add_argument("--model_degree",
                     action="store",
                     type=int,
@@ -104,7 +100,47 @@ if args.help:
     sys.exit(1)
 
 
-def run_williamson5(problem, write=False, nsteps=20):
+PETSc.Log.begin()
+
+
+def run_williamson5(problem_cls, refinements, method, model_degree, nsteps,
+                    hybridization, write=False, cold=False):
+
+    # Time-step size (s)
+    Dt = ref_to_dt[refinements]
+
+    # Radius of the Earth (m)
+    R = 6371220.0
+
+    # Mean depth height (m)
+    H = 5960.0
+
+    if cold:
+        PETSc.Sys.Print("""
+Running cold initialization on a coarse mesh for the problem set:\n
+method: %s,\n
+model degree: %s,\n
+hybridization: %s,\n
+""" % (method, model_degree, bool(hybridization)))
+        problem = problem_cls(refinement_level=3,
+                              R=R,
+                              H=H,
+                              Dt=Dt,
+                              method=method,
+                              hybridization=hybridization,
+                              model_degree=model_degree)
+        problem.warmup()
+        return
+
+    problem = problem_cls(refinement_level=refinements,
+                          R=R,
+                          H=H,
+                          Dt=Dt,
+                          method=method,
+                          hybridization=hybridization,
+                          model_degree=model_degree)
+
+    comm = problem.comm
 
     if args.profile:
         tmax = nsteps*problem.Dt
@@ -116,15 +152,20 @@ def run_williamson5(problem, write=False, nsteps=20):
     PETSc.Sys.Print("Warm up with one-step.\n")
     with timed_stage("Warm up"):
         problem.warmup()
+        PETSc.Log.Stage("Warm up: Linear solve").push()
+        prepcsetup = PETSc.Log.Event("PCSetUp").getPerfInfo()
+        pre_setup_time = comm.allreduce(prepcsetup["time"], op=MPI.SUM) / comm.size
+        if problem.hybridization:
+            prehybridinit = PETSc.Log.Event("HybridInit").getPerfInfo()
+            prehybridinit_time = comm.allreduce(prehybridinit["time"], op=MPI.SUM) / comm.size
+        PETSc.Log.Stage("Warm up: Linear solve").pop()
 
     PETSc.Sys.Print("Warm up done. Profiling run for %d steps.\n" % nsteps)
     problem.initialize()
     problem.run_simulation(tmax, write=write, dumpfreq=args.dumpfreq)
     PETSc.Sys.Print("Simulation complete.\n")
 
-    comm = problem.comm
     PETSc.Log.Stage("Linear solve").push()
-
     ksp = PETSc.Log.Event("KSPSolve").getPerfInfo()
     pcsetup = PETSc.Log.Event("PCSetUp").getPerfInfo()
     pcapply = PETSc.Log.Event("PCApply").getPerfInfo()
@@ -133,7 +174,7 @@ def run_williamson5(problem, write=False, nsteps=20):
     pc_apply_time = comm.allreduce(pcapply["time"], op=MPI.SUM) / comm.size
     ref = problem.refinement_level
 
-    num_cells = problem.comm.allreduce(problem.num_cells, op=MPI.SUM)
+    num_cells = comm.allreduce(problem.num_cells, op=MPI.SUM)
 
     if problem.hybridization:
         results_data = "hybrid_%s_data_W5_ref%d_NS%d.csv" % (problem.method,
@@ -191,6 +232,7 @@ def run_williamson5(problem, write=False, nsteps=20):
         time_data = {"PETScLogKSPSolve": ksp_time,
                      "PETSCLogPCApply": pc_apply_time,
                      "PETSCLogPCSetup": pc_setup_time,
+                     "PETSCLogPreSetup": pre_setup_time,
                      "num_processes": problem.comm.size,
                      "method": problem.method,
                      "model_degree": problem.model_degree,
@@ -207,6 +249,7 @@ def run_williamson5(problem, write=False, nsteps=20):
                        "HybridFullRecovery": full_recon,
                        "HybridUpdate": update_time,
                        "HybridInit": inittime,
+                       "PreHybridInit": prehybridinit_time,
                        "HybridFullSolveTime": full_solve,
                        "HybridKSPOther": other}
 
@@ -228,40 +271,41 @@ def run_williamson5(problem, write=False, nsteps=20):
                        mode="w", header=True)
 
 
+W5Problem = module.W5Problem
+method = args.method
+model_degree = args.model_degree
+refinements = args.refinements
+hybridization = args.hybridization
+nsteps = args.nsteps
+
 if args.profile:
-    param = (args.method, args.model_degree)
-    method, model_degree = param
-    ref_level = args.refinements
-    Dt = ref_to_dt[ref_level]
-    R = 6371220.0
-    H = 5960.0
 
-    W5Problem = module.W5Problem(refinement_level=ref_level,
-                                 R=R,
-                                 H=H,
-                                 Dt=Dt,
-                                 method=method,
-                                 hybridization=args.hybridization,
-                                 model_degree=model_degree)
+    run_williamson5(problem_cls=W5Problem,
+                    refinements=refinements,
+                    method=method,
+                    model_degree=model_degree,
+                    nsteps=nsteps,
+                    hybridization=hybridization,
+                    write=False,
+                    # Do a cold run to generate code
+                    cold=True)
 
-    PETSc.Log.begin()
-    run_williamson5(W5Problem,
-                    write=args.write,
-                    nsteps=args.nsteps)
+    # Now start the profile
+    run_williamson5(problem_cls=W5Problem,
+                    refinements=refinements,
+                    method=method,
+                    model_degree=model_degree,
+                    nsteps=nsteps,
+                    hybridization=hybridization,
+                    write=False,
+                    cold=False)
 
 else:
-    Dt = ref_to_dt[args.refinements]
-    R = 6371220.0
-    H = 5960.0
-
-    W5Problem = module.W5Problem(refinement_level=args.refinements,
-                                 R=R,
-                                 H=H,
-                                 Dt=Dt,
-                                 method=args.method,
-                                 hybridization=args.hybridization,
-                                 model_degree=args.model_degree)
-    PETSc.Log.begin()
-    run_williamson5(W5Problem,
+    run_williamson5(problem_cls=W5Problem,
+                    refinements=refinements,
+                    method=method,
+                    model_degree=model_degree,
+                    nsteps=nsteps,
+                    hybridization=hybridization,
                     write=args.write,
-                    nsteps=args.nsteps)
+                    cold=False)
