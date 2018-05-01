@@ -177,7 +177,7 @@ class W5Problem(object):
         W = MixedFunctionSpace((Vu, VD))
         self.DU = Function(W, name="linear updates")
         w, phi = TestFunctions(W)
-        du, dD = split(self.DU)
+        du, dD = TrialFunctions(W)
 
         uDlhs = (
             inner(w, du + 0.5*dt*f*self.perp(du)) - 0.5*dt*div(w)*g*dD +
@@ -189,8 +189,9 @@ class W5Problem(object):
             + phi*(Dp - Dps)*dx
         )
 
-        self.FuD = uDlhs - uDrhs
-        DUproblem = NonlinearVariationalProblem(self.FuD, self.DU)
+        self._residual_DU = lambda x: uDrhs - action(uDlhs, x)
+        DUproblem = LinearVariationalProblem(uDlhs, uDrhs, self.DU,
+                                             constant_jacobian=True)
 
         gamg_params = {'ksp_type': 'cg',
                        'pc_type': 'gamg',
@@ -201,16 +202,14 @@ class W5Problem(object):
                                      'pc_type': 'bjacobi',
                                      'sub_pc_type': 'ilu'}}
         if self.hybridization:
-            parameters = {'snes_type': 'ksponly',
-                          'ksp_type': 'preonly',
+            parameters = {'ksp_type': 'preonly',
                           'mat_type': 'matfree',
                           'pc_type': 'python',
                           'pc_python_type': 'scpc.HybridizationPC',
                           'hybridization': gamg_params}
 
         else:
-            parameters = {'snes_type': 'ksponly',
-                          'ksp_type': 'gmres',
+            parameters = {'ksp_type': 'gmres',
                           'pc_type': 'fieldsplit',
                           'pc_fieldsplit_type': 'schur',
                           'ksp_type': 'gmres',
@@ -224,9 +223,9 @@ class W5Problem(object):
                                            'sub_pc_type': 'ilu'},
                           'fieldsplit_1': gamg_params}
 
-        DUsolver = NonlinearVariationalSolver(DUproblem,
-                                              solver_parameters=parameters,
-                                              options_prefix="implicit-solve")
+        DUsolver = LinearVariationalSolver(DUproblem,
+                                           solver_parameters=parameters,
+                                           options_prefix="implicit-solve")
         self.DUsolver = DUsolver
 
     @cached_property
@@ -351,7 +350,7 @@ tmax: %s
                 # Get rhs from ksp
                 r0 = self.DUsolver.snes.ksp.getRhs()
                 # Assemble the problem residual (b - Ax)
-                res = assemble(self.FuD, mat_type="aij")
+                res = assemble(self._residual_DU(self.DU), mat_type="aij")
                 bnorm = r0.norm()
                 rnorm = res.dat.norm
                 r_factor = rnorm/bnorm
