@@ -1,5 +1,5 @@
 from firedrake import *
-from firedrake import CubedSphereMesh, IcosahedralSphereMesh
+from firedrake import CubedSphereMesh, OctahedralSphereMesh
 from firedrake.petsc import PETSc
 from firedrake.utils import cached_property
 from pyop2.profiling import timed_stage
@@ -29,8 +29,8 @@ class W5Problem(object):
             mesh = CubedSphereMesh(self.R, self.refinement_level,
                                    degree=3)
         else:
-            mesh = IcosahedralSphereMesh(self.R, self.refinement_level,
-                                         degree=3)
+            mesh = OctahedralSphereMesh(self.R, self.refinement_level,
+                                        degree=3, hemisphere="both")
 
         global_normal = Expression(("x[0]", "x[1]", "x[2]"))
         mesh.init_cell_orientations(global_normal)
@@ -201,7 +201,6 @@ class W5Problem(object):
         if self.hybridization:
             parameters = {'ksp_type': 'preonly',
                           'mat_type': 'matfree',
-                          'pmat_type': 'matfree',
                           'pc_type': 'python',
                           'pc_python_type': 'scpc.HybridizationPC',
                           'hybridization': gamg_params}
