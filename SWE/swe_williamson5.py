@@ -33,12 +33,12 @@ import solver as module
 parameters["pyop2_options"]["lazy_evaluation"] = False
 
 
-ref_to_dt = {3: 900.0,
-             4: 450.0,
-             5: 225.0,
-             6: 112.5,
-             7: 56.25,
-             8: 28.125}
+ref_to_dt = {3: 1800.0,
+             4: 900.0,
+             5: 450.0,
+             6: 225.0,
+             7: 112.5,
+             8: 56.25}
 
 
 parser = ArgumentParser(description="""Run Williamson test case 5""",
@@ -186,11 +186,15 @@ hybridization: %s,\n
         trace = PETSc.Log.Event("HybridSolve").getPerfInfo()
         recover = PETSc.Log.Event("HybridRecover").getPerfInfo()
         recon = PETSc.Log.Event("HybridRecon").getPerfInfo()
+        recon_scalar = PETSc.Log.Event("HybridReconScalarField").getPerfInfo()
+        recon_flux = PETSc.Log.Event("HybridReconFluxField").getPerfInfo()
         hybridbreak = PETSc.Log.Event("HybridBreak").getPerfInfo()
         hybridupdate = PETSc.Log.Event("HybridUpdate").getPerfInfo()
         hybridinit = PETSc.Log.Event("HybridInit").getPerfInfo()
 
         recon_time = comm.allreduce(recon["time"], op=MPI.SUM) / comm.size
+        scalar_time = comm.allreduce(recon_scalar["time"], op=MPI.SUM) / comm.size
+        flux_time = comm.allreduce(recon_flux["time"], op=MPI.SUM) / comm.size
         projection = comm.allreduce(recover["time"], op=MPI.SUM) / comm.size
         transfer = comm.allreduce(hybridbreak["time"], op=MPI.SUM) / comm.size
         full_recon = projection + recon_time
@@ -245,6 +249,8 @@ hybridization: %s,\n
                        "HybridRHS": rhstime,
                        "HybridBreak": transfer,
                        "HybridReconstruction": recon_time,
+                       "HybridReconScalarField": scalar_time,
+                       "HybridReconFluxField": flux_time,
                        "HybridProjection": projection,
                        "HybridFullRecovery": full_recon,
                        "HybridUpdate": update_time,
