@@ -33,20 +33,18 @@ import solver as module
 parameters["pyop2_options"]["lazy_evaluation"] = False
 
 
-ref_to_dt = {3: 1800.0,
-             4: 900.0,
-             5: 450.0,
-             6: 225.0,
-             7: 112.5,
-             8: 56.25}
-
-
 parser = ArgumentParser(description="""Run Williamson test case 5""",
                         add_help=False)
 
 parser.add_argument("--hybridization",
                     action="store_true",
                     help="Turn hybridization on.")
+
+parser.add_argument("--dt",
+                    action="store",
+                    type=float,
+                    default=900.0,
+                    help="Time-step size.")
 
 parser.add_argument("--model_degree",
                     action="store",
@@ -103,11 +101,8 @@ if args.help:
 PETSc.Log.begin()
 
 
-def run_williamson5(problem_cls, refinements, method, model_degree, nsteps,
+def run_williamson5(problem_cls, Dt, refinements, method, model_degree, nsteps,
                     hybridization, write=False, cold=False):
-
-    # Time-step size (s)
-    Dt = ref_to_dt[refinements]
 
     # Radius of the Earth (m)
     R = 6371220.0
@@ -117,12 +112,12 @@ def run_williamson5(problem_cls, refinements, method, model_degree, nsteps,
 
     if cold:
         PETSc.Sys.Print("""
-Running cold initialization on a coarse mesh for the problem set:\n
+Running cold initialization for the problem set:\n
 method: %s,\n
 model degree: %s,\n
 hybridization: %s,\n
 """ % (method, model_degree, bool(hybridization)))
-        problem = problem_cls(refinement_level=3,
+        problem = problem_cls(refinement_level=refinements,
                               R=R,
                               H=H,
                               Dt=Dt,
@@ -242,7 +237,8 @@ hybridization: %s,\n
                      "model_degree": problem.model_degree,
                      "refinement_level": problem.refinement_level,
                      "total_dofs": dofs,
-                     "num_cells": num_cells}
+                     "num_cells": num_cells,
+                     "Dt": Dt}
 
         if problem.hybridization:
             updates = {"HybridTraceSolve": trace_solve,
@@ -283,10 +279,12 @@ model_degree = args.model_degree
 refinements = args.refinements
 hybridization = args.hybridization
 nsteps = args.nsteps
+Dt = args.dt
 
 if args.profile:
 
     run_williamson5(problem_cls=W5Problem,
+                    Dt=Dt,
                     refinements=refinements,
                     method=method,
                     model_degree=model_degree,
@@ -298,6 +296,7 @@ if args.profile:
 
     # Now start the profile
     run_williamson5(problem_cls=W5Problem,
+                    Dt=Dt,
                     refinements=refinements,
                     method=method,
                     model_degree=model_degree,
@@ -308,6 +307,7 @@ if args.profile:
 
 else:
     run_williamson5(problem_cls=W5Problem,
+                    Dt=Dt,
                     refinements=refinements,
                     method=method,
                     model_degree=model_degree,
