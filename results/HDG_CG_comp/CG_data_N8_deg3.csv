@@ -1,2 +1,2 @@
-KSPSolve,PCApply,PCSetUp,degree,disc_error,dofs,ksp_iters,mat_assembly,mesh_size,name,num_cells,num_processes,problem_name,true_err
-0.035866153240203855,0.03280903100967407,0.0,3,7.581388241327777e-05,15625,13,2.0748376846313478e-05,8,CG Helmholtz,3072,40,CG Helmholtz,9.17901777526807e-05
+KSPSolve,PCApply,PCSetUp,SNESJacobianEval,degree,disc_error,dofs,ksp_iters,mesh_size,name,num_cells,num_processes,true_err
+0.10282148718833924,0.04947410821914673,0.04822570085525513,0.013581806421279907,3,7.581388241327416e-05,15625,13,8,CG Helmholtz,3072,40,9.17901777526864e-05
