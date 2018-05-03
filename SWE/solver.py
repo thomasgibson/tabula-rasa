@@ -1,5 +1,4 @@
 from firedrake import *
-from firedrake import CubedSphereMesh, OctahedralSphereMesh
 from firedrake.petsc import PETSc
 from firedrake.utils import cached_property
 from pyop2.profiling import timed_stage
@@ -26,30 +25,36 @@ class W5Problem(object):
         # Earth-sized mesh
         mesh_degree = 2
         if self.method == "RTCF":
+            from firedrake import CubedSphereMesh
             mesh = CubedSphereMesh(self.R, self.refinement_level,
                                    degree=mesh_degree)
         else:
+            from firedrake import OctahedralSphereMesh
+            # from firedrake import IcosahedralSphereMesh
             mesh = OctahedralSphereMesh(self.R, self.refinement_level,
                                         degree=mesh_degree,
                                         hemisphere="both")
+            # mesh = IcosahedralSphereMesh(self.R, self.refinement_level,
+            #                              degree=mesh_degree)
 
         global_normal = Expression(("x[0]", "x[1]", "x[2]"))
         mesh.init_cell_orientations(global_normal)
+        self.mesh = mesh
 
         # Compatible FE spaces for velocity and depth
         if self.method == "RT":
-            Vu = FunctionSpace(mesh, "RT", self.model_degree)
+            Vu = FunctionSpace(self.mesh, "RT", self.model_degree)
         elif self.method == "RTCF":
-            Vu = FunctionSpace(mesh, "RTCF", self.model_degree)
+            Vu = FunctionSpace(self.mesh, "RTCF", self.model_degree)
         elif self.method == "BDM":
-            Vu = FunctionSpace(mesh, "BDM", self.model_degree)
+            Vu = FunctionSpace(self.mesh, "BDM", self.model_degree)
         else:
             raise ValueError("Unrecognized method '%s'" % self.method)
 
-        VD = FunctionSpace(mesh, "DG", self.model_degree - 1)
+        VD = FunctionSpace(self.mesh, "DG", self.model_degree - 1)
 
         self.function_spaces = (Vu, VD)
-        self.Vm = FunctionSpace(mesh, "CG", mesh_degree)
+        self.Vm = FunctionSpace(self.mesh, "CG", mesh_degree)
 
         # Mean depth
         self.H = Constant(H)
@@ -69,7 +74,7 @@ class W5Problem(object):
 
     def _build_initial_conditions(self):
 
-        x = SpatialCoordinate(self.Vm.mesh())
+        x = SpatialCoordinate(self.mesh)
         _, VD = self.function_spaces
 
         # Initial conditions for velocity and depth (in geostrophic balance)
@@ -189,21 +194,24 @@ class W5Problem(object):
             + phi*(Dp - Dps)*dx
         )
 
-        self._residual_DU = lambda x: uDrhs - action(uDlhs, x)
+        self.FuD = action(uDlhs, self.DU) - uDrhs
         DUproblem = LinearVariationalProblem(uDlhs, uDrhs, self.DU,
                                              constant_jacobian=True)
 
         gamg_params = {'ksp_type': 'cg',
                        'pc_type': 'gamg',
-                       'pc_gamg_reuse_interpolation': True,
+                       # 'pc_gamg_reuse_interpolation': True,
+                       # 'pc_gamg_sym_graph': True,
                        'ksp_rtol': 1e-8,
                        'mg_levels': {'ksp_type': 'chebyshev',
+                                     # 'ksp_chebyshev_esteig': True,
                                      'ksp_max_it': 2,
                                      'pc_type': 'bjacobi',
                                      'sub_pc_type': 'ilu'}}
         if self.hybridization:
             parameters = {'ksp_type': 'preonly',
                           'mat_type': 'matfree',
+                          'pmat_type': 'matfree',
                           'pc_type': 'python',
                           'pc_python_type': 'scpc.HybridizationPC',
                           'hybridization': gamg_params}
@@ -230,15 +238,15 @@ class W5Problem(object):
 
     @cached_property
     def num_cells(self):
-        return self.Vm.mesh().cell_set.size
+        return self.mesh.cell_set.size
 
     @cached_property
     def comm(self):
-        return self.Vm.mesh().comm
+        return self.mesh.comm
 
     @cached_property
     def outward_normals(self):
-        return CellNormal(self.Vm.mesh())
+        return CellNormal(self.mesh)
 
     def perp(self, u):
         return cross(self.outward_normals, u)
@@ -353,7 +361,7 @@ tmax: %s
                 # Get rhs from ksp
                 r0 = self.DUsolver.snes.ksp.getRhs()
                 # Assemble the problem residual (b - Ax)
-                res = assemble(self._residual_DU(self.DU), mat_type="aij")
+                res = assemble(self.FuD, mat_type="aij")
                 bnorm = r0.norm()
                 rnorm = res.dat.norm
                 r_factor = rnorm/bnorm
