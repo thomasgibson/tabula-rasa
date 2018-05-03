@@ -38,6 +38,23 @@ class W5Problem(object):
         mesh.init_cell_orientations(global_normal)
         self.mesh = mesh
 
+        # Get Dx information (min and max)
+        cell_vs = interpolate(CellVolume(self.mesh),
+                              FunctionSpace(self.mesh, "DG", 0))
+
+        # Min and max dx (m)
+        dx_min = sqrt(cell_vs.dat.data.min())
+        dx_max = sqrt(cell_vs.dat.data.max())
+
+        # gravity
+        g = 9.810616
+
+        wave_speed = sqrt(H*g)
+
+        # Courant number (min and max)
+        self.min_courant = (self.Dt / dx_max)*wave_speed
+        self.max_courant = (self.Dt / dx_min)*wave_speed
+
         # Compatible FE spaces for velocity and depth
         if self.method == "RT":
             Vu = FunctionSpace(self.mesh, "RT", self.model_degree)
