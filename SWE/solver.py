@@ -30,12 +30,9 @@ class W5Problem(object):
                                    degree=mesh_degree)
         else:
             from firedrake import OctahedralSphereMesh
-            # from firedrake import IcosahedralSphereMesh
             mesh = OctahedralSphereMesh(self.R, self.refinement_level,
                                         degree=mesh_degree,
                                         hemisphere="both")
-            # mesh = IcosahedralSphereMesh(self.R, self.refinement_level,
-            #                              degree=mesh_degree)
 
         global_normal = Expression(("x[0]", "x[1]", "x[2]"))
         mesh.init_cell_orientations(global_normal)
@@ -200,11 +197,9 @@ class W5Problem(object):
 
         gamg_params = {'ksp_type': 'cg',
                        'pc_type': 'gamg',
-                       # 'pc_gamg_reuse_interpolation': True,
-                       # 'pc_gamg_sym_graph': True,
+                       'pc_gamg_reuse_interpolation': True,
                        'ksp_rtol': 1e-8,
                        'mg_levels': {'ksp_type': 'chebyshev',
-                                     # 'ksp_chebyshev_esteig': True,
                                      'ksp_max_it': 2,
                                      'pc_type': 'bjacobi',
                                      'sub_pc_type': 'ilu'}}
