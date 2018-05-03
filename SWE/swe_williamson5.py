@@ -135,6 +135,15 @@ hybridization: %s,\n
                           hybridization=hybridization,
                           model_degree=model_degree)
 
+    c_max = problem.max_courant
+    c_min = problem.min_courant
+
+    PETSc.Sys.Print("""
+    Dt = %s,\n
+    Max Courant = %s,\n
+    Min Courant = %s.
+    """ % (Dt, c_max, c_min))
+
     comm = problem.comm
 
     if args.profile:
@@ -238,7 +247,9 @@ hybridization: %s,\n
                      "refinement_level": problem.refinement_level,
                      "total_dofs": dofs,
                      "num_cells": num_cells,
-                     "Dt": Dt}
+                     "Dt": Dt,
+                     "CMax": c_max,
+                     "CMin": c_min}
 
         if problem.hybridization:
             updates = {"HybridTraceSolve": trace_solve,
