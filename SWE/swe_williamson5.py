@@ -44,7 +44,7 @@ parser.add_argument("--dt",
                     action="store",
                     type=float,
                     default=900.0,
-                    help="Time-step size.")
+                    help="The time-step size.")
 
 parser.add_argument("--model_degree",
                     action="store",
@@ -101,13 +101,14 @@ if args.help:
 PETSc.Log.begin()
 
 
-def run_williamson5(problem_cls, Dt, refinements, method, model_degree, nsteps,
+def run_williamson5(problem_cls, Dt, refinements, method,
+                    model_degree, nsteps,
                     hybridization, write=False, cold=False):
 
     # Radius of the Earth (m)
     R = 6371220.0
 
-    # Mean depth height (m)
+    # Max depth height (m)
     H = 5960.0
 
     if cold:
@@ -135,19 +136,21 @@ hybridization: %s,\n
                           hybridization=hybridization,
                           model_degree=model_degree)
 
-    c_max = problem.max_courant
-    c_min = problem.min_courant
+    cfl = problem.courant
+    dx_min = problem.dx_min
+    dx_max = problem.dx_max
 
     PETSc.Sys.Print("""
-    Dt = %s,\n
-    Max Courant = %s,\n
-    Min Courant = %s.
-    """ % (Dt, c_max, c_min))
+Dt = %s,\n
+Courant number (approximate): %s,\n
+Dx (min): %s km,\n
+Dx (max): %s km.
+""" % (Dt, cfl, dx_min/1000, dx_max/1000))
 
     comm = problem.comm
 
     if args.profile:
-        tmax = nsteps*problem.Dt
+        tmax = nsteps*Dt
     else:
         day = 24.*60.*60.
         tmax = 15*day
@@ -181,10 +184,14 @@ hybridization: %s,\n
     num_cells = comm.allreduce(problem.num_cells, op=MPI.SUM)
 
     if problem.hybridization:
-        results_data = "hybrid_%s_data_W5_ref%d_NS%d.csv" % (problem.method,
-                                                             ref, nsteps)
-        results_timings = "hybrid_%s_profile_W5_ref%d_NS%d.csv" % (problem.method,
-                                                                   ref, nsteps)
+        results_data = "hybrid_%s_data_W5_ref%d_Dt%s_NS%d.csv" % (problem.method,
+                                                                  ref,
+                                                                  Dt,
+                                                                  nsteps)
+        results_timings = "hybrid_%s_profile_W5_ref%d_Dt%s_NS%d.csv" % (problem.method,
+                                                                        ref,
+                                                                        Dt,
+                                                                        nsteps)
 
         RHS = PETSc.Log.Event("HybridRHS").getPerfInfo()
         trace = PETSc.Log.Event("HybridSolve").getPerfInfo()
@@ -211,10 +218,14 @@ hybridization: %s,\n
         full_solve = (transfer + trace_solve + rhstime
                       + recon_time + projection + update_time)
     else:
-        results_data = "gmres_%s_data_W5_ref%d_NS%d.csv" % (problem.method,
-                                                            ref, nsteps)
-        results_timings = "gmres_%s_profile_W5_ref%d_NS%d.csv" % (problem.method,
-                                                                  ref, nsteps)
+        results_data = "gmres_%s_data_W5_ref%d_Dt%s_NS%d.csv" % (problem.method,
+                                                                 ref,
+                                                                 Dt,
+                                                                 nsteps)
+        results_timings = "gmres_%s_profile_W5_ref%d_Dt%s_NS%d.csv" % (problem.method,
+                                                                       ref,
+                                                                       Dt,
+                                                                       nsteps)
 
         KSPSchur = PETSc.Log.Event("KSPSolve_FS_Schu").getPerfInfo()
         KSPF0 = PETSc.Log.Event("KSPSolve_FS_0").getPerfInfo()
@@ -248,8 +259,10 @@ hybridization: %s,\n
                      "total_dofs": dofs,
                      "num_cells": num_cells,
                      "Dt": Dt,
-                     "CMax": c_max,
-                     "CMin": c_min}
+                     "CFL": cfl,
+                     "DxMin": dx_min,
+                     "DxMax": dx_max,
+                     "DxAvg": problem.dx_avg}
 
         if problem.hybridization:
             updates = {"HybridTraceSolve": trace_solve,

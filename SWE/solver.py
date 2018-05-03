@@ -13,8 +13,6 @@ class W5Problem(object):
         super(W5Problem, self).__init__()
 
         self.refinement_level = refinement_level
-        self.dt = Constant(Dt)
-        self.Dt = Dt
         self.method = method
         self.model_degree = model_degree
         self.hybridization = hybridization
@@ -38,22 +36,32 @@ class W5Problem(object):
         mesh.init_cell_orientations(global_normal)
         self.mesh = mesh
 
-        # Get Dx information (min and max)
+        # Get Dx information (this is approximate).
+        # We compute the area (m^2) of each cell in the mesh,
+        # then take the square root to get the right units.
         cell_vs = interpolate(CellVolume(self.mesh),
                               FunctionSpace(self.mesh, "DG", 0))
 
-        # Min and max dx (m)
-        dx_min = sqrt(cell_vs.dat.data.min())
-        dx_max = sqrt(cell_vs.dat.data.max())
+        a_min = cell_vs.dat.data.min()
+        a_max = cell_vs.dat.data.max()
+        dx_min = sqrt(a_min)
+        dx_max = sqrt(a_max)
 
-        # gravity
+        # Take the average to compute the Courant number
+        dx = (dx_min + dx_max)/2.0
+
+        self.dx_min = dx_min
+        self.dx_max = dx_max
+        self.dx_avg = dx
+
+        # Wave speed for the shallow water system
         g = 9.810616
-
         wave_speed = sqrt(H*g)
 
-        # Courant number (min and max)
-        self.min_courant = (self.Dt / dx_max)*wave_speed
-        self.max_courant = (self.Dt / dx_min)*wave_speed
+        # Courant number
+        self.courant = (Dt / dx) * wave_speed
+        self.dt = Constant(Dt)
+        self.Dt = Dt
 
         # Compatible FE spaces for velocity and depth
         if self.method == "RT":
@@ -287,11 +295,13 @@ class W5Problem(object):
     def output_file(self):
         dirname = "results/"
         if self.hybridization:
-            dirname += "hybrid_%s_ref%d/" % (self.method,
-                                             self.refinement_level)
+            dirname += "hybrid_%s_ref%d_Dt%s/" % (self.method,
+                                                  self.refinement_level,
+                                                  self.Dt)
         else:
-            dirname += "gmres_%s_ref%d/" % (self.method,
-                                            self.refinement_level)
+            dirname += "gmres_%s_ref%d_Dt%s/" % (self.method,
+                                                 self.refinement_level,
+                                                 self.Dt)
         return File(dirname + "w5_" + str(self.refinement_level) + ".pvd")
 
     def write(self, dumpcount, dumpfreq):
