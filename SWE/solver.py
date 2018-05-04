@@ -295,13 +295,15 @@ class W5Problem(object):
     def output_file(self):
         dirname = "results/"
         if self.hybridization:
-            dirname += "hybrid_%s_ref%d_Dt%s/" % (self.method,
-                                                  self.refinement_level,
-                                                  self.Dt)
+            dirname += "hybrid_%s%s_ref%d_Dt%s/" % (self.method,
+                                                    self.model_degree,
+                                                    self.refinement_level,
+                                                    self.Dt)
         else:
-            dirname += "gmres_%s_ref%d_Dt%s/" % (self.method,
-                                                 self.refinement_level,
-                                                 self.Dt)
+            dirname += "gmres_%s%s_ref%d_Dt%s/" % (self.method,
+                                                   self.model_degree,
+                                                   self.refinement_level,
+                                                   self.Dt)
         return File(dirname + "w5_" + str(self.refinement_level) + ".pvd")
 
     def write(self, dumpcount, dumpfreq):
