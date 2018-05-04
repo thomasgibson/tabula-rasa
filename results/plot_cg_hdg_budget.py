@@ -10,15 +10,16 @@ MARKERSIZE = 8
 LINEWIDTH = 2
 
 
-hdg_params = [(4, 1), (4, 2), (4, 3),
+hdg_params = [(4, 2), (4, 3),
               (8, 1), (8, 2), (8, 3),
               (16, 1), (16, 2), (16, 3),
               (32, 1), (32, 2), (32, 3),
-              (64, 1), (64, 2), (64, 3)]
+              (64, 1), (64, 2), (64, 3),
+              (128, 1)]
 hdg_data = ["HDG_CG_comp/HDG_data_N%d_deg%d.csv" % param
             for param in hdg_params]
 
-cg_params = [(8, 2), (8, 3), (8, 4),
+cg_params = [(4, 4), (8, 2), (8, 3), (8, 4),
              (16, 2), (16, 3), (16, 4),
              (32, 2), (32, 3), (32, 4),
              (64, 2), (64, 3), (64, 4),
@@ -38,12 +39,12 @@ markers = ["o", "s", "^", "D"]
 linestyles = ["solid", "dashdot"]
 seaborn.set(style="ticks")
 
-fig, (axes,) = plt.subplots(1, 2, figsize=(10, 4), squeeze=False)
-(ax1, ax2) = axes
+fig, (axes,) = plt.subplots(1, 3, figsize=(12, 4), squeeze=False)
+(ax1, ax2, ax3) = axes
 ax1.set_ylabel("$L^2$ error", fontsize=FONTSIZE+2)
 ymin = 1.0e-10
 ymax = 1.0e-2
-for ax in [ax1, ax2]:
+for ax in [ax1, ax2, ax3]:
     ax.spines["left"].set_position(("outward", 10))
     ax.spines["bottom"].set_position(("outward", 10))
     ax.spines["top"].set_visible(False)
@@ -66,7 +67,7 @@ for group in cg_groups:
     degree, df = group
 
     if degree == 2:
-        solve_times = df.KSPSolve.values
+        solve_times = df.KSPSolve.values + df.PCSetUp.values
         errors = df.true_err.values
         label = "$CG_%d(p_h)$" % degree
         ax1.plot(solve_times, errors,
@@ -77,10 +78,20 @@ for group in cg_groups:
                  markersize=MARKERSIZE,
                  linestyle="solid",
                  clip_on=False)
-        label_dct[label] = degree
+
+        ax3.plot(solve_times, errors,
+                 label=label,
+                 color=colors[degree - 2],
+                 marker=markers[degree - 2],
+                 linewidth=LINEWIDTH,
+                 markersize=MARKERSIZE,
+                 linestyle="solid",
+                 clip_on=False)
+
+        label_dct.setdefault(label, degree)
 
     if degree == 3:
-        solve_times = df.KSPSolve.values
+        solve_times = df.KSPSolve.values + df.PCSetUp.values
         errors = df.true_err.values
         label = "$CG_%d(p_h)$" % degree
         ax2.plot(solve_times, errors,
@@ -91,13 +102,38 @@ for group in cg_groups:
                  markersize=MARKERSIZE,
                  linestyle="solid",
                  clip_on=False)
-        label_dct[label] = degree
+
+        # ax3.plot(solve_times, errors,
+        #          label=label,
+        #          color=colors[degree - 2],
+        #          marker=markers[degree - 2],
+        #          linewidth=LINEWIDTH,
+        #          markersize=MARKERSIZE,
+        #          linestyle="solid",
+        #          clip_on=False)
+
+        label_dct.setdefault(label, degree)
+
+    if degree == 4:
+        solve_times = df.KSPSolve.values + df.PCSetUp.values
+        errors = df.true_err.values
+        label = "$CG_%d(p_h)$" % degree
+        ax3.plot(solve_times, errors,
+                 label=label,
+                 color='#6d904f',
+                 marker=markers[degree - 2],
+                 linewidth=LINEWIDTH,
+                 markersize=MARKERSIZE,
+                 linestyle="solid",
+                 clip_on=False)
+
+        label_dct.setdefault(label, degree)
 
 for group in hdg_groups:
     degree, df = group
 
     if degree == 2:
-        solve_times = df.HDGTotalSolve.values
+        solve_times = df.HDGTotalSolve.values + df.PCSetUp.values
         errors = df.true_err_u.values
         label = "$HDG_%d(p_h)$" % degree
         ax1.plot(solve_times, errors,
@@ -108,10 +144,11 @@ for group in hdg_groups:
                  markersize=MARKERSIZE,
                  linestyle="dotted",
                  clip_on=False)
-        label_dct[label] = degree + 4
+
+        label_dct.setdefault(label, degree + 4)
 
     if degree == 3:
-        solve_times = df.HDGTotalSolve.values
+        solve_times = df.HDGTotalSolve.values + df.PCSetUp.values
         errors = df.true_err_u.values
         label = "$HDG_%d(p_h)$" % degree
         ax2.plot(solve_times, errors,
@@ -122,13 +159,30 @@ for group in hdg_groups:
                  markersize=MARKERSIZE,
                  linestyle="dotted",
                  clip_on=False)
-        label_dct[label] = degree + 4
+
+        label_dct.setdefault(label, degree + 4)
 
 for group in hdg_groups:
     degree, df = group
 
+    if degree == 1:
+        solve_times = df.HDGTotal.values + df.PCSetUp.values
+        errors = df.ErrorPP.values
+        label = "$HDG_%d(p_h^\\star)$" % degree
+
+        ax3.plot(solve_times, errors,
+                 label=label,
+                 color=colors[degree],
+                 marker=markers[degree],
+                 linewidth=LINEWIDTH,
+                 markersize=MARKERSIZE,
+                 linestyle="dashdot",
+                 clip_on=False)
+
+        label_dct.setdefault(label, degree + 8)
+
     if degree == 2:
-        solve_times = df.HDGTotal.values
+        solve_times = df.HDGTotal.values + df.PCSetUp.values
         errors = df.ErrorPP.values
         label = "$HDG_%d(p_h^\\star)$" % degree
         ax1.plot(solve_times, errors,
@@ -139,10 +193,11 @@ for group in hdg_groups:
                  markersize=MARKERSIZE,
                  linestyle="dashdot",
                  clip_on=False)
-        label_dct[label] = degree + 8
+
+        label_dct.setdefault(label, degree + 8)
 
     if degree == 3:
-        solve_times = df.HDGTotal.values
+        solve_times = df.HDGTotal.values + df.PCSetUp.values
         errors = df.ErrorPP.values
         label = "$HDG_%d(p_h^\\star)$" % degree
         ax2.plot(solve_times, errors,
@@ -153,14 +208,24 @@ for group in hdg_groups:
                  markersize=MARKERSIZE,
                  linestyle="dashdot",
                  clip_on=False)
-        label_dct[label] = degree + 8
+
+        ax3.plot(solve_times, errors,
+                 label=label,
+                 color=colors[degree],
+                 marker=markers[degree],
+                 linewidth=LINEWIDTH,
+                 markersize=MARKERSIZE,
+                 linestyle="dashdot",
+                 clip_on=False)
+
+        label_dct.setdefault(label, degree + 8)
 
 
-for ax in [ax1, ax2]:
+for ax in [ax1, ax2, ax3]:
     for tick in ax.get_xticklabels():
         tick.set_fontsize(FONTSIZE)
 
-    if ax is not ax2:
+    if ax not in (ax2, ax3):
         for tick in ax.get_yticklabels():
             tick.set_fontsize(FONTSIZE)
     else:
@@ -168,7 +233,7 @@ for ax in [ax1, ax2]:
         ax.tick_params(direction="inout", which="both", axis="y")
 
 xlabel = fig.text(0.5, -0.1,
-                  "Time (s)",
+                  "Execution time (s)",
                   ha='center',
                   fontsize=FONTSIZE+2)
 
@@ -179,19 +244,26 @@ title = fig.text(0.5, 1,
 
 handles = []
 labels = []
-for ax in [ax1, ax2]:
+for ax in [ax1, ax2, ax3]:
     handle, label = ax.get_legend_handles_labels()
+    if ax is ax3:
+        for hdl, lab in zip(handle, label):
+            # Remove duplicate label
+            if hdl.get_label() == '$HDG_3(p_h^\\star)$':
+                handle.remove(hdl)
+                label.remove('$HDG_3(p_h^\\star)$')
+
+            if hdl.get_label() == '$CG_2(p_h)$':
+                handle.remove(hdl)
+                label.remove('$CG_2(p_h)$')
     handles.extend(handle)
     labels.extend(label)
-
-labels, handles = zip(*sorted(zip(labels, handles),
-                              key=lambda t: label_dct[t[0]]))
 
 legend = fig.legend(handles, labels,
                     loc=9,
                     bbox_to_anchor=(0.5, 1.3),
                     bbox_transform=fig.transFigure,
-                    ncol=3,
+                    ncol=4,
                     handlelength=3,
                     fontsize=FONTSIZE,
                     numpoints=1,

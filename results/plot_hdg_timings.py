@@ -52,12 +52,15 @@ for group in cg_groups:
     if degree == 3:
 
         ksp_solve = df.KSPSolve.values
+        setup = df.PCSetUp.values
         dofs = df.dofs.values
 
         a1 = ax1.bar(ind, ksp_solve, width)
+        a2 = ax1.bar(ind, setup, width,
+                     bottom=ksp_solve)
 
         ax1.set_xticklabels(["%s" % dof for dof in dofs])
-        ax1.legend((a1[0],), ("Execution time",))
+        ax1.legend((a1[0], a2[0]), ("Linear solve", "Setup"))
         ax1.set_title("$CG_%s$" % degree, fontsize=FONTSIZE)
         ax1.set_xlabel("Degrees of freedom", fontsize=FONTSIZE)
         ax1.set_ylabel("Time (s)", fontsize=FONTSIZE)
@@ -65,14 +68,18 @@ for group in cg_groups:
     if degree == 4:
 
         ksp_solve = df.KSPSolve.values
+        setup = df.PCSetUp.values
         dofs = df.dofs.values
 
-        a1 = ax2.bar(ind, ksp_solve, width)
+        a1 = ax3.bar(ind, ksp_solve, width)
+        a2 = ax3.bar(ind, setup, width,
+                     bottom=ksp_solve)
 
-        ax2.set_xticklabels(["%s" % dof for dof in dofs])
-        ax2.legend((a1[0],), ("Execution time",))
-        ax2.set_title("$CG_%s$" % degree, fontsize=FONTSIZE)
-        ax2.set_xlabel("Degrees of freedom", fontsize=FONTSIZE)
+        ax3.set_xticklabels(["%s" % dof for dof in dofs])
+        ax3.legend((a1[0], a2[0]), ("Linear solve", "Setup"))
+        ax3.set_title("$CG_%s$" % degree, fontsize=FONTSIZE)
+        ax3.set_xlabel("Degrees of freedom", fontsize=FONTSIZE)
+        ax3.set_ylabel("Time (s)", fontsize=FONTSIZE)
 
 for group in hdg_groups:
 
@@ -85,24 +92,29 @@ for group in hdg_groups:
         rhs_time = df.HDGRhs.values
         trace_solves = df.HDGSolve.values
         update = df.HDGUpdate.values
-        setup = rhs_time + update
+        rhs_setup = rhs_time
         dofs = df.trace_dofs.values
+        pcsetup = df.PCSetUp.values
 
-        a1 = ax3.bar(ind, trace_solves, width)
-        a2 = ax3.bar(ind, setup, width,
+        a1 = ax2.bar(ind, trace_solves, width)
+        a2 = ax2.bar(ind, rhs_setup, width,
                      bottom=trace_solves)
-        a3 = ax3.bar(ind, recovery_times, width,
-                     bottom=trace_solves + setup)
-        a4 = ax3.bar(ind, pp_times, width,
-                     bottom=trace_solves + setup + recovery_times)
+        a3 = ax2.bar(ind, recovery_times, width,
+                     bottom=trace_solves + rhs_setup)
+        a4 = ax2.bar(ind, pp_times, width,
+                     bottom=trace_solves + rhs_setup + recovery_times)
+        a5 = ax2.bar(ind, pcsetup, width,
+                     bottom=(trace_solves + rhs_setup +
+                             recovery_times + pp_times))
 
-        ax3.set_xticklabels(["%s" % dof for dof in dofs])
-        ax3.legend((a1[0], a2[0], a3[0], a4[0]), ("Linear solve", "Setup",
-                                                  "Local recovery",
-                                                  "Post-processing"))
-        ax3.set_title("$HDG_%s$" % degree, fontsize=FONTSIZE)
-        ax3.set_xlabel("Trace degrees of freedom", fontsize=FONTSIZE)
-        ax3.set_ylabel("Time (s)", fontsize=FONTSIZE)
+        ax2.set_xticklabels(["%s" % dof for dof in dofs])
+        ax2.legend((a1[0], a2[0], a3[0], a4[0], a5[0]), ("Linear solve",
+                                                         "RHS assembly",
+                                                         "Local recovery",
+                                                         "Post-processing",
+                                                         "Setup"))
+        ax2.set_title("$HDG_%s$" % degree, fontsize=FONTSIZE)
+        ax2.set_xlabel("Trace degrees of freedom", fontsize=FONTSIZE)
 
     if degree == 3:
 
@@ -111,21 +123,27 @@ for group in hdg_groups:
         rhs_time = df.HDGRhs.values
         trace_solves = df.HDGSolve.values
         update = df.HDGUpdate.values
-        setup = rhs_time + update
+        rhs_setup = rhs_time
         dofs = df.trace_dofs.values
+        pcsetup = df.PCSetUp.values
 
         a1 = ax4.bar(ind, trace_solves, width)
-        a2 = ax4.bar(ind, setup, width,
+        a2 = ax4.bar(ind, rhs_setup, width,
                      bottom=trace_solves)
         a3 = ax4.bar(ind, recovery_times, width,
-                     bottom=trace_solves + setup)
+                     bottom=trace_solves + rhs_setup)
         a4 = ax4.bar(ind, pp_times, width,
-                     bottom=trace_solves + setup + recovery_times)
+                     bottom=trace_solves + rhs_setup + recovery_times)
+        a5 = ax4.bar(ind, pcsetup, width,
+                     bottom=(trace_solves + rhs_setup +
+                             recovery_times + pp_times))
 
         ax4.set_xticklabels(["%s" % dof for dof in dofs])
-        ax4.legend((a1[0], a2[0], a3[0], a4[0]), ("Linear solve", "Setup",
-                                                  "Local recovery",
-                                                  "Post-processing"))
+        ax4.legend((a1[0], a2[0], a3[0], a4[0], a5[0]), ("Linear solve",
+                                                         "RHS assembly",
+                                                         "Local recovery",
+                                                         "Post-processing",
+                                                         "Setup"))
         ax4.set_title("$HDG_%s$" % degree, fontsize=FONTSIZE)
         ax4.set_xlabel("Trace degrees of freedom", fontsize=FONTSIZE)
 
