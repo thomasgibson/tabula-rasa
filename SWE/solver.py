@@ -16,6 +16,9 @@ class W5Problem(object):
         self.method = method
         self.model_degree = model_degree
         self.hybridization = hybridization
+        self.name = "W5(Dt=%s, hybrid=%s, ref=%s)" % (Dt,
+                                                      hybridization,
+                                                      refinement_level)
 
         # Mesh radius
         self.R = R
@@ -331,11 +334,11 @@ class W5Problem(object):
         up.assign(un)
         Dp.assign(Dn)
 
-        with timed_stage("Warm up: DU Residuals"):
+        with timed_stage("Warm up: DU Residuals %s" % self.name):
             self.Dsolver.solve()
             self.Usolver.solve()
 
-        with timed_stage("Warm up: Linear solve"):
+        with timed_stage("Warm up: Linear solve %s" % self.name):
             self.DUsolver.solve()
 
     def run_simulation(self, tmax, write=False, dumpfreq=100):
@@ -374,11 +377,11 @@ tmax: %s
                 self.sim_time.append(t)
                 self.picard_seq.append(i+1)
 
-                with timed_stage("DU Residuals"):
+                with timed_stage("DU Residuals %s" % self.name):
                     self.Dsolver.solve()
                     self.Usolver.solve()
 
-                with timed_stage("Linear solve"):
+                with timed_stage("Linear solve %s" % self.name):
                     self.DUsolver.solve()
 
                 # Here we collect the reductions in the linear residual.
