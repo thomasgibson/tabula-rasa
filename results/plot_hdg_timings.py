@@ -55,15 +55,17 @@ for group in cg_groups:
         setup = df.PCSetUp.values
         dofs = df.dofs.values
 
-        a1 = ax1.bar(ind, ksp_solve, width)
+        a1 = ax1.bar(ind, ksp_solve, width,
+                     color='#30a2da')
         a2 = ax1.bar(ind, setup, width,
-                     bottom=ksp_solve)
+                     bottom=ksp_solve,
+                     color='#e5ae38')
 
         ax1.set_xticklabels(["%s" % dof for dof in dofs])
         ax1.legend((a1[0], a2[0]), ("Linear solve", "Setup"))
         ax1.set_title("$CG_%s$" % degree, fontsize=FONTSIZE)
         ax1.set_xlabel("Degrees of freedom", fontsize=FONTSIZE)
-        ax1.set_ylabel("Time (s)", fontsize=FONTSIZE)
+        ax1.set_ylabel("Time [s] (log)", fontsize=FONTSIZE)
 
     if degree == 4:
 
@@ -71,15 +73,17 @@ for group in cg_groups:
         setup = df.PCSetUp.values
         dofs = df.dofs.values
 
-        a1 = ax3.bar(ind, ksp_solve, width)
+        a1 = ax3.bar(ind, ksp_solve, width,
+                     color='#30a2da')
         a2 = ax3.bar(ind, setup, width,
-                     bottom=ksp_solve)
+                     bottom=ksp_solve,
+                     color='#e5ae38')
 
         ax3.set_xticklabels(["%s" % dof for dof in dofs])
         ax3.legend((a1[0], a2[0]), ("Linear solve", "Setup"))
         ax3.set_title("$CG_%s$" % degree, fontsize=FONTSIZE)
         ax3.set_xlabel("Degrees of freedom", fontsize=FONTSIZE)
-        ax3.set_ylabel("Time (s)", fontsize=FONTSIZE)
+        ax3.set_ylabel("Time [s] (log)", fontsize=FONTSIZE)
 
 for group in hdg_groups:
 
@@ -155,7 +159,7 @@ for ax in [ax1, ax2, ax3, ax4]:
         tick.set_fontsize(FONTSIZE-2)
 
 fig.subplots_adjust(wspace=0.15, hspace=0.375)
-seaborn.despine(fig)
+# seaborn.despine(fig)
 fig.savefig("timings.pdf",
             orientation="landscape",
             format="pdf",
