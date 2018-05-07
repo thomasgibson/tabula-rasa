@@ -9,6 +9,9 @@ from matplotlib import pyplot as plt
 from matplotlib.ticker import AutoMinorLocator
 
 
+FONTSIZE = 12
+
+
 params = [("RT", 1, 8, 28.125),
           # ("RT", 2, 8, 28.125),
           # ("RTCF", 1, 8, 28.125),
@@ -27,7 +30,7 @@ for data in hybrid_times:
 
 seaborn.set(style="ticks")
 
-fig, axes = plt.subplots(2, 1, figsize=(4, 6), squeeze=False)
+fig, axes = plt.subplots(1, 2, figsize=(12, 4), squeeze=False)
 axes = axes.flatten()
 ax1, ax2 = axes
 
@@ -39,21 +42,14 @@ width = 0.5
 
 for ax in axes:
     ax.set_xticks(ind)
-    # ax.set_yscale("log")
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
-    # ax.set_axisbelow(False)
-    # ax.yaxis.grid(color='gray', linestyle='--')
-    # ax.yaxis.set_major_formatter(matplotlib.ticker.ScalarFormatter(useOffset=False))
 
 method = {("RT", 1): "$RT_1 \\times DG_0$",
           ("RT", 2): "$RT_2 \\times DG_1$",
           ("BDM", 2): "$BDM_2 \\times DG_1$",
           ("RTCF", 1): "$RTCF_1 \\times DQ_0$",
           ("RTCF", 2): "$RTCF_2 \\times DQ_1$"}
-
-# ax1.set_ylabel("Time [s] (log-scale)")
-# ax3.set_ylabel("Time [s] (log-scale)")
 
 # RT on triangles
 rtlo_schur_times = []
@@ -325,8 +321,8 @@ for ax in [ax1, ax21]:
     plt.setp(ax.get_yminorticklabels(), visible=False)
     ax.yaxis.set_major_formatter(matplotlib.ticker.ScalarFormatter(useOffset=False))
 
-ax1.set_ylabel('gmres time [s] (log)')
-ax21.set_ylabel('hybridization time [s]')
+ax1.set_ylabel('gmres time [s] (log)', fontsize=FONTSIZE)
+ax21.set_ylabel('hybridization time [s]', fontsize=FONTSIZE)
 
 ax1.set_xticklabels(["%s\n%s" % (method[mth], pc) for (mth, pc) in
                      zip([("RT", 1), ("RT", 1)], ["gmres", "hybridization"])])
@@ -335,12 +331,14 @@ ax1.legend((ag1[0], ag2[0], ag3[0], ag4[0]), ("Schur solve",
                                               "Velocity mass",
                                               "Apply velocity mass",
                                               "GMRES other"),
-           bbox_to_anchor=(0.5, 1.5))
+           bbox_to_anchor=(0.5, 1.375),
+           fontsize=FONTSIZE-2)
 ax21.legend((ah1[0], ah2[0], ah3[0], ah4[0]), ("Trace solve",
                                                "RHS assembly",
                                                "Local recovery",
                                                "Projection"),
-            bbox_to_anchor=(1.25, 1.5))
+            bbox_to_anchor=(3.0, 1.375),
+            fontsize=FONTSIZE-2)
 
 # BDM2 DG1
 ax22 = ax2.twinx()
@@ -387,23 +385,36 @@ for ax in [ax2, ax22]:
     plt.setp(ax.get_yminorticklabels(), visible=False)
     ax.yaxis.set_major_formatter(matplotlib.ticker.ScalarFormatter(useOffset=False))
 
-ax2.set_ylabel('gmres time [s] (log)')
-ax22.set_ylabel('hybridization time [s]')
+ax2.set_ylabel('gmres time [s] (log)', fontsize=FONTSIZE)
+ax22.set_ylabel('hybridization time [s]', fontsize=FONTSIZE)
 
 ax2.set_xticklabels(["%s\n%s" % (method[mth], pc) for (mth, pc) in
                      zip([("BDM", 2), ("BDM", 2)],
                          ["gmres", "hybridization"])])
 
 
-xlabel = fig.text(0.5, -0.025,
+xlabel = fig.text(0.5, -0.075,
                   "Discretization",
-                  ha='center')
+                  ha='center',
+                  fontsize=FONTSIZE)
 
-title = fig.text(0.5, 1.075,
+title = fig.text(0.5, 1.025,
                  "Approx. Schur-comp. vs hybrid-mixed methods",
-                 ha="center")
+                 ha="center",
+                 fontsize=FONTSIZE)
 
-fig.subplots_adjust(hspace=0.275)
+for ax in [ax1, ax2]:
+    for tick in ax.get_xticklabels():
+        tick.set_fontsize(FONTSIZE-2)
+
+    for tick in ax.get_yticklabels():
+        tick.set_fontsize(FONTSIZE-2)
+
+for ax in [ax21, ax22]:
+    for tick in ax.get_yticklabels():
+        tick.set_fontsize(FONTSIZE-2)
+
+fig.subplots_adjust(wspace=0.75)
 # seaborn.despine(fig)
 fig.savefig("williamson_timings.pdf",
             orientation="landscape",
