@@ -1,7 +1,8 @@
 import os
 import pandas as pd
 import numpy as np
-import seaborn
+import seaborn as sns
+import matplotlib
 
 from matplotlib import pyplot as plt
 
@@ -27,9 +28,9 @@ for d in hdg_data + cg_data:
         print("Cannot find data file '%s'" % d)
         sys.exit(1)
 
-seaborn.set(style="ticks")
+sns.set(style="ticks")
 
-fig, axes = plt.subplots(2, 1, figsize=(8, 8), squeeze=False)
+fig, axes = plt.subplots(2, 1, figsize=(8, 12), squeeze=False)
 axes = axes.flatten()
 ax1, ax2 = axes
 
@@ -45,13 +46,15 @@ for ax in axes:
     ax.set_xticks(ind + width/2)
     ax.set_yscale('log')
 
-ax1.set_ylim([1.0e-2, 100])
-ax2.set_ylim([1.0e-2, 1000])
+ax1.set_ylim([1.0e-2, 70])
+ax2.set_ylim([1.0e-2, 330])
 
 cg3_dofs = []
 cg4_dofs = []
 ax1bars = []
 ax2bars = []
+yticks1 = []
+yticks2 = []
 for group in cg_groups:
 
     degree, df = group
@@ -64,11 +67,13 @@ for group in cg_groups:
         setup = df.PCSetUp.values
         dofs = df.dofs.values
 
+        yticks1.extend(list(ksp_solve + setup))
+
         a1 = ax1.bar(ind, ksp_solve, width,
-                     color='#30a2da')
+                     color="#96595A")
         a2 = ax1.bar(ind, setup, width,
                      bottom=ksp_solve,
-                     color='#e5ae38')
+                     color="#DA897C")
 
         ax1bars.extend([(a1, "CG solve"), (a2, "CG setup")])
         cg3_dofs.extend(list(dofs))
@@ -80,11 +85,13 @@ for group in cg_groups:
         setup = df.PCSetUp.values
         dofs = df.dofs.values
 
+        yticks2.extend(list(ksp_solve + setup))
+
         a1 = ax2.bar(ind, ksp_solve, width,
-                     color='#30a2da')
+                     color="#96595A")
         a2 = ax2.bar(ind, setup, width,
                      bottom=ksp_solve,
-                     color='#e5ae38')
+                     color="#DA897C")
 
         ax2bars.extend([(a1, "CG solve"), (a2, "CG setup")])
         cg4_dofs.extend(list(dofs))
@@ -104,27 +111,33 @@ for group in hdg_groups:
         pp_times = df.HDGPPTime.values
         rhs_time = df.HDGRhs.values
         trace_solves = df.HDGSolve.values
-        update = df.HDGUpdate.values
-        rhs_setup = rhs_time
         dofs = df.trace_dofs.values
         pcsetup = df.PCSetUp.values
 
-        a1 = ax1.bar(ind + width, trace_solves, width)
-        a2 = ax1.bar(ind + width, rhs_setup, width,
-                     bottom=trace_solves)
-        a3 = ax1.bar(ind + width, recovery_times, width,
-                     bottom=trace_solves + rhs_setup)
-        a4 = ax1.bar(ind + width, pp_times, width,
-                     bottom=trace_solves + rhs_setup + recovery_times)
-        a5 = ax1.bar(ind + width, pcsetup, width,
-                     bottom=(trace_solves + rhs_setup +
-                             recovery_times + pp_times))
+        total = (recovery_times +
+                 pp_times +
+                 rhs_time +
+                 trace_solves +
+                 pcsetup)
+
+        yticks1.extend(list(total))
+
+        local_ops = (np.array(rhs_time) +
+                     np.array(recovery_times) +
+                     np.array(pp_times))
+
+        a1 = ax1.bar(ind + width, trace_solves, width,
+                     color="#0D6A82")
+        a2 = ax1.bar(ind + width, local_ops, width,
+                     bottom=trace_solves,
+                     color="#B2E4CF")
+        a3 = ax1.bar(ind + width, pcsetup, width,
+                     bottom=trace_solves + local_ops,
+                     color="#E4E4B2")
 
         ax1bars.extend([(a1, "HDG trace solve"),
-                        (a2, "HDG RHS assembly"),
-                        (a3, "HDG local recovery"),
-                        (a4, "HDG post-processing"),
-                        (a5, "HDG setup")])
+                        (a2, "HDG local ops"),
+                        (a3, "HDG setup")])
         hdg2_dofs.extend(list(dofs))
 
     if degree == 3:
@@ -133,27 +146,33 @@ for group in hdg_groups:
         pp_times = df.HDGPPTime.values
         rhs_time = df.HDGRhs.values
         trace_solves = df.HDGSolve.values
-        update = df.HDGUpdate.values
-        rhs_setup = rhs_time
         dofs = df.trace_dofs.values
         pcsetup = df.PCSetUp.values
 
-        a1 = ax2.bar(ind + width, trace_solves, width)
-        a2 = ax2.bar(ind + width, rhs_setup, width,
-                     bottom=trace_solves)
-        a3 = ax2.bar(ind + width, recovery_times, width,
-                     bottom=trace_solves + rhs_setup)
-        a4 = ax2.bar(ind + width, pp_times, width,
-                     bottom=trace_solves + rhs_setup + recovery_times)
-        a5 = ax2.bar(ind + width, pcsetup, width,
-                     bottom=(trace_solves + rhs_setup +
-                             recovery_times + pp_times))
+        total = (recovery_times +
+                 pp_times +
+                 rhs_time +
+                 trace_solves +
+                 pcsetup)
+
+        yticks2.extend(list(total))
+
+        local_ops = (np.array(rhs_time) +
+                     np.array(recovery_times) +
+                     np.array(pp_times))
+
+        a1 = ax2.bar(ind + width, trace_solves, width,
+                     color="#0D6A82")
+        a2 = ax2.bar(ind + width, local_ops, width,
+                     bottom=trace_solves,
+                     color="#B2E4CF")
+        a3 = ax2.bar(ind + width, pcsetup, width,
+                     bottom=trace_solves + local_ops,
+                     color="#E4E4B2")
 
         ax2bars.extend([(a1, "HDG trace solve"),
-                        (a2, "HDG RHS assembly"),
-                        (a3, "HDG local recovery"),
-                        (a4, "HDG post-processing"),
-                        (a5, "HDG setup")])
+                        (a2, "HDG local ops"),
+                        (a3, "HDG setup")])
         hdg3_dofs.extend(list(dofs))
 
 ax1.set_xticklabels(["%s\n(%s)" % (x, y)
@@ -170,15 +189,23 @@ for ax in [ax1, ax2]:
     for tick in ax.get_yticklabels():
         tick.set_fontsize(FONTSIZE-2)
 
+    ax.yaxis.grid(True)
+
 ax1.set_title("$CG_3$ and $HDG_2$")
 ax2.set_title("$CG_4$ and $HDG_3$")
+
+ax1.set_yticks(yticks1)
+ax2.set_yticks(yticks2)
+for ax in [ax1, ax2]:
+    plt.setp(ax.get_yminorticklabels(), visible=False)
+    ax.yaxis.set_major_formatter(matplotlib.ticker.ScalarFormatter(useOffset=False))
 
 ax1.legend([a[0] for a, b in ax1bars],
            [b for a, b in ax1bars])
 ax2.legend([a[0] for a, b in ax2bars],
            [b for a, b in ax2bars])
 
-fig.subplots_adjust(hspace=0.35)
+fig.subplots_adjust(hspace=0.25)
 fig.savefig("timings.pdf",
             orientation="landscape",
             format="pdf",
