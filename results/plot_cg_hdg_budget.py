@@ -6,8 +6,8 @@ from matplotlib import pyplot as plt
 
 
 FONTSIZE = 16
-MARKERSIZE = 8
-LINEWIDTH = 2
+MARKERSIZE = 10
+LINEWIDTH = 3
 
 
 hdg_params = [(4, 2), (4, 3),
