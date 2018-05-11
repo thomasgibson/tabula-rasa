@@ -161,10 +161,17 @@ Dx (max): %s km.
         problem.warmup()
         PETSc.Log.Stage("Warm up: Linear solve").push()
         prepcsetup = PETSc.Log.Event("PCSetUp").getPerfInfo()
+        pre_res_eval = PETSc.Log.Event("SNESFunctionEval").getPerfInfo()
+        pre_jac_eval = PETSc.Log.Event("SNESJacobianEval").getPerfInfo()
+
+        pre_res_eval_time = comm.allreduce(pre_res_eval["time"], op=MPI.SUM) / comm.size
+        pre_jac_eval_time = comm.allreduce(pre_jac_eval["time"], op=MPI.SUM) / comm.size
         pre_setup_time = comm.allreduce(prepcsetup["time"], op=MPI.SUM) / comm.size
+
         if problem.hybridization:
             prehybridinit = PETSc.Log.Event("HybridInit").getPerfInfo()
             prehybridinit_time = comm.allreduce(prehybridinit["time"], op=MPI.SUM) / comm.size
+
         PETSc.Log.Stage("Warm up: Linear solve").pop()
 
     PETSc.Sys.Print("Warm up done. Profiling run for %d steps.\n" % nsteps)
@@ -173,14 +180,22 @@ Dx (max): %s km.
     PETSc.Sys.Print("Simulation complete.\n")
 
     PETSc.Log.Stage("Linear solve").push()
+
+    snes = PETSc.Log.Event("SNESSolve").getPerfInfo()
     ksp = PETSc.Log.Event("KSPSolve").getPerfInfo()
     pcsetup = PETSc.Log.Event("PCSetUp").getPerfInfo()
     pcapply = PETSc.Log.Event("PCApply").getPerfInfo()
+    jac_eval = PETSc.Log.Event("SNESJacobianEval").getPerfInfo()
+    residual = PETSc.Log.Event("SNESFunctionEval").getPerfInfo()
+
+    snes_time = comm.allreduce(snes["time"], op=MPI.SUM) / comm.size
     ksp_time = comm.allreduce(ksp["time"], op=MPI.SUM) / comm.size
     pc_setup_time = comm.allreduce(pcsetup["time"], op=MPI.SUM) / comm.size
     pc_apply_time = comm.allreduce(pcapply["time"], op=MPI.SUM) / comm.size
-    ref = problem.refinement_level
+    jac_eval_time = comm.allreduce(jac_eval["time"], op=MPI.SUM) / comm.size
+    res_eval_time = comm.allreduce(residual["time"], op=MPI.SUM) / comm.size
 
+    ref = problem.refinement_level
     num_cells = comm.allreduce(problem.num_cells, op=MPI.SUM)
 
     if problem.hybridization:
@@ -230,13 +245,11 @@ Dx (max): %s km.
         KSPSchur = PETSc.Log.Event("KSPSolve_FS_Schu").getPerfInfo()
         KSPF0 = PETSc.Log.Event("KSPSolve_FS_0").getPerfInfo()
         KSPLow = PETSc.Log.Event("KSPSolve_FS_Low").getPerfInfo()
-        KSPOrthog = PETSc.Log.Event("KSPGMRESOrthog").getPerfInfo()
 
         schur_time = comm.allreduce(KSPSchur["time"], op=MPI.SUM) / comm.size
         f0_time = comm.allreduce(KSPF0["time"], op=MPI.SUM) / comm.size
         ksplow_time = comm.allreduce(KSPLow["time"], op=MPI.SUM) / comm.size
-        gmresortho = comm.allreduce(KSPOrthog["time"], op=MPI.SUM) / comm.size
-        other = ksp_time - (schur_time + f0_time + ksplow_time + gmresortho)
+        other = ksp_time - (schur_time + f0_time + ksplow_time)
 
     PETSc.Log.Stage("Linear solve").pop()
     if COMM_WORLD.rank == 0:
@@ -248,10 +261,15 @@ Dx (max): %s km.
 
         dofs = problem.DU.dof_dset.layout_vec.getSize()
 
-        time_data = {"PETScLogKSPSolve": ksp_time,
+        time_data = {"PETSCLogKSPSolve": ksp_time,
                      "PETSCLogPCApply": pc_apply_time,
                      "PETSCLogPCSetup": pc_setup_time,
                      "PETSCLogPreSetup": pre_setup_time,
+                     "PETSCLogPreSNESJacobianEval": pre_jac_eval_time,
+                     "PETSCLogPreSNESFunctionEval": pre_res_eval_time,
+                     "SNESSolve": snes_time,
+                     "SNESFunctionEval": res_eval_time,
+                     "SNESJacobianEval": jac_eval_time,
                      "num_processes": problem.comm.size,
                      "method": problem.method,
                      "model_degree": problem.model_degree,
@@ -283,7 +301,6 @@ Dx (max): %s km.
             updates = {"KSPSchur": schur_time,
                        "KSPF0": f0_time,
                        "KSPFSLow": ksplow_time,
-                       "KSPGMRESOrthog": gmresortho,
                        "KSPother": other}
 
         time_data.update(updates)
