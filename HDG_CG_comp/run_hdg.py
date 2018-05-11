@@ -101,15 +101,22 @@ Quads: %s\n
     with PETSc.Log.Stage(warm_stage):
         solver.solve()
 
+        snes = PETSc.Log.Event("SNESSolve").getPerfInfo()
         ksp = PETSc.Log.Event("KSPSolve").getPerfInfo()
         pcsetup = PETSc.Log.Event("PCSetUp").getPerfInfo()
         pcapply = PETSc.Log.Event("PCApply").getPerfInfo()
         jac_eval = PETSc.Log.Event("SNESJacobianEval").getPerfInfo()
-        ksp_time = problem.comm.allreduce(ksp["time"], op=MPI.SUM) / problem.comm.size
-        pcsetup_time = problem.comm.allreduce(pcsetup["time"], op=MPI.SUM) / problem.comm.size
-        pcapply_time = problem.comm.allreduce(pcapply["time"], op=MPI.SUM) / problem.comm.size
-        jac_time = problem.comm.allreduce(jac_eval["time"], op=MPI.SUM) / problem.comm.size
-        num_cells = problem.comm.allreduce(problem.mesh.cell_set.size, op=MPI.SUM)
+        residual = PETSc.Log.Event("SNESFunctionEval").getPerfInfo()
+
+        comm = problem.comm
+        snes_time = comm.allreduce(snes["time"], op=MPI.SUM) / comm.size
+        ksp_time = comm.allreduce(ksp["time"], op=MPI.SUM) / comm.size
+        pcsetup_time = comm.allreduce(pcsetup["time"], op=MPI.SUM) / comm.size
+        pcapply_time = comm.allreduce(pcapply["time"], op=MPI.SUM) / comm.size
+        jac_time = comm.allreduce(jac_eval["time"], op=MPI.SUM) / comm.size
+        res_time = comm.allreduce(residual["time"], op=MPI.SUM) / comm.size
+
+        num_cells = comm.allreduce(problem.mesh.cell_set.size, op=MPI.SUM)
         err = problem.err
         true_err = problem.true_err
 
@@ -119,18 +126,21 @@ Quads: %s\n
         HDGrhs = PETSc.Log.Event("HybridSCRHS").getPerfInfo()
         HDGrecon = PETSc.Log.Event("HybridSCReconstruct").getPerfInfo()
         HDGSolve = PETSc.Log.Event("HybridSCSolve").getPerfInfo()
-        hdginit_time = problem.comm.allreduce(HDGinit["time"], op=MPI.SUM) / problem.comm.size
-        hdgrhs_time = problem.comm.allreduce(HDGrhs["time"], op=MPI.SUM) / problem.comm.size
-        hdgrecon_time = problem.comm.allreduce(HDGrecon["time"], op=MPI.SUM) / problem.comm.size
-        hdgsolve_time = problem.comm.allreduce(HDGSolve["time"], op=MPI.SUM) / problem.comm.size
-        hdgupdate_time = problem.comm.allreduce(HDGUpdate["time"], op=MPI.SUM) / problem.comm.size
+
+        hdginit_time = comm.allreduce(HDGinit["time"], op=MPI.SUM) / comm.size
+        hdgrhs_time = comm.allreduce(HDGrhs["time"], op=MPI.SUM) / comm.size
+        hdgrecon_time = comm.allreduce(HDGrecon["time"], op=MPI.SUM) / comm.size
+        hdgsolve_time = comm.allreduce(HDGSolve["time"], op=MPI.SUM) / comm.size
+        hdgupdate_time = comm.allreduce(HDGUpdate["time"], op=MPI.SUM) / comm.size
+
         # Should total to KSPSolve time (approximately)
-        hdg_total_solve = hdginit_time + hdgrhs_time + hdgsolve_time + hdgrecon_time + hdgupdate_time
+        hdg_total_solve = (hdginit_time + hdgrhs_time + hdgsolve_time
+                           + hdgrecon_time + hdgupdate_time)
 
         problem.post_processed_sol()
 
         HDGPP = PETSc.Log.Event("HDGPostprocessing").getPerfInfo()
-        pp_time = problem.comm.allreduce(HDGPP["time"], op=MPI.SUM) / problem.comm.size
+        pp_time = comm.allreduce(HDGPP["time"], op=MPI.SUM) / comm.size
 
         # Total HDG time (with pp)
         hdg_total_time = hdg_total_solve + pp_time
@@ -139,32 +149,34 @@ Quads: %s\n
             if not os.path.exists(os.path.dirname(results)):
                 os.makedirs(os.path.dirname(results))
 
-            _, u_h, lambdar_h = problem.u.split()
+            q_h, u_h, lambdar_h = problem.u.split()
 
             ksp = solver.snes.ksp.getPC().getPythonContext().trace_ksp
-            data = {"KSPSolve": ksp_time,
+            data = {"SNESSolve": snes_time,
+                    "KSPSolve": ksp_time,
                     "PCSetUp": pcsetup_time,
                     "PCApply": pcapply_time,
+                    "SNESJacobianEval": jac_time,
+                    "SNESFunctionEval": res_time,
                     "num_processes": problem.comm.size,
                     "mesh_size": problem.N,
                     "num_cells": num_cells,
                     "degree": problem.degree,
-                    "u_dofs": u_h.dof_dset.layout_vec.getSize(),
+                    "scalar_dofs": u_h.dof_dset.layout_vec.getSize(),
+                    "flux_dofs": q_h.dof_dset.layout_vec.getSize(),
                     "trace_dofs": lambdar_h.dof_dset.layout_vec.getSize(),
                     "name": problem.name,
                     "disc_error_u": err,
                     "true_err_u": true_err,
                     "HDGInit": hdginit_time,
+                    "HDGUpdate": hdgupdate_time,
                     "HDGRhs": hdgrhs_time,
                     "HDGRecover": hdgrecon_time,
-                    "HDGSolve": hdgsolve_time,
-                    "HDGTotalSolve": hdg_total_solve,
-                    "HDGTotal": hdg_total_time,
+                    "HDGTraceSolve": hdgsolve_time,
                     "HDGPPTime": pp_time,
+                    "HDGTotal": hdg_total_time,
                     "ErrorPP": problem.pp_err,
-                    "ksp_iters": ksp.getIterationNumber(),
-                    "SNESJacobianEval": jac_time,
-                    "HDGUpdate": hdgupdate_time}
+                    "ksp_iters": ksp.getIterationNumber()}
 
             df = pd.DataFrame(data, index=[0])
             if problem.quads:
