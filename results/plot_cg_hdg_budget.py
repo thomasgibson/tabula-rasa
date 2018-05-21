@@ -10,20 +10,19 @@ MARKERSIZE = 10
 LINEWIDTH = 3
 
 
-hdg_params = [(4, 2), (4, 3),
+hdg_params = [(4, 1), (4, 2), (4, 3),
               (8, 1), (8, 2), (8, 3),
               (16, 1), (16, 2), (16, 3),
               (32, 1), (32, 2), (32, 3),
-              (64, 1), (64, 2), (64, 3),
-              (128, 1)]
+              (64, 1), (64, 2), (64, 3)]
 hdg_data = ["HDG_CG_comp/HDG_data_N%d_deg%d.csv" % param
             for param in hdg_params]
 
-cg_params = [(4, 4), (8, 2), (8, 3), (8, 4),
+cg_params = [(4, 2), (4, 3), (4, 4),
+             (8, 2), (8, 3), (8, 4),
              (16, 2), (16, 3), (16, 4),
              (32, 2), (32, 3), (32, 4),
-             (64, 2), (64, 3), (64, 4),
-             (128, 2), (128, 3)]
+             (64, 2), (64, 3), (64, 4)]
 cg_data = ["HDG_CG_comp/CG_data_N%d_deg%d.csv" % param
            for param in cg_params]
 
@@ -33,17 +32,14 @@ for d in hdg_data + cg_data:
         print("Cannot find data file '%s'" % d)
         sys.exit(1)
 
-# FiveThirtyEight color scheme
-colors = ['#30a2da', '#fc4f30', '#8b8b8b', '#e5ae38', '#6d904f']
-markers = ["o", "s", "^", "D"]
+markers = ["o", "s", "^", "v", ">", "<", "D", "p", "h", "*"]
+colors = list(seaborn.color_palette(n_colors=3))
 linestyles = ["solid", "dashdot"]
 seaborn.set(style="ticks")
 
 fig, (axes,) = plt.subplots(1, 1, figsize=(7, 5), squeeze=False)
 ax, = axes
 ax.set_ylabel("$L^2$ error", fontsize=FONTSIZE+2)
-ymin = 1.0e-10
-ymax = 1.0e-2
 ax.spines["left"].set_position(("outward", 10))
 ax.spines["bottom"].set_position(("outward", 10))
 ax.spines["top"].set_visible(False)
@@ -52,7 +48,6 @@ ax.xaxis.set_ticks_position("bottom")
 ax.yaxis.set_ticks_position("left")
 ax.set_xscale('log')
 ax.set_yscale('log')
-# ax.set_ylim(ymin, ymax)
 
 cg_dfs = pd.concat(pd.read_csv(d) for d in cg_data)
 cg_groups = cg_dfs.groupby(["degree"], as_index=False)
@@ -64,123 +59,81 @@ for group in cg_groups:
     degree, df = group
 
     if degree == 2:
-        solve_times = df.KSPSolve.values + df.PCSetUp.values
+        solve_times = df.SNESSolve.values
         errors = df.true_err.values
         label = "$CG_%d(p_h)$" % degree
         ax.plot(solve_times, errors,
                 label=label,
-                color='#30a2da',
-                marker="o",
+                color=colors[degree - 2],
+                marker=markers[degree - 2],
                 linewidth=LINEWIDTH,
                 markersize=MARKERSIZE,
                 linestyle="solid",
                 clip_on=False)
 
     if degree == 3:
-        solve_times = df.KSPSolve.values + df.PCSetUp.values
+        solve_times = df.SNESSolve.values
         errors = df.true_err.values
         label = "$CG_%d(p_h)$" % degree
         ax.plot(solve_times, errors,
                 label=label,
-                color='#fc4f30',
-                marker="v",
+                color=colors[degree - 2],
+                marker=markers[degree - 2],
                 linewidth=LINEWIDTH,
                 markersize=MARKERSIZE,
                 linestyle="solid",
                 clip_on=False)
 
     if degree == 4:
-        solve_times = df.KSPSolve.values + df.PCSetUp.values
+        solve_times = df.SNESSolve.values
         errors = df.true_err.values
         label = "$CG_%d(p_h)$" % degree
         ax.plot(solve_times, errors,
                 label=label,
-                color='#e5ae38',
-                marker="^",
+                color=colors[degree - 2],
+                marker=markers[degree - 2],
                 linewidth=LINEWIDTH,
                 markersize=MARKERSIZE,
                 linestyle="solid",
                 clip_on=False)
 
-# for group in hdg_groups:
-#     degree, df = group
-
-#     if degree == 1:
-#         solve_times = df.HDGTotalSolve.values + df.PCSetUp.values
-#         errors = df.true_err_u.values
-#         label = "$HDG_%d(p_h)$" % degree
-#         ax.plot(solve_times, errors,
-#                 label=label,
-#                 color=colors[degree - 2],
-#                 marker=markers[degree - 2],
-#                 linewidth=LINEWIDTH,
-#                 markersize=MARKERSIZE,
-#                 linestyle="dotted",
-#                 clip_on=False)
-
-#     if degree == 2:
-#         solve_times = df.HDGTotalSolve.values + df.PCSetUp.values
-#         errors = df.true_err_u.values
-#         label = "$HDG_%d(p_h)$" % degree
-#         ax.plot(solve_times, errors,
-#                 label=label,
-#                 color=colors[degree - 2],
-#                 marker=markers[degree - 2],
-#                 linewidth=LINEWIDTH,
-#                 markersize=MARKERSIZE,
-#                 linestyle="dotted",
-#                 clip_on=False)
-
-#     if degree == 3:
-#         solve_times = df.HDGTotalSolve.values + df.PCSetUp.values
-#         errors = df.true_err_u.values
-#         label = "$HDG_%d(p_h)$" % degree
-#         ax.plot(solve_times, errors,
-#                 label=label,
-#                 color=colors[degree - 2],
-#                 marker=markers[degree - 2],
-#                 linewidth=LINEWIDTH,
-#                 markersize=MARKERSIZE,
-#                 linestyle="dotted",
-#                 clip_on=False)
-
 for group in hdg_groups:
     degree, df = group
 
     if degree == 1:
-        solve_times = df.HDGTotal.values + df.PCSetUp.values
+        solve_times = df.SNESSolve.values + df.HDGPPTime.values
         errors = df.ErrorPP.values
         label = "$HDG_%d(p_h^\\star)$" % degree
         ax.plot(solve_times, errors,
                 label=label,
-                color='#30a2da',
-                marker="s",
+                color=colors[degree - 1],
+                marker=markers[degree - 1],
                 linewidth=LINEWIDTH,
                 markersize=MARKERSIZE,
                 linestyle="dotted",
                 clip_on=False)
 
     if degree == 2:
-        solve_times = df.HDGTotal.values + df.PCSetUp.values
+        solve_times = df.SNESSolve.values + df.HDGPPTime.values
         errors = df.ErrorPP.values
         label = "$HDG_%d(p_h^\\star)$" % degree
         ax.plot(solve_times, errors,
                 label=label,
-                color='#fc4f30',
-                marker="8",
+                color=colors[degree - 1],
+                marker=markers[degree - 1],
                 linewidth=LINEWIDTH,
                 markersize=MARKERSIZE,
                 linestyle="dotted",
                 clip_on=False)
 
     if degree == 3:
-        solve_times = df.HDGTotal.values + df.PCSetUp.values
+        solve_times = df.SNESSolve.values + df.HDGPPTime.values
         errors = df.ErrorPP.values
         label = "$HDG_%d(p_h^\\star)$" % degree
         ax.plot(solve_times, errors,
                 label=label,
-                color='#e5ae38',
-                marker="P",
+                color=colors[degree - 1],
+                marker=markers[degree - 1],
                 linewidth=LINEWIDTH,
                 markersize=MARKERSIZE,
                 linestyle="dotted",
@@ -197,11 +150,6 @@ xlabel = fig.text(0.5, -0.1,
                   "Execution time (s)",
                   ha='center',
                   fontsize=FONTSIZE+2)
-
-# title = fig.text(0.5, 1.1,
-#                  "CG vs HDG error budget",
-#                  ha="center",
-#                  fontsize=FONTSIZE+2)
 
 handles, labels = ax.get_legend_handles_labels()
 legend = fig.legend(handles, labels,
