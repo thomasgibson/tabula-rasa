@@ -152,29 +152,29 @@ if dim == 3:
     # (degree, size, rtol) NOTE: rtol is chosen such that the
     # iterative solver reaches the minimal algebraic error
     # so that we avoid "oversolving"
-    cg_params = [(2, 4, 1.0e-3),
-                 (2, 8, 1.0e-4),
-                 (2, 16, 1.0e-5),
-                 (2, 32, 1.0e-6),
-                 (2, 64, 1.0e-7),
-                 (2, 128, 1.0e-8),
+    cg_params = [(2, 4, 1.0e-4),
+                 (2, 8, 1.0e-5),
+                 (2, 16, 1.0e-6),
+                 (2, 32, 1.0e-7),
+                 (2, 64, 1.0e-8),
+                 (2, 128, 1.0e-9),
                  # Degree 3 set
-                 (3, 4, 1.0e-5),
-                 (3, 8, 1.0e-6),
-                 (3, 16, 1.0e-7),
-                 (3, 32, 1.0e-8),
-                 (3, 64, 1.0e-9),
-                 (3, 128, 1.0e-10),
+                 (3, 4, 1.0e-6),
+                 (3, 8, 1.0e-7),
+                 (3, 16, 1.0e-8),
+                 (3, 32, 1.0e-9),
+                 (3, 64, 1.0e-10),
+                 (3, 128, 1.0e-11),
                  # Degree 4 set
-                 (4, 4, 1.0e-7),
-                 (4, 8, 1.0e-8),
-                 (4, 16, 1.0e-9),
-                 (4, 32, 1.0e-10),
-                 (4, 64, 1.0e-11)]
+                 (4, 4, 1.0e-8),
+                 (4, 8, 1.0e-9),
+                 (4, 16, 1.0e-10),
+                 (4, 32, 1.0e-11),
+                 (4, 64, 1.0e-12)]
 
-    cold_params = [(2, 4, 1.0e-3),
-                   (3, 4, 1.0e-5),
-                   (4, 4, 1.0e-7)]
+    cold_params = [(2, 4, 1.0e-4),
+                   (3, 4, 1.0e-6),
+                   (4, 4, 1.0e-8)]
 else:
     # If a 2D run is desired, we can set one up.
     raise NotImplementedError("Dim %s not set up yet." % dim)
