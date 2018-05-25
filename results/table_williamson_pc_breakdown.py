@@ -56,7 +56,7 @@ hrt_df, hbdm_df = hybrid_time_dfs
 rt_schur_solve = rt_df.KSPSchur.values[0]/gmres_iter_rt
 rt_schur_low = rt_df.KSPFSLow.values[0]/gmres_iter_rt
 rt_mass_invert = rt_df.KSPF0.values[0]/gmres_iter_rt
-rt_total = rt_df.PETScLogKSPSolve.values[0]/gmres_iter_rt
+rt_total = rt_df.PETSCLogKSPSolve.values[0]/gmres_iter_rt
 rt_other = rt_total - (rt_schur_solve
                        + rt_schur_low
                        + rt_mass_invert)
@@ -64,7 +64,7 @@ rt_other = rt_total - (rt_schur_solve
 bdm_schur_solve = bdm_df.KSPSchur.values[0]/gmres_iter_bdm
 bdm_schur_low = bdm_df.KSPFSLow.values[0]/gmres_iter_bdm
 bdm_mass_invert = bdm_df.KSPF0.values[0]/gmres_iter_bdm
-bdm_total = bdm_df.PETScLogKSPSolve.values[0]/gmres_iter_bdm
+bdm_total = bdm_df.PETSCLogKSPSolve.values[0]/gmres_iter_bdm
 bdm_other = bdm_total - (bdm_schur_solve
                          + bdm_schur_low
                          + bdm_mass_invert)
@@ -99,14 +99,14 @@ hrt_rhs_time = hrt_df.HybridRHS.values[0]/npicard
 hrt_trace_solve_time = hrt_df.HybridTraceSolve.values[0]/npicard
 hrt_recon_time = hrt_df.HybridReconstruction.values[0]/npicard
 hrt_proj_time = hrt_df.HybridProjection.values[0]/npicard
-hrt_total = hrt_df.PETScLogKSPSolve.values[0]/npicard
+hrt_total = hrt_df.PETSCLogKSPSolve.values[0]/npicard
 
 hbdm_break_time = hbdm_df.HybridBreak.values[0]/npicard
 hbdm_rhs_time = hbdm_df.HybridRHS.values[0]/npicard
 hbdm_trace_solve_time = hbdm_df.HybridTraceSolve.values[0]/npicard
 hbdm_recon_time = hbdm_df.HybridReconstruction.values[0]/npicard
 hbdm_proj_time = hbdm_df.HybridProjection.values[0]/npicard
-hbdm_total = hbdm_df.PETScLogKSPSolve.values[0]/npicard
+hbdm_total = hbdm_df.PETSCLogKSPSolve.values[0]/npicard
 
 table += r"""
 \multirow{5}{*}{hybridization}

@@ -63,9 +63,9 @@ for gmres_df, hybrid_df in zip(gmres_time_dfs, hybrid_time_dfs):
 
     table += r"""\multirow{2}{*}%s""" % method_map[(method, deg)]
 
-    gmres_total = gmres_df.PETScLogKSPSolve.values[0]
+    gmres_total = gmres_df.PETSCLogKSPSolve.values[0]
     gmres_setup = gmres_df.PETSCLogPreSetup.values[0]
-    hybrid_total = hybrid_df.PETScLogKSPSolve.values[0]
+    hybrid_total = hybrid_df.PETSCLogKSPSolve.values[0]
     hybrid_setup = hybrid_df.PETSCLogPreSetup.values[0]
 
     data_gmres = gmres_data_map[(method, deg)]
