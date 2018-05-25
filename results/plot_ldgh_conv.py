@@ -27,8 +27,6 @@ hneg1_dfs = pd.concat(pd.read_csv(data) for data in tau_hneg1_data)
 h_groups = h_dfs.groupby(["Degree"], as_index=False)
 hneg1_groups = hneg1_dfs.groupby(["Degree"], as_index=False)
 
-seaborn.set(style="ticks")
-
 # Gather all mesh parameters and compute h=1/r^2
 # (they are the same for both runs)
 r_values = [r[1] for r in h_dfs["Mesh"].drop_duplicates().items()]
@@ -37,10 +35,9 @@ h_array = [1.0/2**r for r in r_values]
 # Gather number of mesh cells (also same for both)
 num_cells = [n[1] for n in h_dfs["NumCells"].drop_duplicates().items()]
 
-# FiveThirtyEight color scheme
-colors = ['#30a2da', '#fc4f30', '#e5ae38', '#6d904f', '#8b8b8b']
-# colors = seaborn.cubehelix_palette(3, start=.5, rot=-.75, light=.65)
-markers = ["o", "s", "^"]
+markers = ["o", "s", "^", "v", ">", "<", "D", "p", "h", "*"]
+colors = seaborn.color_palette(n_colors=3)
+seaborn.set(style="ticks")
 
 fig, axes = plt.subplots(2, 2, figsize=(7, 5), squeeze=False)
 axes = axes.flatten()
@@ -262,15 +259,15 @@ for ax in [ax3, ax4]:
     ax.set_xticklabels(["$2^{-%d}$" % r
                         for r in r_values])
     for tick in ax.get_xticklabels():
-        tick.set_fontsize(FONTSIZE)
+        tick.set_fontsize(FONTSIZE-2)
 
 for ax in [ax1, ax3]:
     for tick in ax.get_yticklabels():
-        tick.set_fontsize(FONTSIZE)
+        tick.set_fontsize(FONTSIZE-2)
 
 fig.subplots_adjust(wspace=0.1, hspace=0.25)
 xlabel = fig.text(0.5, -0.03,
-                  "Mesh size $h=2^{-r}$",
+                  "Mesh size $2^{-r}$",
                   ha='center',
                   fontsize=FONTSIZE)
 

@@ -22,7 +22,6 @@ for data in rt_data:
 dfs = pd.concat(pd.read_csv(data) for data in rt_data)
 groups = dfs.groupby(["Degree"], as_index=False)
 
-seaborn.set(style="ticks")
 
 # Gather all mesh parameters and compute h=1/r^2
 r_values = [r[1] for r in dfs["Mesh"].drop_duplicates().items()]
@@ -31,10 +30,10 @@ h_array = [1.0/2**r for r in r_values]
 # Gather number of mesh cells
 num_cells = [n[1] for n in dfs["NumCells"].drop_duplicates().items()]
 
-# FiveThirtyEight color scheme
-colors = ['#30a2da', '#fc4f30', '#e5ae38', '#6d904f', '#8b8b8b']
-markers = ["o", "s", "^", "D", "v"]
+markers = ["o", "s", "^", "v", ">", "<", "D", "p", "h", "*"]
+colors = seaborn.color_palette(n_colors=4)
 linestyles = ["solid", "dashed", "dashdot", "dotted", "solid"]
+seaborn.set(style="ticks")
 
 fig, (axes,) = plt.subplots(1, 3, figsize=(9.5, 3), squeeze=False)
 (ax1, ax2, ax3) = axes
@@ -162,20 +161,20 @@ for ax in [ax1, ax2, ax3]:
     ax.set_xticklabels(["$2^{-%d}$" % r
                         for r in r_values])
     for tick in ax.get_xticklabels():
-        tick.set_fontsize(FONTSIZE)
+        tick.set_fontsize(FONTSIZE-2)
 
 for ax in [ax2, ax3]:
     ax.set_yticklabels([])
     ax.tick_params(direction="inout", which="both", axis="y")
 
 for tick in ax1.get_yticklabels():
-    tick.set_fontsize(FONTSIZE)
+    tick.set_fontsize(FONTSIZE-2)
 
 fig.subplots_adjust(wspace=0.15)
 xlabel = fig.text(0.5, -0.15,
-                  "Mesh size $h=2^{-r}$",
+                  "Mesh size $2^{-r}$",
                   ha='center',
-                  fontsize=FONTSIZE+2)
+                  fontsize=FONTSIZE)
 
 handles, labels = ax1.get_legend_handles_labels()
 legend = fig.legend(handles, labels,
@@ -184,7 +183,7 @@ legend = fig.legend(handles, labels,
                     bbox_transform=fig.transFigure,
                     ncol=5,
                     handlelength=1.5,
-                    fontsize=FONTSIZE+2,
+                    fontsize=FONTSIZE,
                     numpoints=1,
                     frameon=False)
 

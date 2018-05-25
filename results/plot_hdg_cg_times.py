@@ -38,7 +38,7 @@ width = 0.35
 for ax in axes:
     ax.set_xticks(ind + width/2)
 
-ax.set_ylim([0.0, 3.5])
+ax.set_ylim([0.0, 4.0])
 
 labels = []
 for i, (cg_df, hdg_df) in enumerate(zip(cg_dfs, hdg_dfs)):
@@ -51,27 +51,20 @@ for i, (cg_df, hdg_df) in enumerate(zip(cg_dfs, hdg_dfs)):
 
     cg_solve = cg_df.KSPSolve.values[0]
     cg_assembly = cg_df.SNESJacobianEval.values[0]
-    cg_residual = cg_df.SNESFunctionEval.values[0]
-    cg_total = cg_solve + cg_assembly + cg_residual
+    cg_total = cg_solve + cg_assembly
 
     norm_cg_t = cg_solve / cg_total
     norm_cg_assembly = cg_assembly / cg_total
-    norm_cg_res = cg_residual / cg_total
 
     a1 = ax.bar(ind[i], norm_cg_t, width,
                 edgecolor="k",
                 linewidth=1,
                 color="#96595A")
-    a2 = ax.bar(ind[i], norm_cg_assembly, width,
+    a3 = ax.bar(ind[i], norm_cg_assembly, width,
                 bottom=norm_cg_t,
                 edgecolor="k",
                 linewidth=1,
                 color="#DA897C")
-    a3 = ax.bar(ind[i], norm_cg_res, width,
-                bottom=norm_cg_t + norm_cg_assembly,
-                edgecolor="k",
-                linewidth=1,
-                color="#DAA520")
 
     trace_solve = hdg_df.HDGTraceSolve.values[0] / cg_total
     back_sub = hdg_df.HDGRecover.values[0] / cg_total
@@ -103,27 +96,37 @@ for i, (cg_df, hdg_df) in enumerate(zip(cg_dfs, hdg_dfs)):
                         + back_sub),
                 edgecolor="k",
                 linewidth=1,
-                color="#008000")
-
-    ax.legend((a1[0], a2[0], a3[0],
-               a4[0], a5[0], a6[0], a7[0], a8[0]),
-              ("CG solve", "CG assembly", "CG other",
-               "HDG trace solve", "HDG assembly",
-               "HDG forward elim.", "HDG back sub.",
-               "HDG post-processing"),
-              loc=9, ncol=3,
-              bbox_to_anchor=(0.5, 1))
+                color="#A9A9A9")
 
     labels.append("$CG_%d$ and $HDG_%d$\n%d (%d)" % (cg_k, hdg_k,
                                                      cg_dofs, tr_dofs))
 
-ax.set_ylabel("Execution time (s) / CG execution time (s)")
+ax.set_ylabel("Time (s) / CG total time (s)")
 xlabel = fig.text(0.5, -0.05,
                   "$CG_k$ and $HDG_{k-1}$\n CG dofs (HDG trace dofs)",
                   ha="center",
                   fontsize=FONTSIZE)
 
+legend1 = plt.legend((a3[0], a1[0]),
+                     ("CG assembly", "CG solve"),
+                     ncol=1,
+                     bbox_to_anchor=(0.25, 1))
+legend2 = plt.legend((a8[0], a7[0], a6[0], a5[0], a4[0]),
+                     ("HDG post-processing", "HDG back sub.",
+                      "HDG forward elim.", "HDG assembly",
+                      "HDG trace solve"),
+                     ncol=1,
+                     bbox_to_anchor=(0.75, 1))
+
+for tick in ax.get_yticklabels():
+    tick.set_fontsize(FONTSIZE-2)
+
+for tick in ax.get_xticklabels():
+    tick.set_fontsize(FONTSIZE-2)
+
 ax.set_xticklabels(labels)
+plt.gca().add_artist(legend1)
+plt.gca().add_artist(legend2)
 fig.savefig("cg_hdg_compare.pdf",
             orientation="landscape",
             format="pdf",
