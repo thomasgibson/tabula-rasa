@@ -170,6 +170,9 @@ for ax in [ax2, ax3]:
 for tick in ax1.get_yticklabels():
     tick.set_fontsize(FONTSIZE-2)
 
+for ax in axes:
+    ax.grid(b=True, which='major', linestyle='-.')
+
 fig.subplots_adjust(wspace=0.15)
 xlabel = fig.text(0.5, -0.15,
                   "Mesh size $2^{-r}$",

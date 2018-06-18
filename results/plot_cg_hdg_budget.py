@@ -148,6 +148,8 @@ for tick in ax.get_xticklabels():
 for tick in ax.get_yticklabels():
     tick.set_fontsize(FONTSIZE)
 
+ax.grid(b=True, which='major', linestyle='-.')
+
 xlabel = fig.text(0.5, -0.1,
                   "Execution time (s)",
                   ha='center',
