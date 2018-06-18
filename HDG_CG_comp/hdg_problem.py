@@ -137,7 +137,7 @@ class HDGProblem(base.Problem):
                     inner(u_h, phi))*dx)
 
         expr = K.solve(F, decomposition="PartialPivLU")
-        self._assemble_upp = create_assembly_callable(expr.block((0,)),
+        self._assemble_upp = create_assembly_callable(expr.block[0],
                                                       tensor=self.u_pp)
 
     def post_processed_sol(self):
