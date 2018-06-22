@@ -190,7 +190,7 @@ def run_mixed_hybrid_problem(r, degree, mixed_method, write=False):
 
     PETSc.Sys.Print("Local post-processing of the scalar variable.\n")
     u_pp = Function(DGk1, name="Post-processed scalar")
-    assemble(E.block[0], tensor=u_pp)
+    assemble(E.blocks[0], tensor=u_pp)
 
     # Now we compute the error in the post-processed solution
     # and update our error dictionary
