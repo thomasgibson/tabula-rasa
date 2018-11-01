@@ -162,7 +162,7 @@ def run_LDG_H_problem(r, degree, tau_order, write=False):
               'pc_python_type': 'scpc.HybridSCPC',
               'hybrid_sc': {'ksp_type': 'preonly',
                             'pc_type': 'lu',
-                            'pc_factor_mat_solver_package': 'mumps'}}
+                            'pc_factor_mat_solver_type': 'mumps'}}
 
     bcs = DirichletBC(W.sub(2), Constant(0.0), "on_boundary")
     problem = NonlinearVariationalProblem(F, s, bcs=bcs)

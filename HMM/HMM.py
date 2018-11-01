@@ -134,7 +134,7 @@ def run_mixed_hybrid_problem(r, degree, mixed_method, write=False):
               'pc_python_type': 'scpc.HybridSCPC',
               'hybrid_sc': {'ksp_type': 'preonly',
                             'pc_type': 'lu',
-                            'pc_factor_mat_solver_package': 'mumps'}}
+                            'pc_factor_mat_solver_type': 'mumps'}}
     problem = NonlinearVariationalProblem(F, s, bcs=bcs)
     solver = NonlinearVariationalSolver(problem, solver_parameters=params)
     solver.solve()
