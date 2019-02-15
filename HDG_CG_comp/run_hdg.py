@@ -46,12 +46,10 @@ def run_solver(problem_cls, degree, size, rtol, quads, dim, cold=False):
 
     pcg_params = {"ksp_type": "cg",
                   "ksp_rtol": rtol,
-                  "pc_type": "gamg",
-                  "mg_levels": {"ksp_type": "chebyshev",
-                                "ksp_chebyshev_esteig": None,
-                                "ksp_max_it": 3,
-                                "pc_type": "bjacobi",
-                                "sub_pc_type": "ilu"}}
+                  "pc_type": "hypre",
+                  "pc_hypre_type": "boomeramg",
+                  "pc_hypre_boomeramg_strong_threshold": 0.75,
+                  "pc_hypre_boomeramg_agg_nl": 2}
 
     params = {'mat_type': 'matfree',
               'pmat_type': 'matfree',
