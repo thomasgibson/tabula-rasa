@@ -159,10 +159,11 @@ def run_LDG_H_problem(r, degree, tau_order, write=False):
               'pc_type': 'python',
               # Use the static condensation PC for hybridized problems
               # and use a direct solve on the reduced system for u_hat
-              'pc_python_type': 'scpc.HybridSCPC',
-              'hybrid_sc': {'ksp_type': 'preonly',
-                            'pc_type': 'lu',
-                            'pc_factor_mat_solver_type': 'mumps'}}
+              'pc_python_type': 'firedrake.SCPC',
+              'pc_sc_eliminate_fields': '0, 1',
+              'condensed_field': {'ksp_type': 'preonly',
+                                  'pc_type': 'lu',
+                                  'pc_factor_mat_solver_type': 'mumps'}}
 
     bcs = DirichletBC(W.sub(2), Constant(0.0), "on_boundary")
     problem = NonlinearVariationalProblem(F, s, bcs=bcs)

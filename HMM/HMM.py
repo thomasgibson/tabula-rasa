@@ -131,10 +131,11 @@ def run_mixed_hybrid_problem(r, degree, mixed_method, write=False):
               'pc_type': 'python',
               # Use the static condensation PC for hybridized problems
               # and use a direct solve on the reduced system for lambdar
-              'pc_python_type': 'scpc.HybridSCPC',
-              'hybrid_sc': {'ksp_type': 'preonly',
-                            'pc_type': 'lu',
-                            'pc_factor_mat_solver_type': 'mumps'}}
+              'pc_python_type': 'firedrake.SCPC',
+              'pc_sc_eliminate_fields': '0, 1',
+              'condensed_field': {'ksp_type': 'preonly',
+                                  'pc_type': 'lu',
+                                  'pc_factor_mat_solver_type': 'mumps'}}
     problem = NonlinearVariationalProblem(F, s, bcs=bcs)
     solver = NonlinearVariationalSolver(problem, solver_parameters=params)
     solver.solve()

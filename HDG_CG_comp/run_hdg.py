@@ -46,10 +46,12 @@ def run_solver(problem_cls, degree, size, rtol, quads, dim, cold=False):
 
     pcg_params = {"ksp_type": "cg",
                   "ksp_rtol": rtol,
-                  "pc_type": "hypre",
-                  "pc_hypre_type": "boomeramg",
-                  "pc_hypre_boomeramg_strong_threshold": 0.75,
-                  "pc_hypre_boomeramg_agg_nl": 2}
+                  "pc_type": "gamg",
+                  "mg_levels": {"ksp_type": "chebyshev",
+                                "ksp_chebyshev_esteig": None,
+                                "ksp_max_it": 3,
+                                "pc_type": "bjacobi",
+                                "sub_pc_type": "ilu"}}
 
     params = {'mat_type': 'matfree',
               'pmat_type': 'matfree',
@@ -121,11 +123,11 @@ Quads: %s\n
         true_err = problem.true_err
 
         # HDG-specific timings
-        HDGinit = PETSc.Log.Event("HybridSCInit").getPerfInfo()
-        HDGUpdate = PETSc.Log.Event("HybridSCUpdate").getPerfInfo()
-        HDGrhs = PETSc.Log.Event("HybridSCRHS").getPerfInfo()
-        HDGrecon = PETSc.Log.Event("HybridSCReconstruct").getPerfInfo()
-        HDGSolve = PETSc.Log.Event("HybridSCSolve").getPerfInfo()
+        HDGinit = PETSc.Log.Event("SCPCInit").getPerfInfo()
+        HDGUpdate = PETSc.Log.Event("SCPCUpdate").getPerfInfo()
+        HDGrhs = PETSc.Log.Event("SCForwardElim").getPerfInfo()
+        HDGrecon = PETSc.Log.Event("SCBackSub").getPerfInfo()
+        HDGSolve = PETSc.Log.Event("SCSolve").getPerfInfo()
 
         hdginit_time = comm.allreduce(HDGinit["time"], op=MPI.SUM) / comm.size
         hdgrhs_time = comm.allreduce(HDGrhs["time"], op=MPI.SUM) / comm.size
