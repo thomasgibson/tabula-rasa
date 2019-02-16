@@ -152,7 +152,7 @@ Quads: %s\n
 
             q_h, u_h, lambdar_h = problem.u.split()
 
-            ksp = solver.snes.ksp.getPC().getPythonContext().trace_ksp
+            ksp = solver.snes.ksp.getPC().getPythonContext().condensed_ksp
             data = {"SNESSolve": snes_time,
                     "KSPSolve": ksp_time,
                     "PCSetUp": pcsetup_time,
