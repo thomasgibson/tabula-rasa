@@ -43,7 +43,7 @@ parser.add_argument("--hybridization",
 parser.add_argument("--dt",
                     action="store",
                     type=float,
-                    default=900.0,
+                    default=1000.0,
                     help="The time-step size.")
 
 parser.add_argument("--model_degree",
@@ -58,25 +58,13 @@ parser.add_argument("--method",
                     choices=["RT", "RTCF", "BDM"],
                     help="Mixed method type for the SWE.")
 
-parser.add_argument("--nsteps",
-                    action="store",
-                    default=20,
-                    type=int,
-                    help="Number to time steps to take.")
-
-parser.add_argument("--dumpfreq",
-                    default=10,
-                    type=int,
-                    action="store",
-                    help="Dump frequency of output.")
-
 parser.add_argument("--profile",
                     action="store_true",
                     help="Start profile of all methods for 100 time-steps.")
 
 parser.add_argument("--refinements",
                     action="store",
-                    default=3,
+                    default=4,
                     type=int,
                     choices=[3, 4, 5, 6, 7, 8],
                     help="How many refinements to make to the sphere mesh.")
@@ -137,15 +125,13 @@ hybridization: %s,\n
                           model_degree=model_degree)
 
     cfl = problem.courant
-    dx_min = problem.dx_min
     dx_max = problem.dx_max
 
     PETSc.Sys.Print("""
 Dt = %s,\n
 Courant number (approximate): %s,\n
-Dx (min): %s km,\n
 Dx (max): %s km.
-""" % (Dt, cfl, dx_min/1000, dx_max/1000))
+""" % (Dt, cfl, dx_max/1000))
 
     comm = problem.comm
 
@@ -156,6 +142,9 @@ Dx (max): %s km.
         tmax = 15*day
         PETSc.Sys.Print("Running 15 day simulation\n")
 
+    # If writing simulation output, write out fields in 5-day intervals
+    dumpfreq = 5*day / Dt
+
     PETSc.Sys.Print("Warm up with one-step.\n")
     with timed_stage("Warm up"):
         problem.warmup()
@@ -164,19 +153,23 @@ Dx (max): %s km.
         pre_res_eval = PETSc.Log.Event("SNESFunctionEval").getPerfInfo()
         pre_jac_eval = PETSc.Log.Event("SNESJacobianEval").getPerfInfo()
 
-        pre_res_eval_time = comm.allreduce(pre_res_eval["time"], op=MPI.SUM) / comm.size
-        pre_jac_eval_time = comm.allreduce(pre_jac_eval["time"], op=MPI.SUM) / comm.size
-        pre_setup_time = comm.allreduce(prepcsetup["time"], op=MPI.SUM) / comm.size
+        pre_res_eval_time = comm.allreduce(pre_res_eval["time"],
+                                           op=MPI.SUM) / comm.size
+        pre_jac_eval_time = comm.allreduce(pre_jac_eval["time"],
+                                           op=MPI.SUM) / comm.size
+        pre_setup_time = comm.allreduce(prepcsetup["time"],
+                                        op=MPI.SUM) / comm.size
 
         if problem.hybridization:
             prehybridinit = PETSc.Log.Event("HybridInit").getPerfInfo()
-            prehybridinit_time = comm.allreduce(prehybridinit["time"], op=MPI.SUM) / comm.size
+            prehybridinit_time = comm.allreduce(prehybridinit["time"],
+                                                op=MPI.SUM) / comm.size
 
         PETSc.Log.Stage("Warm up: Linear solve").pop()
 
     PETSc.Sys.Print("Warm up done. Profiling run for %d steps.\n" % nsteps)
     problem.initialize()
-    problem.run_simulation(tmax, write=write, dumpfreq=args.dumpfreq)
+    problem.run_simulation(tmax, write=write, dumpfreq=dumpfreq)
     PETSc.Sys.Print("Simulation complete.\n")
 
     PETSc.Log.Stage("Linear solve").push()
@@ -209,22 +202,24 @@ Dx (max): %s km.
                                                                         nsteps)
 
         RHS = PETSc.Log.Event("HybridRHS").getPerfInfo()
-        trace = PETSc.Log.Event("HybridSolve").getPerfInfo()
-        recover = PETSc.Log.Event("HybridRecover").getPerfInfo()
-        recon = PETSc.Log.Event("HybridRecon").getPerfInfo()
-        recon_scalar = PETSc.Log.Event("HybridReconScalarField").getPerfInfo()
-        recon_flux = PETSc.Log.Event("HybridReconFluxField").getPerfInfo()
+        trace = PETSc.Log.Event("SCSolve").getPerfInfo()
+        proj = PETSc.Log.Event("HybridProject").getPerfInfo()
+        full_recon = PETSc.Log.Event("SCBackSub").getPerfInfo()
         hybridbreak = PETSc.Log.Event("HybridBreak").getPerfInfo()
         hybridupdate = PETSc.Log.Event("HybridUpdate").getPerfInfo()
         hybridinit = PETSc.Log.Event("HybridInit").getPerfInfo()
 
-        recon_time = comm.allreduce(recon["time"], op=MPI.SUM) / comm.size
-        scalar_time = comm.allreduce(recon_scalar["time"], op=MPI.SUM) / comm.size
-        flux_time = comm.allreduce(recon_flux["time"], op=MPI.SUM) / comm.size
-        projection = comm.allreduce(recover["time"], op=MPI.SUM) / comm.size
+        # Time to reconstruct (backsub) and project
+        full_recon_time = comm.allreduce(full_recon["time"],
+                                         op=MPI.SUM) / comm.size
+        # Project only
+        projection = comm.allreduce(proj["time"], op=MPI.SUM) / comm.size
+        # Backsub only = Total Recon time - projection time
+        recon_time = full_recon_time - projection
+
         transfer = comm.allreduce(hybridbreak["time"], op=MPI.SUM) / comm.size
-        full_recon = projection + recon_time
-        update_time = comm.allreduce(hybridupdate["time"], op=MPI.SUM) / comm.size
+        update_time = comm.allreduce(hybridupdate["time"],
+                                     op=MPI.SUM) / comm.size
         trace_solve = comm.allreduce(trace["time"], op=MPI.SUM) / comm.size
         rhstime = comm.allreduce(RHS["time"], op=MPI.SUM) / comm.size
         inittime = comm.allreduce(hybridinit["time"], op=MPI.SUM) / comm.size
@@ -278,19 +273,15 @@ Dx (max): %s km.
                      "num_cells": num_cells,
                      "Dt": Dt,
                      "CFL": cfl,
-                     "DxMin": dx_min,
-                     "DxMax": dx_max,
-                     "DxAvg": problem.dx_avg}
+                     "DxMax": dx_max}
 
         if problem.hybridization:
             updates = {"HybridTraceSolve": trace_solve,
                        "HybridRHS": rhstime,
                        "HybridBreak": transfer,
                        "HybridReconstruction": recon_time,
-                       "HybridReconScalarField": scalar_time,
-                       "HybridReconFluxField": flux_time,
                        "HybridProjection": projection,
-                       "HybridFullRecovery": full_recon,
+                       "HybridFullRecovery": full_recon_time,
                        "HybridUpdate": update_time,
                        "HybridInit": inittime,
                        "PreHybridInit": prehybridinit_time,
@@ -319,7 +310,6 @@ method = args.method
 model_degree = args.model_degree
 refinements = args.refinements
 hybridization = args.hybridization
-nsteps = args.nsteps
 Dt = args.dt
 
 if args.profile:
@@ -329,19 +319,19 @@ if args.profile:
                     refinements=refinements,
                     method=method,
                     model_degree=model_degree,
-                    nsteps=nsteps,
+                    nsteps=100,
                     hybridization=hybridization,
                     write=False,
                     # Do a cold run to generate code
                     cold=True)
 
-    # Now start the profile
+    # Now start the profile (for 100 steps)
     run_williamson5(problem_cls=W5Problem,
                     Dt=Dt,
                     refinements=refinements,
                     method=method,
                     model_degree=model_degree,
-                    nsteps=nsteps,
+                    nsteps=100,
                     hybridization=hybridization,
                     write=False,
                     cold=False)
@@ -352,7 +342,7 @@ else:
                     refinements=refinements,
                     method=method,
                     model_degree=model_degree,
-                    nsteps=nsteps,
+                    nsteps=100,
                     hybridization=hybridization,
                     write=args.write,
                     cold=False)

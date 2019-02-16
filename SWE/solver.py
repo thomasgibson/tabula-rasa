@@ -2,6 +2,28 @@ from firedrake import *
 from firedrake.petsc import PETSc
 from firedrake.utils import cached_property
 from pyop2.profiling import timed_stage
+import numpy as np
+
+
+def fmax(f):
+    fmax = op2.Global(1, np.finfo(float).min, dtype=float)
+    op2.par_loop(op2.Kernel("""
+void maxify(double *a, double *b) {
+    a[0] = a[0] < fabs(b[0]) ? fabs(b[0]) : a[0];
+}
+""", "maxify"), f.dof_dset.set, fmax(op2.MAX), f.dat(op2.READ))
+    return fmax.data[0]
+
+
+def latlon_coords(mesh):
+
+    x0, y0, z0 = SpatialCoordinate(mesh)
+    unsafe = z0 / sqrt(x0*x0 + y0*y0 + z0*z0)
+    safe = Min(Max(unsafe, -1.0), 1.0)
+    theta = asin(safe)
+    lamda = atan_2(y0, x0)
+
+    return theta, lamda
 
 
 class W5Problem(object):
@@ -21,18 +43,16 @@ class W5Problem(object):
         self.R = R
 
         # Earth-sized mesh
-        mesh_degree = 2
+        mesh_degree = 3
         if self.method == "RTCF":
-            from firedrake import CubedSphereMesh
             mesh = CubedSphereMesh(self.R, self.refinement_level,
                                    degree=mesh_degree)
         else:
-            from firedrake import OctahedralSphereMesh
-            mesh = OctahedralSphereMesh(self.R, self.refinement_level,
-                                        degree=mesh_degree,
-                                        hemisphere="both")
+            mesh = IcosahedralSphereMesh(self.R, self.refinement_level,
+                                         degree=mesh_degree)
 
-        global_normal = Expression(("x[0]", "x[1]", "x[2]"))
+        x = SpatialCoordinate(mesh)
+        global_normal = as_vector(x)
         mesh.init_cell_orientations(global_normal)
         self.mesh = mesh
 
@@ -42,24 +62,16 @@ class W5Problem(object):
         cell_vs = interpolate(CellVolume(self.mesh),
                               FunctionSpace(self.mesh, "DG", 0))
 
-        a_min = cell_vs.dat.data.min()
-        a_max = cell_vs.dat.data.max()
-        dx_min = sqrt(a_min)
+        a_max = fmax(cell_vs)
         dx_max = sqrt(a_max)
-
-        # Take the average to compute the Courant number
-        dx = (dx_min + dx_max)/2.0
-
-        self.dx_min = dx_min
         self.dx_max = dx_max
-        self.dx_avg = dx
 
         # Wave speed for the shallow water system
         g = 9.810616
         wave_speed = sqrt(H*g)
 
         # Courant number
-        self.courant = (Dt / dx) * wave_speed
+        self.courant = (Dt / dx_max) * wave_speed
         self.dt = Constant(Dt)
         self.Dt = Dt
 
@@ -76,10 +88,13 @@ class W5Problem(object):
         VD = FunctionSpace(self.mesh, "DG", self.model_degree - 1)
 
         self.function_spaces = (Vu, VD)
-        self.Vm = FunctionSpace(self.mesh, "CG", mesh_degree)
+        self.Vm = FunctionSpace(self.mesh, "CG", 1)
 
         # Mean depth
         self.H = Constant(H)
+
+        # Acceleration due to gravity
+        self.g = Constant(g)
 
         # Build initial conditions and parameters
         self._build_initial_conditions()
@@ -104,19 +119,29 @@ class W5Problem(object):
         u_max = Constant(u_0)
         R0 = Constant(self.R)
         uexpr = as_vector([-u_max*x[1]/R0, u_max*x[0]/R0, 0.0])
-        h0 = Constant(self.H)
+        h0 = self.H
         Omega = Constant(7.292e-5)
-        g = Constant(9.810616)
+        g = self.g
         Dexpr = h0 - ((R0*Omega*u_max + u_max*u_max/2.0)*(x[2]*x[2]/(R0*R0)))/g
 
-        bexpr = Expression("2000*(1 - sqrt(fmin(pow(pi/9.0,2), pow(atan2(x[1]/R0,x[0]/R0)+1.0*pi/2.0,2) + pow(asin(x[2]/R0)-pi/6.0,2)))/(pi/9.0))", R0=self.R)
+        theta, lamda = latlon_coords(self.mesh)
+        Rpn = pi/9.
+        R0sq = Rpn**2
+        lamda_c = -pi/2.
+        lsq = (lamda - lamda_c)**2
+        theta_c = pi/6.
+        thsq = (theta - theta_c)**2
+        rsq = Min(R0sq, lsq + thsq)
+        r = sqrt(rsq)
+
+        bexpr = 2000 * (1 - r/Rpn)
+
         self.b = Function(VD, name="Topography").interpolate(bexpr)
 
         # Coriolis expression (1/s)
         fexpr = 2*Omega*x[2]/R0
         self.f = Function(self.Vm).interpolate(fexpr)
 
-        self.g = g
         self.uexpr = uexpr
         self.Dexpr = Dexpr
 
@@ -189,6 +214,7 @@ class W5Problem(object):
         self.Usolver = Usolver
 
     def _build_picard_solver(self):
+
         Vu, VD = self.function_spaces
         un, Dn = self.state
         up, Dp = self.updates
@@ -220,36 +246,59 @@ class W5Problem(object):
         DUproblem = LinearVariationalProblem(uDlhs, uDrhs, self.DU,
                                              constant_jacobian=True)
 
-        gamg_params = {'ksp_type': 'cg',
-                       'pc_type': 'gamg',
-                       'pc_gamg_reuse_interpolation': True,
-                       'ksp_rtol': 1e-8,
-                       'mg_levels': {'ksp_type': 'chebyshev',
-                                     'ksp_max_it': 2,
-                                     'pc_type': 'bjacobi',
-                                     'sub_pc_type': 'ilu'}}
         if self.hybridization:
-            parameters = {'ksp_type': 'preonly',
-                          'mat_type': 'matfree',
-                          'pmat_type': 'matfree',
-                          'pc_type': 'python',
-                          'pc_python_type': 'scpc.HybridizationPC',
-                          'hybridization': gamg_params}
+            parameters = {
+                'ksp_type': 'preonly',
+                'mat_type': 'matfree',
+                'pmat_type': 'matfree',
+                'pc_type': 'python',
+                'pc_python_type': 'firedrake.HybridizationPC',
+                'hybridization': {
+                    'ksp_type': 'gmres',
+                    'ksp_monitor_true_residual': None,
+                    'pc_type': 'gamg',
+                    'pc_gamg_reuse_interpolation': None,
+                    'pc_gamg_sym_graph': None,
+                    'ksp_rtol': 1e-8,
+                    'mg_levels': {
+                        'ksp_type': 'richardson',
+                        'ksp_max_it': 3,
+                        'pc_type': 'bjacobi',
+                        'sub_pc_type': 'ilu'
+                    }
+                }
+            }
 
         else:
-            parameters = {'ksp_type': 'gmres',
-                          'pc_type': 'fieldsplit',
-                          'pc_fieldsplit_type': 'schur',
-                          'ksp_type': 'gmres',
-                          'ksp_rtol': 1e-8,
-                          'ksp_max_it': 100,
-                          'ksp_gmres_restart': 50,
-                          'pc_fieldsplit_schur_fact_type': 'FULL',
-                          'pc_fieldsplit_schur_precondition': 'selfp',
-                          'fieldsplit_0': {'ksp_type': 'preonly',
-                                           'pc_type': 'bjacobi',
-                                           'sub_pc_type': 'ilu'},
-                          'fieldsplit_1': gamg_params}
+            parameters = {
+                'ksp_type': 'gmres',
+                'ksp_monitor_true_residual': None,
+                'pc_type': 'fieldsplit',
+                'pc_fieldsplit_type': 'schur',
+                'ksp_type': 'gmres',
+                'ksp_rtol': 1e-8,
+                'ksp_max_it': 100,
+                'ksp_gmres_restart': 50,
+                'pc_fieldsplit_schur_fact_type': 'FULL',
+                'pc_fieldsplit_schur_precondition': 'selfp',
+                'fieldsplit_0': {
+                    'ksp_type': 'preonly',
+                    'pc_type': 'bjacobi',
+                    'sub_pc_type': 'ilu'
+                },
+                'fieldsplit_1': {
+                    'ksp_type': 'cg',
+                    'pc_type': 'gamg',
+                    'pc_gamg_reuse_interpolation': None,
+                    'ksp_rtol': 1e-8,
+                    'mg_levels': {
+                        'ksp_type': 'chebyshev',
+                        'ksp_max_it': 3,
+                        'pc_type': 'bjacobi',
+                        'sub_pc_type': 'ilu'
+                    }
+                }
+            }
 
         DUsolver = LinearVariationalSolver(DUproblem,
                                            solver_parameters=parameters,
@@ -295,16 +344,19 @@ class W5Problem(object):
     def output_file(self):
         dirname = "results/"
         if self.hybridization:
-            dirname += "hybrid_%s_ref%d_Dt%s/" % (self.method,
-                                                  self.refinement_level,
-                                                  self.Dt)
+            dirname += "hybrid_%s%d_ref%d_Dt%s/" % (self.method,
+                                                    self.model_degree,
+                                                    self.refinement_level,
+                                                    self.Dt)
         else:
-            dirname += "gmres_%s_ref%d_Dt%s/" % (self.method,
-                                                 self.refinement_level,
-                                                 self.Dt)
+            dirname += "gmres_%s%d_ref%d_Dt%s/" % (self.method,
+                                                   self.model_degree,
+                                                   self.refinement_level,
+                                                   self.Dt)
         return File(dirname + "w5_" + str(self.refinement_level) + ".pvd")
 
     def write(self, dumpcount, dumpfreq):
+
         dumpcount += 1
         un, Dn = self.state
         if(dumpcount > dumpfreq):
@@ -315,6 +367,7 @@ class W5Problem(object):
         return dumpcount
 
     def initialize(self):
+
         self.DU.assign(0.0)
         self.Ups.assign(0.0)
         self.Dps.assign(0.0)
@@ -324,6 +377,7 @@ class W5Problem(object):
         Dn -= self.b
 
     def warmup(self):
+
         un, Dn = self.state
         up, Dp = self.updates
         up.assign(un)
