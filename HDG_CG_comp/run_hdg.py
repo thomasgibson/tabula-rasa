@@ -55,8 +55,9 @@ def run_solver(problem_cls, degree, size, rtol, quads, dim, cold=False):
               'pmat_type': 'matfree',
               'ksp_type': 'preonly',
               'pc_type': 'python',
-              'pc_python_type': 'scpc.HybridSCPC',
-              'hybrid_sc': pcg_params}
+              'pc_python_type':  'firedrake.SCPC',
+              'pc_sc_eliminate_fields': '0, 1',
+              'condensed_field': pcg_params}
 
     problem = problem_cls(degree=degree, N=size,
                           quadrilaterals=quads, dimension=dim)
