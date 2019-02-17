@@ -19,7 +19,7 @@ from mpi4py import MPI
 import pandas as pd
 import sys
 
-import solver as module
+import problem as module
 
 
 parameters["pyop2_options"]["lazy_evaluation"] = False
@@ -52,7 +52,7 @@ parser.add_argument("--cfl",
 
 parser.add_argument("--rtol",
                     action="store",
-                    default=1.0e-6,
+                    default=1.0e-8,
                     type=float,
                     help="Solver rtolerance for the u-p system.")
 
@@ -68,9 +68,13 @@ parser.add_argument("--model_degree",
 
 parser.add_argument("--method",
                     action="store",
-                    default="RTCF",
+                    default="RT",
                     choices=["RT", "RTCF"],
                     help="Mixed method type.")
+
+parser.add_argument("--coriolis",
+                    action="store_true",
+                    help="Add Coriolis")
 
 parser.add_argument("--tmax",
                     action="store",
@@ -137,6 +141,7 @@ hybridization: %s,\n
                               thickness=thickness,
                               rtol=args.rtol,
                               hybridization=hybridization,
+                              coriolis=args.coriolis,
                               cfl=cfl,
                               use_dt_from_cfl=args.use_dt_from_cfl)
         problem.warmup()
@@ -150,6 +155,7 @@ hybridization: %s,\n
                           thickness=thickness,
                           rtol=args.rtol,
                           hybridization=hybridization,
+                          coriolis=args.coriolis,
                           cfl=cfl,
                           use_dt_from_cfl=args.use_dt_from_cfl)
 
@@ -177,7 +183,8 @@ tmax: %s s
     PETSc.Sys.Print("Warm up with one-step.\n")
     with timed_stage("Warm up"):
         problem.warmup()
-        PETSc.Log.Stage("Warm up: Linear solve").push()
+        PETSc.Log.Stage("Warm up: Solver").push()
+        PETSc.Log.State("UP Solver").push()
         prepcsetup = PETSc.Log.Event("PCSetUp").getPerfInfo()
         pre_res_eval = PETSc.Log.Event("SNESFunctionEval").getPerfInfo()
         pre_jac_eval = PETSc.Log.Event("SNESJacobianEval").getPerfInfo()
@@ -194,162 +201,162 @@ tmax: %s s
             prehybridinit_time = comm.allreduce(prehybridinit["time"],
                                                 op=MPI.SUM) / comm.size
 
-        PETSc.Log.Stage("Warm up: Linear solve").pop()
+        PETSc.Log.State("UP Solver").pop()
+        PETSc.Log.Stage("Warm up: Solver").pop()
 
     # Run the problem
-    problem.initialize()
     problem.run_simulation(tmax, write=write, dumpfreq=dumpfreq)
 
     PETSc.Sys.Print("Simulation complete.\n")
 
-    PETSc.Log.Stage("UP Solver").push()
+    # PETSc.Log.Stage("UP Solver").push()
 
-    snes = PETSc.Log.Event("SNESSolve").getPerfInfo()
-    ksp = PETSc.Log.Event("KSPSolve").getPerfInfo()
-    pcsetup = PETSc.Log.Event("PCSetUp").getPerfInfo()
-    pcapply = PETSc.Log.Event("PCApply").getPerfInfo()
-    jac_eval = PETSc.Log.Event("SNESJacobianEval").getPerfInfo()
-    residual = PETSc.Log.Event("SNESFunctionEval").getPerfInfo()
+    # snes = PETSc.Log.Event("SNESSolve").getPerfInfo()
+    # ksp = PETSc.Log.Event("KSPSolve").getPerfInfo()
+    # pcsetup = PETSc.Log.Event("PCSetUp").getPerfInfo()
+    # pcapply = PETSc.Log.Event("PCApply").getPerfInfo()
+    # jac_eval = PETSc.Log.Event("SNESJacobianEval").getPerfInfo()
+    # residual = PETSc.Log.Event("SNESFunctionEval").getPerfInfo()
 
-    snes_time = comm.allreduce(snes["time"], op=MPI.SUM) / comm.size
-    ksp_time = comm.allreduce(ksp["time"], op=MPI.SUM) / comm.size
-    pc_setup_time = comm.allreduce(pcsetup["time"], op=MPI.SUM) / comm.size
-    pc_apply_time = comm.allreduce(pcapply["time"], op=MPI.SUM) / comm.size
-    jac_eval_time = comm.allreduce(jac_eval["time"], op=MPI.SUM) / comm.size
-    res_eval_time = comm.allreduce(residual["time"], op=MPI.SUM) / comm.size
+    # snes_time = comm.allreduce(snes["time"], op=MPI.SUM) / comm.size
+    # ksp_time = comm.allreduce(ksp["time"], op=MPI.SUM) / comm.size
+    # pc_setup_time = comm.allreduce(pcsetup["time"], op=MPI.SUM) / comm.size
+    # pc_apply_time = comm.allreduce(pcapply["time"], op=MPI.SUM) / comm.size
+    # jac_eval_time = comm.allreduce(jac_eval["time"], op=MPI.SUM) / comm.size
+    # res_eval_time = comm.allreduce(residual["time"], op=MPI.SUM) / comm.size
 
-    ref = problem.refinement_level
-    nlayers = problem.nlayers
-    num_cells = comm.allreduce(problem.num_cells, op=MPI.SUM)
+    # ref = problem.refinement_level
+    # nlayers = problem.nlayers
+    # num_cells = comm.allreduce(problem.num_cells, op=MPI.SUM)
 
-    if problem.hybridization:
-        results_data = "hybrid_%s_data_GW_ref%d_nlayers%d_Dt%s_NS%d.csv" % (
-            problem.method,
-            ref,
-            nlayers,
-            Dt,
-            nsteps
-        )
-        results_timings = "hybrid_%s_profile_GW_ref%d_nlayers%d_Dt%s_NS%d.csv" % (
-            problem.method,
-            ref,
-            nlayers,
-            Dt,
-            nsteps
-        )
+    # if problem.hybridization:
+    #     results_data = "hybrid_%s_data_GW_ref%d_nlayers%d_Dt%s_NS%d.csv" % (
+    #         problem.method,
+    #         ref,
+    #         nlayers,
+    #         Dt,
+    #         nsteps
+    #     )
+    #     results_timings = "hybrid_%s_profile_GW_ref%d_nlayers%d_Dt%s_NS%d.csv" % (
+    #         problem.method,
+    #         ref,
+    #         nlayers,
+    #         Dt,
+    #         nsteps
+    #     )
 
-        RHS = PETSc.Log.Event("HybridRHS").getPerfInfo()
-        trace = PETSc.Log.Event("SCSolve").getPerfInfo()
-        proj = PETSc.Log.Event("HybridProject").getPerfInfo()
-        full_recon = PETSc.Log.Event("SCBackSub").getPerfInfo()
-        hybridbreak = PETSc.Log.Event("HybridBreak").getPerfInfo()
-        hybridupdate = PETSc.Log.Event("HybridUpdate").getPerfInfo()
-        hybridinit = PETSc.Log.Event("HybridInit").getPerfInfo()
+    #     RHS = PETSc.Log.Event("HybridRHS").getPerfInfo()
+    #     trace = PETSc.Log.Event("SCSolve").getPerfInfo()
+    #     proj = PETSc.Log.Event("HybridProject").getPerfInfo()
+    #     full_recon = PETSc.Log.Event("SCBackSub").getPerfInfo()
+    #     hybridbreak = PETSc.Log.Event("HybridBreak").getPerfInfo()
+    #     hybridupdate = PETSc.Log.Event("HybridUpdate").getPerfInfo()
+    #     hybridinit = PETSc.Log.Event("HybridInit").getPerfInfo()
 
-        # Time to reconstruct (backsub) and project
-        full_recon_time = comm.allreduce(full_recon["time"],
-                                         op=MPI.SUM) / comm.size
-        # Project only
-        projection = comm.allreduce(proj["time"], op=MPI.SUM) / comm.size
-        # Backsub only = Total Recon time - projection time
-        recon_time = full_recon_time - projection
+    #     # Time to reconstruct (backsub) and project
+    #     full_recon_time = comm.allreduce(full_recon["time"],
+    #                                      op=MPI.SUM) / comm.size
+    #     # Project only
+    #     projection = comm.allreduce(proj["time"], op=MPI.SUM) / comm.size
+    #     # Backsub only = Total Recon time - projection time
+    #     recon_time = full_recon_time - projection
 
-        transfer = comm.allreduce(hybridbreak["time"], op=MPI.SUM) / comm.size
-        update_time = comm.allreduce(hybridupdate["time"],
-                                     op=MPI.SUM) / comm.size
-        trace_solve = comm.allreduce(trace["time"], op=MPI.SUM) / comm.size
-        rhstime = comm.allreduce(RHS["time"], op=MPI.SUM) / comm.size
-        inittime = comm.allreduce(hybridinit["time"], op=MPI.SUM) / comm.size
-        other = ksp_time - (trace_solve + transfer
-                            + projection + recon_time + rhstime)
-        full_solve = (transfer + trace_solve + rhstime
-                      + recon_time + projection + update_time)
-    else:
-        results_data = "gmres_%s_data_W5_ref%d_nlayers%d_Dt%s_NS%d.csv" % (
-            problem.method,
-            ref,
-            nlayers,
-            Dt,
-            nsteps
-        )
-        results_timings = "gmres_%s_profile_W5_ref%d_nlayers%d_Dt%s_NS%d.csv" % (
-            problem.method,
-            ref,
-            nlayers,
-            Dt,
-            nsteps
-        )
+    #     transfer = comm.allreduce(hybridbreak["time"], op=MPI.SUM) / comm.size
+    #     update_time = comm.allreduce(hybridupdate["time"],
+    #                                  op=MPI.SUM) / comm.size
+    #     trace_solve = comm.allreduce(trace["time"], op=MPI.SUM) / comm.size
+    #     rhstime = comm.allreduce(RHS["time"], op=MPI.SUM) / comm.size
+    #     inittime = comm.allreduce(hybridinit["time"], op=MPI.SUM) / comm.size
+    #     other = ksp_time - (trace_solve + transfer
+    #                         + projection + recon_time + rhstime)
+    #     full_solve = (transfer + trace_solve + rhstime
+    #                   + recon_time + projection + update_time)
+    # else:
+    #     results_data = "gmres_%s_data_W5_ref%d_nlayers%d_Dt%s_NS%d.csv" % (
+    #         problem.method,
+    #         ref,
+    #         nlayers,
+    #         Dt,
+    #         nsteps
+    #     )
+    #     results_timings = "gmres_%s_profile_W5_ref%d_nlayers%d_Dt%s_NS%d.csv" % (
+    #         problem.method,
+    #         ref,
+    #         nlayers,
+    #         Dt,
+    #         nsteps
+    #     )
 
-        KSPSchur = PETSc.Log.Event("KSPSolve_FS_Schu").getPerfInfo()
-        KSPF0 = PETSc.Log.Event("KSPSolve_FS_0").getPerfInfo()
-        KSPLow = PETSc.Log.Event("KSPSolve_FS_Low").getPerfInfo()
+    #     KSPSchur = PETSc.Log.Event("KSPSolve_FS_Schu").getPerfInfo()
+    #     KSPF0 = PETSc.Log.Event("KSPSolve_FS_0").getPerfInfo()
+    #     KSPLow = PETSc.Log.Event("KSPSolve_FS_Low").getPerfInfo()
 
-        schur_time = comm.allreduce(KSPSchur["time"], op=MPI.SUM) / comm.size
-        f0_time = comm.allreduce(KSPF0["time"], op=MPI.SUM) / comm.size
-        ksplow_time = comm.allreduce(KSPLow["time"], op=MPI.SUM) / comm.size
-        other = ksp_time - (schur_time + f0_time + ksplow_time)
+    #     schur_time = comm.allreduce(KSPSchur["time"], op=MPI.SUM) / comm.size
+    #     f0_time = comm.allreduce(KSPF0["time"], op=MPI.SUM) / comm.size
+    #     ksplow_time = comm.allreduce(KSPLow["time"], op=MPI.SUM) / comm.size
+    #     other = ksp_time - (schur_time + f0_time + ksplow_time)
 
-    PETSc.Log.Stage("Linear solve").pop()
-    if COMM_WORLD.rank == 0:
-        data = {"OuterIters": problem.ksp_outer_its,
-                "InnerIters": problem.ksp_inner_its,
-                "SimTime": problem.sim_time,
-                "ResidualReductions": problem.up_reductions}
+    # PETSc.Log.Stage("Linear solve").pop()
+    # if COMM_WORLD.rank == 0:
+    #     data = {"OuterIters": problem.ksp_outer_its,
+    #             "InnerIters": problem.ksp_inner_its,
+    #             "SimTime": problem.sim_time,
+    #             "ResidualReductions": problem.up_reductions}
 
-        up_dofs = problem.up.dof_dset.layout_vec.getSize()
-        b_dofs = problem.b_update.dof_dset.layout_vec.getSize()
-        dofs = b_dofs + up_dofs
+    #     up_dofs = problem.up.dof_dset.layout_vec.getSize()
+    #     b_dofs = problem.b_update.dof_dset.layout_vec.getSize()
+    #     dofs = b_dofs + up_dofs
 
-        time_data = {"PETSCLogKSPSolve": ksp_time,
-                     "PETSCLogPCApply": pc_apply_time,
-                     "PETSCLogPCSetup": pc_setup_time,
-                     "PETSCLogPreSetup": pre_setup_time,
-                     "PETSCLogPreSNESJacobianEval": pre_jac_eval_time,
-                     "PETSCLogPreSNESFunctionEval": pre_res_eval_time,
-                     "SNESSolve": snes_time,
-                     "SNESFunctionEval": res_eval_time,
-                     "SNESJacobianEval": jac_eval_time,
-                     "num_processes": problem.comm.size,
-                     "method": problem.method,
-                     "model_degree": problem.model_degree,
-                     "refinement_level": problem.refinement_level,
-                     "total_dofs": dofs,
-                     "up_dofs": up_dofs,
-                     "b_dofs": b_dofs,
-                     "num_cells": num_cells,
-                     "Dt": Dt,
-                     "CFL": cfl,
-                     "DxMax": dx_max,
-                     "Dz": dz}
+    #     time_data = {"PETSCLogKSPSolve": ksp_time,
+    #                  "PETSCLogPCApply": pc_apply_time,
+    #                  "PETSCLogPCSetup": pc_setup_time,
+    #                  "PETSCLogPreSetup": pre_setup_time,
+    #                  "PETSCLogPreSNESJacobianEval": pre_jac_eval_time,
+    #                  "PETSCLogPreSNESFunctionEval": pre_res_eval_time,
+    #                  "SNESSolve": snes_time,
+    #                  "SNESFunctionEval": res_eval_time,
+    #                  "SNESJacobianEval": jac_eval_time,
+    #                  "num_processes": problem.comm.size,
+    #                  "method": problem.method,
+    #                  "model_degree": problem.model_degree,
+    #                  "refinement_level": problem.refinement_level,
+    #                  "total_dofs": dofs,
+    #                  "up_dofs": up_dofs,
+    #                  "b_dofs": b_dofs,
+    #                  "num_cells": num_cells,
+    #                  "Dt": Dt,
+    #                  "CFL": cfl,
+    #                  "DxMax": dx_max,
+    #                  "Dz": dz}
 
-        if problem.hybridization:
-            updates = {"HybridTraceSolve": trace_solve,
-                       "HybridRHS": rhstime,
-                       "HybridBreak": transfer,
-                       "HybridReconstruction": recon_time,
-                       "HybridProjection": projection,
-                       "HybridFullRecovery": full_recon_time,
-                       "HybridUpdate": update_time,
-                       "HybridInit": inittime,
-                       "PreHybridInit": prehybridinit_time,
-                       "HybridFullSolveTime": full_solve,
-                       "HybridKSPOther": other}
+    #     if problem.hybridization:
+    #         updates = {"HybridTraceSolve": trace_solve,
+    #                    "HybridRHS": rhstime,
+    #                    "HybridBreak": transfer,
+    #                    "HybridReconstruction": recon_time,
+    #                    "HybridProjection": projection,
+    #                    "HybridFullRecovery": full_recon_time,
+    #                    "HybridUpdate": update_time,
+    #                    "HybridInit": inittime,
+    #                    "PreHybridInit": prehybridinit_time,
+    #                    "HybridFullSolveTime": full_solve,
+    #                    "HybridKSPOther": other}
 
-        else:
-            updates = {"KSPSchur": schur_time,
-                       "KSPF0": f0_time,
-                       "KSPFSLow": ksplow_time,
-                       "KSPother": other}
+    #     else:
+    #         updates = {"KSPSchur": schur_time,
+    #                    "KSPF0": f0_time,
+    #                    "KSPFSLow": ksplow_time,
+    #                    "KSPother": other}
 
-        time_data.update(updates)
+    #     time_data.update(updates)
 
-        df_data = pd.DataFrame(data)
-        df_data.to_csv(results_data, index=False,
-                       mode="w", header=True)
+    #     df_data = pd.DataFrame(data)
+    #     df_data.to_csv(results_data, index=False,
+    #                    mode="w", header=True)
 
-        df_time = pd.DataFrame(time_data, index=[0])
-        df_time.to_csv(results_timings, index=False,
-                       mode="w", header=True)
+    #     df_time = pd.DataFrame(time_data, index=[0])
+    #     df_time.to_csv(results_timings, index=False,
+    #                    mode="w", header=True)
 
 
 GWProblem = module.GravityWaveProblem
