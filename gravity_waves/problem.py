@@ -51,7 +51,7 @@ class GravityWaveProblem(object):
 
         self.mesh_degree = 3    # degree of the coordinate field
 
-        if self.method == "RT":
+        if self.method == "RT" or self.method == "BDFM":
             base = IcosahedralSphereMesh(self._R,
                                          refinement_level=self.refinement_level,
                                          degree=self.mesh_degree)
@@ -99,6 +99,11 @@ class GravityWaveProblem(object):
             U1 = FiniteElement('RT', triangle, self.model_degree)
             U2 = FiniteElement('DG', triangle, self.model_degree - 1)
 
+        elif self.method == "BDFM":
+            U1 = FiniteElement('BDFM', triangle, 2)
+            U2 = FiniteElement('DG', triangle, 1)
+            # BDFM only supported for degree 2, so overwrite here
+            self.model_degree = 2
         else:
             assert self.method == "RTCF"
             U1 = FiniteElement('RTCF', quadrilateral, self.model_degree)

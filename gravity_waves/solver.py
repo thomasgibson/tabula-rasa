@@ -8,7 +8,7 @@ __all__ = ['GravityWaveSolver']
 class GravityWaveSolver(object):
 
     def __init__(self, W2, W3, Wb, dt, c, N, khat,
-                 maxiter=100, tolerance=1.E-6,
+                 maxiter=1000, tolerance=1.E-6,
                  coriolis=None,
                  hybridization=False):
 
@@ -59,15 +59,16 @@ class GravityWaveSolver(object):
                 'pc_type': 'python',
                 'pc_python_type': 'firedrake.HybridizationPC',
                 'hybridization': {
-                    'ksp_type': 'cg',
-                    'pc_type': 'gamg',
-                    'ksp_max_it': 100,
-                    'pc_gamg_sym_graph': None,
+                    'ksp_type': 'fgmres',
                     'ksp_monitor_true_residual': None,
-                    'pc_gamg_reuse_interpolation': None,
+                    'ksp_max_it': self._maxiter,
                     'ksp_rtol': self._rtol,
+                    'pc_type': 'gamg',
+                    'pc_mg_cycles': 'v',
+                    'pc_gamg_reuse_interpolation': None,
+                    'pc_gamg_sym_graph': None,
                     'mg_levels': {
-                        'ksp_type': 'richardson',
+                        'ksp_type': 'gmres',
                         'ksp_max_it': 5,
                         'pc_type': 'bjacobi',
                         'sub_pc_type': 'ilu'
@@ -80,7 +81,8 @@ class GravityWaveSolver(object):
                 'pc_type': 'fieldsplit',
                 'pc_fieldsplit_type': 'schur',
                 'ksp_type': 'gmres',
-                'ksp_max_it': 100,
+                'ksp_norm_type': 'unpreconditioned',
+                'ksp_max_it': self._maxiter,
                 'ksp_rtol': self._rtol,
                 'ksp_monitor_true_residual': None,
                 'pc_fieldsplit_schur_fact_type': 'FULL',
@@ -91,7 +93,7 @@ class GravityWaveSolver(object):
                     'sub_pc_type': 'ilu'
                 },
                 'fieldsplit_1': {
-                    'ksp_type': 'cg',
+                    'ksp_type': 'preonly',
                     'pc_type': 'hypre',
                     'pc_hypre_type': 'boomeramg',
                     'pc_hypre_boomeramg_max_iter': 1,
@@ -103,6 +105,7 @@ class GravityWaveSolver(object):
                     'pc_hypre_boomeramg_P_max': 0,
                     'pc_hypre_boomeramg_agg_nl': 0,
                     'pc_hypre_boomeramg_strong_threshold': 0.25,
+                    'pc_hypre_boomeramg_max_levels': 5,
                     'pc_hypre_boomeramg_no_CF': False
                 }
             }
@@ -117,6 +120,7 @@ class GravityWaveSolver(object):
         r_p = self._rp
         r_b = self._rb
         up = self._up
+
         L_up = (dot(utest, r_u)
                 + self._dt_half*dot(utest, self._khat*r_b)
                 + ptest*r_p)*dx
