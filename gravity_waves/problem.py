@@ -154,7 +154,7 @@ class GravityWaveProblem(object):
                                        c=self._c,
                                        N=self._N,
                                        khat=self.khat,
-                                       maxiter=100,
+                                       maxiter=1000,
                                        tolerance=self.rtol,
                                        coriolis=self._fexpr,
                                        hybridization=self.hybridization)
@@ -166,7 +166,7 @@ class GravityWaveProblem(object):
                                        c=self._c,
                                        N=self._N,
                                        khat=self.khat,
-                                       maxiter=100,
+                                       maxiter=1000,
                                        tolerance=self.rtol,
                                        coriolis=None,
                                        hybridization=self.hybridization)
