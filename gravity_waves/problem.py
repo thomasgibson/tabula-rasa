@@ -24,8 +24,8 @@ class GravityWaveProblem(object):
     def __init__(self, refinement_level, nlayers, Dt, method="RT",
                  X=125.0, thickness=1.0E4, model_degree=1,
                  rtol=1.0E-6, hybridization=False,
-                 coriolis=False,
                  cfl=1.0,
+                 monitor=False,
                  use_dt_from_cfl=False):
 
         super(GravityWaveProblem, self).__init__()
@@ -37,7 +37,7 @@ class GravityWaveProblem(object):
         self.model_degree = model_degree
         self.hybridization = hybridization
         self.rtol = rtol
-        self.coriolis = coriolis
+        self.monitor = monitor
         self.use_dt_from_cfl = use_dt_from_cfl
 
         # Scaled radius for gravity wave example
@@ -146,30 +146,18 @@ class GravityWaveProblem(object):
 
         self._build_initial_conditions()
 
-        if self.coriolis:
-            solver = GravityWaveSolver(W2=self.W2,
-                                       W3=self.W3,
-                                       Wb=self.Wb,
-                                       dt=self.Dt,
-                                       c=self._c,
-                                       N=self._N,
-                                       khat=self.khat,
-                                       maxiter=1000,
-                                       tolerance=self.rtol,
-                                       coriolis=self._fexpr,
-                                       hybridization=self.hybridization)
-        else:
-            solver = GravityWaveSolver(W2=self.W2,
-                                       W3=self.W3,
-                                       Wb=self.Wb,
-                                       dt=self.Dt,
-                                       c=self._c,
-                                       N=self._N,
-                                       khat=self.khat,
-                                       maxiter=1000,
-                                       tolerance=self.rtol,
-                                       coriolis=None,
-                                       hybridization=self.hybridization)
+        solver = GravityWaveSolver(W2=self.W2,
+                                   W3=self.W3,
+                                   Wb=self.Wb,
+                                   dt=self.Dt,
+                                   c=self._c,
+                                   N=self._N,
+                                   khat=self.khat,
+                                   maxiter=1000,
+                                   tolerance=self.rtol,
+                                   coriolis=self._fexpr,
+                                   hybridization=self.hybridization,
+                                   monitor=self.monitor)
 
         self.gravity_wave_solver = solver
         self.ksp_inner_its = []

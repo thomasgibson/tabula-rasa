@@ -8,9 +8,10 @@ __all__ = ['GravityWaveSolver']
 class GravityWaveSolver(object):
 
     def __init__(self, W2, W3, Wb, dt, c, N, khat,
+                 coriolis,
                  maxiter=1000, tolerance=1.E-6,
-                 coriolis=None,
-                 hybridization=False):
+                 hybridization=False,
+                 monitor=False):
 
         self._W2 = W2
         self._W3 = W3
@@ -27,6 +28,7 @@ class GravityWaveSolver(object):
         self._maxiter = maxiter
         self._rtol = tolerance
         self._hybridization = hybridization
+        self._monitor = monitor
 
         self._coriolis = coriolis
         self._khat = khat
@@ -60,7 +62,6 @@ class GravityWaveSolver(object):
                 'pc_python_type': 'firedrake.HybridizationPC',
                 'hybridization': {
                     'ksp_type': 'fgmres',
-                    'ksp_monitor_true_residual': None,
                     'ksp_max_it': self._maxiter,
                     'ksp_rtol': self._rtol,
                     'pc_type': 'gamg',
@@ -76,6 +77,9 @@ class GravityWaveSolver(object):
                 }
             }
 
+            if self._monitor:
+                parameters['hybridization']['ksp_monitor_true_residual'] = None
+
         else:
             parameters = {
                 'pc_type': 'fieldsplit',
@@ -84,7 +88,6 @@ class GravityWaveSolver(object):
                 'ksp_norm_type': 'unpreconditioned',
                 'ksp_max_it': self._maxiter,
                 'ksp_rtol': self._rtol,
-                'ksp_monitor_true_residual': None,
                 'pc_fieldsplit_schur_fact_type': 'FULL',
                 'pc_fieldsplit_schur_precondition': 'selfp',
                 'fieldsplit_0': {
@@ -110,6 +113,9 @@ class GravityWaveSolver(object):
                 }
             }
 
+            if self._monitor:
+                parameters['ksp_monitor_true_residual'] = None
+
         a_up = (ptest*ptrial
                 + self._dt_half_c2*ptest*div(utrial)
                 - self._dt_half*div(utest)*ptrial
@@ -125,10 +131,9 @@ class GravityWaveSolver(object):
                 + self._dt_half*dot(utest, self._khat*r_b)
                 + ptest*r_p)*dx
 
-        if self._coriolis:
-            f = self._coriolis
-            a_up += self._dt_half*dot(utest, f*cross(self._khat, utrial))*dx
-            L_up += self._dt_half*dot(utest, f*cross(self._khat, r_u))*dx
+        f = self._coriolis
+        a_up += self._dt_half*dot(utest, f*cross(self._khat, utrial))*dx
+        L_up += self._dt_half*dot(utest, f*cross(self._khat, r_u))*dx
 
         up_problem = LinearVariationalProblem(a_up, L_up, up, bcs=bcs)
         up_solver = LinearVariationalSolver(up_problem,

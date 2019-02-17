@@ -72,10 +72,6 @@ parser.add_argument("--method",
                     choices=["RT", "RTCF", "BDFM"],
                     help="Mixed method type.")
 
-parser.add_argument("--coriolis",
-                    action="store_true",
-                    help="Add Coriolis")
-
 parser.add_argument("--tmax",
                     action="store",
                     default=3600.0,
@@ -101,6 +97,10 @@ parser.add_argument("--nlayers",
 parser.add_argument("--write",
                     action="store_true",
                     help="Write output.")
+
+parser.add_argument("--monitor",
+                    action="store_true",
+                    help="Turn on KSP monitors")
 
 parser.add_argument("--help",
                     action="store_true",
@@ -142,8 +142,8 @@ hybridization: %s,\n
                               model_degree=model_degree,
                               rtol=args.rtol,
                               hybridization=hybridization,
-                              coriolis=args.coriolis,
                               cfl=cfl,
+                              monitor=args.monitor,
                               use_dt_from_cfl=args.use_dt_from_cfl)
         problem.warmup()
         return
@@ -157,8 +157,8 @@ hybridization: %s,\n
                           model_degree=model_degree,
                           rtol=args.rtol,
                           hybridization=hybridization,
-                          coriolis=args.coriolis,
                           cfl=cfl,
+                          monitor=args.monitor,
                           use_dt_from_cfl=args.use_dt_from_cfl)
 
     Dt = problem.Dt
@@ -296,12 +296,8 @@ tmax: %s s
 
     PETSc.Log.Stage("UP Solver").pop()
 
-    if args.coriolis:
-        results_data += "_coriolis.csv"
-        results_timings += "_coriolis.csv"
-    else:
-        results_data += ".csv"
-        results_timings += ".csv"
+    results_data += ".csv"
+    results_timings += ".csv"
 
     if COMM_WORLD.rank == 0:
         data = {"OuterIters": problem.ksp_outer_its,
