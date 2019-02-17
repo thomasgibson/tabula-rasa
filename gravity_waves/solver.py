@@ -105,7 +105,7 @@ class GravityWaveSolver(object):
                     'pc_hypre_boomeramg_P_max': 0,
                     'pc_hypre_boomeramg_agg_nl': 0,
                     'pc_hypre_boomeramg_strong_threshold': 0.25,
-                    'pc_hypre_boomeramg_max_levels': 5,
+                    'pc_hypre_boomeramg_max_levels': 25,
                     'pc_hypre_boomeramg_no_CF': False
                 }
             }
