@@ -255,14 +255,13 @@ class W5Problem(object):
                 'pc_python_type': 'firedrake.HybridizationPC',
                 'hybridization': {
                     'ksp_type': 'gmres',
-                    'ksp_monitor_true_residual': None,
                     'pc_type': 'gamg',
                     'pc_gamg_reuse_interpolation': None,
                     'pc_gamg_sym_graph': None,
                     'ksp_rtol': 1e-8,
                     'mg_levels': {
                         'ksp_type': 'richardson',
-                        'ksp_max_it': 3,
+                        'ksp_max_it': 2,
                         'pc_type': 'bjacobi',
                         'sub_pc_type': 'ilu'
                     }
@@ -272,7 +271,6 @@ class W5Problem(object):
         else:
             parameters = {
                 'ksp_type': 'gmres',
-                'ksp_monitor_true_residual': None,
                 'pc_type': 'fieldsplit',
                 'pc_fieldsplit_type': 'schur',
                 'ksp_type': 'gmres',
@@ -293,7 +291,7 @@ class W5Problem(object):
                     'ksp_rtol': 1e-8,
                     'mg_levels': {
                         'ksp_type': 'chebyshev',
-                        'ksp_max_it': 3,
+                        'ksp_max_it': 2,
                         'pc_type': 'bjacobi',
                         'sub_pc_type': 'ilu'
                     }
