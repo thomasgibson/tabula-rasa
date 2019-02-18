@@ -134,11 +134,11 @@ Dx (max): %s km.
 """ % (Dt, cfl, dx_max/1000))
 
     comm = problem.comm
+    day = 24.*60.*60.
 
     if args.profile:
         tmax = nsteps*Dt
     else:
-        day = 24.*60.*60.
         tmax = 15*day
         PETSc.Sys.Print("Running 15 day simulation\n")
 
