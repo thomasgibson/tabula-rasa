@@ -9,12 +9,10 @@ from mpltools import annotation
 
 
 FONTSIZE = 12
-# MARKERSIZE = 10
-# LINEWIDTH = 3
 
-tau_h_data = ["LDG-H/LDG-H-d%d-tau_order-h.csv" % i
+tau_h_data = ["results/LDG-H-d%d-tau_order-h.csv" % i
               for i in range(1, 4)]
-tau_hneg1_data = ["LDG-H/LDG-H-d%d-tau_order-hneg1.csv" % i
+tau_hneg1_data = ["results/LDG-H-d%d-tau_order-hneg1.csv" % i
                   for i in range(1, 4)]
 
 for data in tau_h_data + tau_hneg1_data:

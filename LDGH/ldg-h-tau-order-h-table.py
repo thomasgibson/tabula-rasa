@@ -3,9 +3,9 @@ import sys
 import pandas as pd
 
 
-data_set = ["LDG-H/LDG-H-d1-tau_order-h.csv",
-            "LDG-H/LDG-H-d2-tau_order-h.csv",
-            "LDG-H/LDG-H-d3-tau_order-h.csv"]
+data_set = ["results/LDG-H-d1-tau_order-h.csv",
+            "results/LDG-H-d2-tau_order-h.csv",
+            "results/LDG-H-d3-tau_order-h.csv"]
 
 for data in data_set:
     if not os.path.exists(data):

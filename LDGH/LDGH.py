@@ -284,7 +284,7 @@ def run_LDG_H_problem(r, degree, tau_order, write=False):
         else:
             o = tau_order
 
-        File("LDGH_tauO%s_deg%d.pvd" %
+        File("results/LDGH_tauO%s_deg%d.pvd" %
              (o, degree)).write(q_a, u_a, q_h, u_h, u_pp)
 
     # Return all error metrics
@@ -399,5 +399,5 @@ def run_LDG_H_convergence(degree, tau_order, start, end):
             o = tau_order
 
         df = pd.DataFrame(data)
-        result = "LDG-H-d%d-tau_order-%s.csv" % (degree, o)
+        result = "results/LDG-H-d%d-tau_order-%s.csv" % (degree, o)
         df.to_csv(result, index=False, mode="w")
