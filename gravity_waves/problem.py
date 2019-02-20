@@ -218,15 +218,15 @@ class GravityWaveProblem(object):
     def output_file(self):
         dirname = "results/"
         if self.hybridization:
-            dirname += "hybrid_%s%d_ref%d_Dt%s/" % (self.method,
+            dirname += "hybrid_%s%d_ref%d_CFL%s/" % (self.method,
+                                                     self.model_degree,
+                                                     self.refinement_level,
+                                                     self.courant)
+        else:
+            dirname += "gmres_%s%d_ref%d_CFL%s/" % (self.method,
                                                     self.model_degree,
                                                     self.refinement_level,
-                                                    self.Dt)
-        else:
-            dirname += "gmres_%s%d_ref%d_Dt%s/" % (self.method,
-                                                   self.model_degree,
-                                                   self.refinement_level,
-                                                   self.Dt)
+                                                    self.courant)
         return File(dirname + "gw_" + str(self.refinement_level) + ".pvd")
 
     def write(self, dumpcount, dumpfreq):

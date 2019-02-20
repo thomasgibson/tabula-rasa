@@ -232,13 +232,13 @@ tmax: %s s
     num_cells = comm.allreduce(problem.num_cells, op=MPI.SUM)
 
     if problem.hybridization:
-        results_data = "hybrid_%s_data_GW_ref%d_nlayers%d_CFL%s" % (
+        results_data = "results/hybrid_%s_data_GW_ref%d_nlayers%d_CFL%s" % (
             problem.method,
             ref,
             nlayers,
             cfl
         )
-        results_timings = "hybrid_%s_profile_GW_ref%d_nlayers%d_CFL%s" % (
+        results_timings = "results/hybrid_%s_profile_GW_ref%d_nlayers%d_CFL%s" % (
             problem.method,
             ref,
             nlayers,
@@ -272,13 +272,13 @@ tmax: %s s
         full_solve = (transfer + trace_solve + rhstime
                       + recon_time + projection + update_time)
     else:
-        results_data = "gmres_%s_data_W5_ref%d_nlayers%d_CFL%s" % (
+        results_data = "results/gmres_%s_data_GW_ref%d_nlayers%d_CFL%s" % (
             problem.method,
             ref,
             nlayers,
             cfl
         )
-        results_timings = "gmres_%s_profile_W5_ref%d_nlayers%d_CFL%s" % (
+        results_timings = "results/gmres_%s_profile_GW_ref%d_nlayers%d_CFL%s" % (
             problem.method,
             ref,
             nlayers,
