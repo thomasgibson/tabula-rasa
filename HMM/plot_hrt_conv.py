@@ -9,10 +9,8 @@ from mpltools import annotation
 
 
 FONTSIZE = 12
-# MARKERSIZE = 10
-# LINEWIDTH = 3
 
-rt_data = ["hybrid-mixed/H-RT-degree-%d.csv" % i for i in range(0, 4)]
+rt_data = ["results/H-RT-degree-%d.csv" % i for i in range(0, 4)]
 
 for data in rt_data:
     if not os.path.exists(data):

@@ -210,7 +210,7 @@ def run_mixed_hybrid_problem(r, degree, mixed_method, write=False):
 
     # If write specified, then write output
     if write:
-        File("Hybrid-%s_deg%d.pvd" %
+        File("results/Hybrid-%s_deg%d.pvd" %
              (mixed_method, degree)).write(q_a, u_a,
                                            u_h, u_pp)
 
@@ -307,5 +307,5 @@ def run_mixed_hybrid_convergence(degree, method, start, end):
                 "PostProcessedScalarRates": scalar_pp_rates}
 
         df = pd.DataFrame(data)
-        result = "H-%s-degree-%d.csv" % (method, degree)
+        result = "results/H-%s-degree-%d.csv" % (method, degree)
         df.to_csv(result, index=False, mode="w")

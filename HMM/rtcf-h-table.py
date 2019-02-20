@@ -3,10 +3,10 @@ import sys
 import pandas as pd
 
 
-data_set = ["hybrid-mixed/H-RTCF-degree-0.csv",
-            "hybrid-mixed/H-RTCF-degree-1.csv",
-            "hybrid-mixed/H-RTCF-degree-2.csv",
-            "hybrid-mixed/H-RTCF-degree-3.csv"]
+data_set = ["results/H-RTCF-degree-0.csv",
+            "results/H-RTCF-degree-1.csv",
+            "results/H-RTCF-degree-2.csv",
+            "results/H-RTCF-degree-3.csv"]
 
 for data in data_set:
     if not os.path.exists(data):
