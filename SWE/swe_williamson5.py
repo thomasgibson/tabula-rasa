@@ -73,6 +73,10 @@ parser.add_argument("--write",
                     action="store_true",
                     help="Write output.")
 
+parser.add_argument("--monitor",
+                    action="store_true",
+                    help="Turn on KSP monitors for debugging")
+
 parser.add_argument("--help",
                     action="store_true",
                     help="Show help")
@@ -112,7 +116,8 @@ hybridization: %s,\n
                               Dt=Dt,
                               method=method,
                               hybridization=hybridization,
-                              model_degree=model_degree)
+                              model_degree=model_degree,
+                              monitor=args.monitor)
         problem.warmup()
         return
 
@@ -122,7 +127,8 @@ hybridization: %s,\n
                           Dt=Dt,
                           method=method,
                           hybridization=hybridization,
-                          model_degree=model_degree)
+                          model_degree=model_degree,
+                          monitor=args.monitor)
 
     cfl = problem.courant
     dx_max = problem.dx_max

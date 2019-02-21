@@ -31,13 +31,15 @@ class W5Problem(object):
 
     def __init__(self, refinement_level, R,
                  H, Dt, method="BDM",
-                 hybridization=False, model_degree=2):
+                 hybridization=False, model_degree=2,
+                 monitor=False):
         super(W5Problem, self).__init__()
 
         self.refinement_level = refinement_level
         self.method = method
         self.model_degree = model_degree
         self.hybridization = hybridization
+        self.monitor = monitor
 
         # Mesh radius
         self.R = R
@@ -268,6 +270,9 @@ class W5Problem(object):
                 }
             }
 
+            if self.monitor:
+                parameters['hybridization']['ksp_monitor_true_residual'] = None
+
         else:
             parameters = {
                 'ksp_type': 'gmres',
@@ -297,6 +302,9 @@ class W5Problem(object):
                     }
                 }
             }
+
+            if self.monitor:
+                parameters['ksp_monitor_true_residual'] = None
 
         DUsolver = LinearVariationalSolver(DUproblem,
                                            solver_parameters=parameters,
@@ -376,6 +384,7 @@ class W5Problem(object):
 
     def warmup(self):
 
+        self.initialize()
         un, Dn = self.state
         up, Dp = self.updates
         up.assign(un)
