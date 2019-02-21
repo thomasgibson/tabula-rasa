@@ -2,11 +2,11 @@ import os
 import pandas as pd
 
 hdg_params = [(64, 1), (64, 2), (64, 3)]
-hdg_data = ["HDG_CG_comp/HDG_data_N%d_deg%d.csv" % param
+hdg_data = ["results/HDG_data_N%d_deg%d.csv" % param
             for param in hdg_params]
 
 cg_params = [(64, 2), (64, 3), (64, 4)]
-cg_data = ["HDG_CG_comp/CG_data_N%d_deg%d.csv" % param
+cg_data = ["results/CG_data_N%d_deg%d.csv" % param
            for param in cg_params]
 
 for d in hdg_data + cg_data:
@@ -93,14 +93,6 @@ table += lformat.format(stage="Back substitution",
                         t3=recovery3,
                         p3=recovery3/total3 * 100.)
 
-# table += lformat.format(stage="Residual evaluation",
-#                         t1=residual1,
-#                         p1=residual1/total1 * 100.,
-#                         t2=residual2,
-#                         p2=residual2/total2 * 100.,
-#                         t3=residual3,
-#                         p3=residual3/total3 * 100.)
-
 table += lformat.format(stage="Post processing",
                         t1=pp1,
                         p1=pp1/total1 * 100.,
@@ -116,9 +108,9 @@ table += r"""HDG Total & %.2f & & %.2f & & %.2f & \\ \hline""" % (total1,
                                                                   total3)
 
 table += r"""
-& \multicolumn{2}{c}{$HDG_1$}
-& \multicolumn{2}{c}{$HDG_2$}
-& \multicolumn{2}{c}{$HDG_3$}
+& \multicolumn{2}{c}{$CG_2$}
+& \multicolumn{2}{c}{$CG_3$}
+& \multicolumn{2}{c}{$CG_4$}
 \\
 & $t_{\text{stage}}$ (s) & \% $t_{\text{total}}$
 & $t_{\text{stage}}$ (s) & \% $t_{\text{total}}$

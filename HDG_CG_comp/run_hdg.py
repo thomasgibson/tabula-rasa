@@ -15,7 +15,7 @@ parser = ArgumentParser(description="""Profile HDG solver.""",
                         add_help=False)
 
 parser.add_argument("--results_file", action="store",
-                    default="HDG_data",
+                    default="results/HDG_data",
                     help="Where to put the results.")
 
 parser.add_argument("--dim", action="store", default=3,

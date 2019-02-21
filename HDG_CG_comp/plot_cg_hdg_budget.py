@@ -16,7 +16,7 @@ hdg_params = [(4, 1), (4, 2), (4, 3),
               (32, 1), (32, 2), (32, 3),
               (64, 1), (64, 2), (64, 3),
               (128, 1)]
-hdg_data = ["HDG_CG_comp/HDG_data_N%d_deg%d.csv" % param
+hdg_data = ["results/HDG_data_N%d_deg%d.csv" % param
             for param in hdg_params]
 
 cg_params = [(4, 2), (4, 3), (4, 4),
@@ -25,7 +25,7 @@ cg_params = [(4, 2), (4, 3), (4, 4),
              (32, 2), (32, 3), (32, 4),
              (64, 2), (64, 3), (64, 4),
              (128, 2)]
-cg_data = ["HDG_CG_comp/CG_data_N%d_deg%d.csv" % param
+cg_data = ["results/CG_data_N%d_deg%d.csv" % param
            for param in cg_params]
 
 for d in hdg_data + cg_data:

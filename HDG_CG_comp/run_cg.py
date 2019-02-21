@@ -15,7 +15,7 @@ parser = ArgumentParser(description="""Profile CG solver.""",
                         add_help=False)
 
 parser.add_argument("--results_file", action="store",
-                    default="CG_data",
+                    default="results/CG_data",
                     help="Where to put the results.")
 
 parser.add_argument("--dim", action="store", default=3,
