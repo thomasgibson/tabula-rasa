@@ -275,10 +275,9 @@ class W5Problem(object):
 
         else:
             parameters = {
-                'ksp_type': 'gmres',
+                'ksp_type': 'fgmres',
                 'pc_type': 'fieldsplit',
                 'pc_fieldsplit_type': 'schur',
-                'ksp_type': 'gmres',
                 'ksp_rtol': 1e-8,
                 'ksp_max_it': 100,
                 'ksp_gmres_restart': 50,
