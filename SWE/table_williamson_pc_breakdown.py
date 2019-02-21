@@ -6,9 +6,9 @@ import pandas as pd
 params = [("RT", 1, 8, 28.125),
           ("BDM", 2, 8, 28.125)]
 
-gmres_times = ["SWE/gmres_%s%s_profile_W5_ref%d_Dt%s_NS100.csv" % param
+gmres_times = ["results/gmres_%s%s_profile_W5_ref%d_Dt%s_NS100.csv" % param
                for param in params]
-hybrid_times = ["SWE/hybrid_%s%s_profile_W5_ref%d_Dt%s_NS100.csv" % param
+hybrid_times = ["results/hybrid_%s%s_profile_W5_ref%d_Dt%s_NS100.csv" % param
                 for param in params]
 
 rt_data = "SWE/gmres_RT1_data_W5_ref8_Dt28.125_NS100.csv"

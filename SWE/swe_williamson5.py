@@ -192,14 +192,18 @@ Dx (max): %s km.
     num_cells = comm.allreduce(problem.num_cells, op=MPI.SUM)
 
     if problem.hybridization:
-        results_data = "hybrid_%s_data_W5_ref%d_Dt%s_NS%d.csv" % (problem.method,
-                                                                  ref,
-                                                                  Dt,
-                                                                  nsteps)
-        results_timings = "hybrid_%s_profile_W5_ref%d_Dt%s_NS%d.csv" % (problem.method,
-                                                                        ref,
-                                                                        Dt,
-                                                                        nsteps)
+        results_data = "results/hybrid_%s_data_W5_ref%d_Dt%s_NS%d.csv" % (
+            problem.method,
+            ref,
+            Dt,
+            nsteps
+        )
+        results_timings = "results/hybrid_%s_profile_W5_ref%d_Dt%s_NS%d.csv" % (
+            problem.method,
+            ref,
+            Dt,
+            nsteps
+        )
 
         RHS = PETSc.Log.Event("HybridRHS").getPerfInfo()
         trace = PETSc.Log.Event("SCSolve").getPerfInfo()
@@ -228,14 +232,18 @@ Dx (max): %s km.
         full_solve = (transfer + trace_solve + rhstime
                       + recon_time + projection + update_time)
     else:
-        results_data = "gmres_%s_data_W5_ref%d_Dt%s_NS%d.csv" % (problem.method,
-                                                                 ref,
-                                                                 Dt,
-                                                                 nsteps)
-        results_timings = "gmres_%s_profile_W5_ref%d_Dt%s_NS%d.csv" % (problem.method,
-                                                                       ref,
-                                                                       Dt,
-                                                                       nsteps)
+        results_data = "results/gmres_%s_data_W5_ref%d_Dt%s_NS%d.csv" % (
+            problem.method,
+            ref,
+            Dt,
+            nsteps
+        )
+        results_timings = "results/gmres_%s_profile_W5_ref%d_Dt%s_NS%d.csv" % (
+            problem.method,
+            ref,
+            Dt,
+            nsteps
+        )
 
         KSPSchur = PETSc.Log.Event("KSPSolve_FS_Schu").getPerfInfo()
         KSPF0 = PETSc.Log.Event("KSPSolve_FS_0").getPerfInfo()
