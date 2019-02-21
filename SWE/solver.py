@@ -290,10 +290,9 @@ class W5Problem(object):
                     'sub_pc_type': 'ilu'
                 },
                 'fieldsplit_1': {
-                    'ksp_type': 'preonly',
+                    'ksp_type': 'cg',
                     'pc_type': 'gamg',
                     'pc_gamg_reuse_interpolation': None,
-                    'ksp_rtol': 1e-8,
                     'mg_levels': {
                         'ksp_type': 'chebyshev',
                         'ksp_max_it': 2,
