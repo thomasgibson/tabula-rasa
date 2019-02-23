@@ -4,12 +4,12 @@ import pandas as pd
 from firedrake import *
 
 
-params = [("RT", 1, 8, 28.125),
-          ("BDM", 2, 8, 28.125)]
+params = [("RT", 8, 62.5),
+          ("BDM", 8, 62.5)]
 
-gmres_data = ["results/gmres_%s%s_profile_W5_ref%d_Dt%s_NS100.csv" % param
+gmres_data = ["results/gmres_%s_profile_W5_ref%d_Dt%s_NS20.csv" % param
               for param in params]
-hybrid_data = ["results/hybrid_%s%s_profile_W5_ref%d_Dt%s_NS100.csv" % param
+hybrid_data = ["results/hybrid_%s_profile_W5_ref%d_Dt%s_NS20.csv" % param
                for param in params]
 
 for data in gmres_data + hybrid_data:
@@ -18,35 +18,17 @@ for data in gmres_data + hybrid_data:
         sys.exit(1)
 
 
-method_map = {("RT", 1): "{$RT_1 \\times DG_0$}",
-              ("BDM", 2): "{$BDM_2 \\times DG_1$}"}
+method_map = {("RT", 1): "{$\\text{RT}_1 \\times \\text{DG}_0$}",
+              ("BDM", 2): "{$\\text{BDM}_2 \\times \\text{DG}_1$}"}
 
 
 gmres_dfs = [pd.read_csv(d) for d in gmres_data]
 hybrid_dfs = [pd.read_csv(d) for d in hybrid_data]
 
 # Grid and discretization information
-table = r"""\begin{tabular}{ccccc}
-\hline
-\multicolumn{5}{c}{\textbf{Grid information}} \\
-\multirow{2}{*}{Refinements} &
-Number of & $\Delta x_{\text{min}}$ & $\Delta x_{\text{max}}$ &
-\multirow{2}{*}{$\Delta t$ (s)}\\
-& cells & (km) & (km) & \\ \hline
-"""
-
-# All have the same grid information recorded
-df = gmres_dfs[0]
-
-grid_format = r"""{refinements} & {cells} & {dxmin: .3f} & {dxmax: .3f} & {dt}\\
+table = r"""\begin{tabular}{ccccccc}
 \hline
 """
-
-table += grid_format.format(refinements=df.refinement_level.values[0],
-                            cells=df.num_cells.values[0],
-                            dxmin=df.DxMin.values[0]/1000,
-                            dxmax=df.DxMax.values[0]/1000,
-                            dt=df.Dt.values[0])
 
 # Discretization information
 # build the mesh and function spaces to get u and D dofs
@@ -61,14 +43,14 @@ dDG0 = Function(DG0)
 uBDM2 = Function(BDM2)
 dDG1 = Function(DG1)
 
-table += r"""\multicolumn{5}{c}{\textbf{Discretization properties}} \\
-\multicolumn{2}{c}{\multirow{2}{*}{Mixed method}} &
-Velocity & Depth & \multirow{2}{*}{Total} \\
-& & unknowns & unknowns & \\ \hline
+table += r"""\multicolumn{7}{c}{\textbf{Discretization properties}} \\
+\multicolumn{2}{c}{\multirow{2}{*}{Mixed method}} & \multirow{2}{*}{\# cells} &
+\multirow{2}{*}{$\Delta x$} & Velocity & Depth & \multirow{2}{*}{Total}  \\
+& & &  unknowns & unknowns & \\ \hline
 """
 
 
-mtd_format = r"""{method} & {udofs} & {ddofs} & {total} \\
+mtd_format = r"""{method} & {cells} & {dx} & {udofs} & {ddofs} & {total} \\
 """
 for df in gmres_dfs:
     method = df.method.values[0]
@@ -83,9 +65,13 @@ for df in gmres_dfs:
 
     total_dofs = df.total_dofs.values[0]
     assert total_dofs == udofs + ddofs
+    ncells = df.num_cells.values[0]
+    dxmax = df.DxMax.values[0]
 
     table += r"""\multicolumn{2}{c}"""
     table += mtd_format.format(method=method_map[(method, deg)],
+                               cells=ncells,
+                               dx=dxmax/1000,
                                udofs=udofs,
                                ddofs=ddofs,
                                total=total_dofs)
