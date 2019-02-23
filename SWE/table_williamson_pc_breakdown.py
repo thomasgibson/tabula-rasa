@@ -3,16 +3,16 @@ import sys
 import pandas as pd
 
 
-params = [("RT", 1, 8, 28.125),
-          ("BDM", 2, 8, 28.125)]
+params = [("RT", 8, 62.5),
+          ("BDM", 8, 62.5)]
 
-gmres_times = ["results/gmres_%s%s_profile_W5_ref%d_Dt%s_NS100.csv" % param
+gmres_times = ["results/gmres_%s_profile_W5_ref%d_Dt%s_NS20.csv" % param
                for param in params]
-hybrid_times = ["results/hybrid_%s%s_profile_W5_ref%d_Dt%s_NS100.csv" % param
+hybrid_times = ["results/hybrid_%s_profile_W5_ref%d_Dt%s_NS20.csv" % param
                 for param in params]
 
-rt_data = "SWE/gmres_RT1_data_W5_ref8_Dt28.125_NS100.csv"
-bdm_data = "SWE/gmres_BDM2_data_W5_ref8_Dt28.125_NS100.csv"
+rt_data = "results/gmres_RT_data_W5_ref8_Dt62.5_NS20.csv"
+bdm_data = "results/gmres_BDM_data_W5_ref8_Dt62.5_NS20.csv"
 
 for data in gmres_times + hybrid_times + [rt_data, bdm_data]:
     if not os.path.exists(data):
@@ -29,8 +29,8 @@ table = r"""\begin{tabular}{llcccc}
 \hline
 \multirow{2}{*}{Preconditioner} &
 \multirow{2}{*}{Stage} &
-\multicolumn{2}{c}{$RT_1 \times DG_0$} &
-\multicolumn{2}{c}{$BDM_2 \times DG_1$} \\
+\multicolumn{2}{c}{$\text{RT}_1 \times \text{DG}_0$} &
+\multicolumn{2}{c}{$\text{BDM}_2 \times \text{DG}_1$} \\
 & & $t_{\text{stage}}$ (s) & \% $t_{\text{total}}$
 & $t_{\text{stage}}$ (s) & \% $t_{\text{total}}$ \\ \hline
 """
@@ -44,7 +44,7 @@ gmres_iter_bdm = df_bdm_data.OuterIters.values.sum()
 
 # NOTE: for hybridization, we report time per picard iteration
 # since there are no outer GMRES iterations.
-npicard = 400  # 4 per time-step, for 100 time-steps
+npicard = 4 * 20  # 4 per time-step, for 20 time-steps
 
 table += r"""
 \multirow{4}{*}{approx. Schur}
