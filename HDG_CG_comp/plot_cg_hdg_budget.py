@@ -42,10 +42,10 @@ seaborn.set(style="ticks")
 fig, (axes,) = plt.subplots(1, 1, figsize=(7, 5), squeeze=False)
 ax, = axes
 ax.set_ylabel("$L^2$ error", fontsize=FONTSIZE+2)
-ax.spines["left"].set_position(("outward", 10))
-ax.spines["bottom"].set_position(("outward", 10))
-ax.spines["top"].set_visible(False)
-ax.spines["right"].set_visible(False)
+# ax.spines["left"].set_position(("outward", 10))
+# ax.spines["bottom"].set_position(("outward", 10))
+# ax.spines["top"].set_visible(False)
+# ax.spines["right"].set_visible(False)
 ax.xaxis.set_ticks_position("bottom")
 ax.yaxis.set_ticks_position("left")
 ax.set_xscale('log')
@@ -158,7 +158,7 @@ xlabel = fig.text(0.5, -0.1,
 handles, labels = ax.get_legend_handles_labels()
 legend = fig.legend(handles, labels,
                     loc=9,
-                    bbox_to_anchor=(0.5, 1.1),
+                    bbox_to_anchor=(0.5, 1.14),
                     bbox_transform=fig.transFigure,
                     ncol=2,
                     handlelength=3,
@@ -166,7 +166,7 @@ legend = fig.legend(handles, labels,
                     numpoints=1,
                     frameon=False)
 
-seaborn.despine(fig)
+# seaborn.despine(fig)
 fig.savefig("budget.pdf",
             orientation="landscape",
             format="pdf",

@@ -110,7 +110,7 @@ xlabel = fig.text(0.5, -0.05,
 legend1 = plt.legend((a3[0], a1[0]),
                      ("CG assembly", "CG solve"),
                      ncol=1,
-                     bbox_to_anchor=(0.25, 1))
+                     bbox_to_anchor=(0.3, 1))
 legend2 = plt.legend((a8[0], a7[0], a6[0], a5[0], a4[0]),
                      ("HDG post-processing", "HDG back sub.",
                       "HDG forward elim.", "HDG assembly",

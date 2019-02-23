@@ -48,10 +48,10 @@ fig, (axes,) = plt.subplots(1, 1, figsize=(7, 5), squeeze=False)
 ax1, = axes
 
 
-ax1.spines["left"].set_position(("outward", 10))
-ax1.spines["bottom"].set_position(("outward", 10))
-ax1.spines["top"].set_visible(False)
-ax1.spines["right"].set_visible(False)
+# ax1.spines["left"].set_position(("outward", 10))
+# ax1.spines["bottom"].set_position(("outward", 10))
+# ax1.spines["top"].set_visible(False)
+# ax1.spines["right"].set_visible(False)
 ax1.xaxis.set_ticks_position("bottom")
 ax1.yaxis.set_ticks_position("left")
 
@@ -149,7 +149,7 @@ xlabel = fig.text(0.5, -0.1,
                   "Number of cells",
                   ha='center',
                   fontsize=FONTSIZE+2)
-seaborn.despine(fig)
+# seaborn.despine(fig)
 fig.savefig("data.pdf",
             orientation="landscape",
             format="pdf",
