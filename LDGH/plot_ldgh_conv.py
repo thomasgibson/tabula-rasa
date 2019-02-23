@@ -37,12 +37,12 @@ markers = ["o", "s", "^", "v", ">", "<", "D", "p", "h", "*"]
 colors = seaborn.color_palette(n_colors=3)
 seaborn.set(style="ticks")
 
-fig, axes = plt.subplots(2, 2, figsize=(7, 5), squeeze=False)
+fig, axes = plt.subplots(2, 2, figsize=(7, 6), squeeze=False)
 axes = axes.flatten()
 ax1, ax2, ax3, ax4 = axes
 
-ymin1 = 0.5e-10
-ymin2 = 1.0e-8
+ymin1 = 0.5e-13
+ymin2 = 1.0e-10
 ymax = 1.0
 ax1.set_ylim(ymin1, ymax)
 ax2.set_ylim(ymin1, ymax)
@@ -55,10 +55,10 @@ ax3.spines["left"].set_bounds(ymin2, ymax)
 ax4.spines["left"].set_bounds(ymin2, ymax)
 
 for ax in [ax1, ax2, ax3, ax4]:
-    ax.spines["left"].set_position(("outward", 10))
-    ax.spines["bottom"].set_position(("outward", 10))
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
+    # ax.spines["left"].set_position(("outward", 10))
+    # ax.spines["bottom"].set_position(("outward", 10))
+    # ax.spines["top"].set_visible(False)
+    # ax.spines["right"].set_visible(False)
     ax.xaxis.set_ticks_position("bottom")
     ax.yaxis.set_ticks_position("left")
     ax.set_xscale('log')
@@ -158,20 +158,20 @@ annotation.slope_marker((0.12, 0.2), 1, ax=ax1,
                         invert=False,
                         text_kwargs={'fontsize': FONTSIZE-2,
                                      'color': colors[0],
-                                     'position': (0.070, 0.15)},
+                                     'position': (0.06, 0.15)},
                         poly_kwargs={'facecolor': colors[0]})
 
 annotation.slope_marker((0.035, 2e-3), 2, ax=ax1,
                         invert=False,
                         text_kwargs={'fontsize': FONTSIZE-2,
                                      'color': colors[1],
-                                     'position': (0.02, 1e-3)},
+                                     'position': (0.018, 1e-3)},
                         poly_kwargs={'facecolor': colors[1]})
 
 annotation.slope_marker((0.02, 2e-7), 3, ax=ax1,
                         text_kwargs={'fontsize': FONTSIZE-2,
                                      'color': colors[2],
-                                     'position': (0.035, 2.75e-7)},
+                                     'position': (0.04, 2.75e-7)},
                         invert=True, poly_kwargs={'facecolor': colors[2]})
 
 # Slope markers for post-processed scalar
@@ -179,7 +179,7 @@ annotation.slope_marker((0.025, 1e-5), 3, ax=ax2,
                         invert=False,
                         text_kwargs={'fontsize': FONTSIZE-2,
                                      'color': colors[0],
-                                     'position': (0.014, 0.55e-5)},
+                                     'position': (0.012, 0.55e-5)},
                         poly_kwargs={'facecolor': colors[0]})
 
 annotation.slope_marker((0.025, 0.75e-7), 4, ax=ax2,
@@ -201,14 +201,14 @@ annotation.slope_marker((0.025, 2e-3), 2, ax=ax3,
                         invert=False,
                         text_kwargs={'fontsize': FONTSIZE-2,
                                      'color': colors[0],
-                                     'position': (0.014, 1e-3)},
+                                     'position': (0.012, 1e-3)},
                         poly_kwargs={'facecolor': colors[0]})
 
 annotation.slope_marker((0.025, 2e-5), 3, ax=ax3,
                         invert=False,
                         text_kwargs={'fontsize': FONTSIZE-2,
                                      'color': colors[1],
-                                     'position': (0.014, 1e-5)},
+                                     'position': (0.012, 1e-5)},
                         poly_kwargs={'facecolor': colors[1]})
 
 annotation.slope_marker((0.035, 1e-7), 4, ax=ax3,
@@ -223,14 +223,14 @@ annotation.slope_marker((0.025, 2e-3), 2, ax=ax4,
                         invert=False,
                         text_kwargs={'fontsize': FONTSIZE-2,
                                      'color': colors[0],
-                                     'position': (0.014, 1e-3)},
+                                     'position': (0.012, 1e-3)},
                         poly_kwargs={'facecolor': colors[0]})
 
 annotation.slope_marker((0.025, 1e-5), 3, ax=ax4,
                         invert=False,
                         text_kwargs={'fontsize': FONTSIZE-2,
                                      'color': colors[1],
-                                     'position': (0.014, 0.5e-5)},
+                                     'position': (0.012, 0.5e-5)},
                         poly_kwargs={'facecolor': colors[1]})
 
 annotation.slope_marker((0.035, 0.5e-7), 4, ax=ax4,
@@ -266,8 +266,8 @@ for ax in [ax1, ax3]:
 for ax in axes:
     ax.grid(b=True, which='major', linestyle='-.')
 
-fig.subplots_adjust(wspace=0.1, hspace=0.25)
-xlabel = fig.text(0.5, -0.03,
+fig.subplots_adjust(wspace=0.075, hspace=0.2)
+xlabel = fig.text(0.5, 0,
                   "Mesh size $2^{-r}$",
                   ha='center',
                   fontsize=FONTSIZE)
@@ -275,7 +275,7 @@ xlabel = fig.text(0.5, -0.03,
 handles, labels = ax1.get_legend_handles_labels()
 legend = fig.legend(handles, labels,
                     loc=9,
-                    bbox_to_anchor=(0.5, 1.075),
+                    bbox_to_anchor=(0.5, 1.05),
                     bbox_transform=fig.transFigure,
                     ncol=3,
                     handlelength=2,
@@ -283,7 +283,7 @@ legend = fig.legend(handles, labels,
                     numpoints=1,
                     frameon=False)
 
-seaborn.despine(fig)
+# seaborn.despine(fig)
 fig.savefig("LDGH-convergence.pdf",
             orientation="landscape",
             format="pdf",
