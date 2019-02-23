@@ -333,7 +333,7 @@ if args.profile:
                     refinements=refinements,
                     method=method,
                     model_degree=model_degree,
-                    nsteps=100,
+                    nsteps=20,
                     hybridization=hybridization,
                     write=False,
                     # Do a cold run to generate code
@@ -345,7 +345,7 @@ if args.profile:
                     refinements=refinements,
                     method=method,
                     model_degree=model_degree,
-                    nsteps=100,
+                    nsteps=20,
                     hybridization=hybridization,
                     write=False,
                     cold=False)
@@ -356,7 +356,7 @@ else:
                     refinements=refinements,
                     method=method,
                     model_degree=model_degree,
-                    nsteps=100,
+                    nsteps=20,
                     hybridization=hybridization,
                     write=args.write,
                     cold=False)
