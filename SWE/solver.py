@@ -45,7 +45,7 @@ class W5Problem(object):
         self.R = R
 
         # Earth-sized mesh
-        mesh_degree = 3
+        mesh_degree = 2
         if self.method == "RTCF":
             mesh = CubedSphereMesh(self.R, self.refinement_level,
                                    degree=mesh_degree)
@@ -257,6 +257,7 @@ class W5Problem(object):
                 'pc_python_type': 'firedrake.HybridizationPC',
                 'hybridization': {
                     'ksp_type': 'gmres',
+                    'ksp_max_it': 100,
                     'pc_type': 'gamg',
                     'pc_gamg_reuse_interpolation': None,
                     'pc_gamg_sym_graph': None,
@@ -276,13 +277,15 @@ class W5Problem(object):
         else:
             parameters = {
                 'ksp_type': 'gmres',
-                'pc_type': 'fieldsplit',
-                'pc_fieldsplit_type': 'schur',
-                'ksp_rtol': 1e-8,
-                'ksp_max_it': 100,
+                'ksp_rtol': 1.0e-8,
+                'ksp_max_it': 500,
                 'ksp_gmres_restart': 50,
-                'pc_fieldsplit_schur_fact_type': 'FULL',
-                'pc_fieldsplit_schur_precondition': 'selfp',
+                'pc_type': 'fieldsplit',
+                'pc_fieldsplit': {
+                    'type': 'schur',
+                    'schur_fact_type': 'full',
+                    'schur_precondition': 'selfp'
+                },
                 'fieldsplit_0': {
                     'ksp_type': 'preonly',
                     'pc_type': 'bjacobi',
@@ -303,6 +306,7 @@ class W5Problem(object):
 
             if self.monitor:
                 parameters['ksp_monitor_true_residual'] = None
+                parameters['fieldsplit_1']['ksp_monitor_true_residual'] = None
 
         DUsolver = LinearVariationalSolver(DUproblem,
                                            solver_parameters=parameters,
