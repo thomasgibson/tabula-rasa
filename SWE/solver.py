@@ -50,8 +50,9 @@ class W5Problem(object):
             mesh = CubedSphereMesh(self.R, self.refinement_level,
                                    degree=mesh_degree)
         else:
-            mesh = IcosahedralSphereMesh(self.R, self.refinement_level,
-                                         degree=mesh_degree)
+            mesh = OctahedralSphereMesh(self.R, self.refinement_level,
+                                        degree=mesh_degree,
+                                        hemisphere="both")
 
         x = SpatialCoordinate(mesh)
         global_normal = as_vector(x)
