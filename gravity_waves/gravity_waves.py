@@ -38,6 +38,12 @@ parser.add_argument("--X",
                     type=float,
                     help="Factor to scale the Earth's radius")
 
+parser.add_argument("--H",
+                    action="store",
+                    default=1.0e4,
+                    type=float,
+                    help="Atmospheric lid")
+
 parser.add_argument("--dt",
                     action="store",
                     type=float,
@@ -124,7 +130,7 @@ def run_gravity_waves(problem_cls, Dt, cfl, refinements, nlayers, method,
                       hybridization, write=False, cold=False):
 
     # Max height (m)
-    thickness = 1.0E4
+    thickness = args.H
 
     if cold:
         PETSc.Sys.Print("""
