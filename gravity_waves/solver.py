@@ -133,7 +133,8 @@ class GravityWaveSolver(object):
 
         up_problem = LinearVariationalProblem(a_up, L_up, up, bcs=bcs)
         up_solver = LinearVariationalSolver(up_problem,
-                                            solver_parameters=parameters)
+                                            solver_parameters=parameters,
+                                            options_prefix="up_solver")
 
         self._up_solver = up_solver
 
