@@ -61,9 +61,6 @@ class ProfileGravityWaveSolver(object):
                             layer_height=self.H / self.nlayers)
         self.mesh = mesh
 
-        vert_norm = VerticalNormal(self.mesh)
-        self.khat = vert_norm.khat
-
         # Get Dx information (this is approximate).
         # We compute the area (m^2) of each cell in the mesh,
         # then take the square root to get the right units.
@@ -124,6 +121,9 @@ class ProfileGravityWaveSolver(object):
         x = SpatialCoordinate(mesh)
         fexpr = 2*self.Omega*x[2]/self.R
         self._fexpr = fexpr
+
+        xnorm = sqrt(inner(x, x))
+        self.khat = interpolate(x/xnorm, mesh.coordinates.function_space())
 
         self._build_initial_conditions()
 
