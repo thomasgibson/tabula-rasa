@@ -1,3 +1,4 @@
+
 from firedrake import *
 from pyop2.profiling import timed_stage
 
@@ -84,7 +85,7 @@ class GravityWaveSolver(object):
             parameters = {
                 'pc_type': 'fieldsplit',
                 'pc_fieldsplit_type': 'schur',
-                'ksp_type': 'gmres',
+                'ksp_type': 'fgmres',
                 'ksp_max_it': self._maxiter,
                 'ksp_rtol': self._rtol,
                 'pc_fieldsplit_schur_fact_type': 'FULL',
@@ -95,7 +96,7 @@ class GravityWaveSolver(object):
                     'sub_pc_type': 'ilu'
                 },
                 'fieldsplit_1': {
-                    'ksp_type': 'preonly',
+                    'ksp_type': 'cg',
                     'pc_type': 'gamg',
                     'pc_mg_cycles': 'v',
                     'pc_gamg_reuse_interpolation': None,
