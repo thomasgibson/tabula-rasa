@@ -96,7 +96,7 @@ class GravityWaveSolver(object):
                     'sub_pc_type': 'ilu'
                 },
                 'fieldsplit_1': {
-                    'ksp_type': 'cg',
+                    'ksp_type': 'preonly',
                     'pc_type': 'gamg',
                     'pc_mg_cycles': 'v',
                     'pc_gamg_reuse_interpolation': None,
