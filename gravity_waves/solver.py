@@ -70,7 +70,7 @@ class GravityWaveSolver(object):
                     'pc_gamg_sym_graph': None,
                     'mg_levels': {
                         'ksp_type': 'gmres',
-                        'ksp_max_it': 5,
+                        'ksp_max_it': 3,
                         'pc_type': 'bjacobi',
                         'sub_pc_type': 'ilu'
                     }
@@ -85,7 +85,6 @@ class GravityWaveSolver(object):
                 'pc_type': 'fieldsplit',
                 'pc_fieldsplit_type': 'schur',
                 'ksp_type': 'gmres',
-                'ksp_norm_type': 'unpreconditioned',
                 'ksp_max_it': self._maxiter,
                 'ksp_rtol': self._rtol,
                 'pc_fieldsplit_schur_fact_type': 'FULL',
@@ -97,27 +96,24 @@ class GravityWaveSolver(object):
                 },
                 'fieldsplit_1': {
                     'ksp_type': 'preonly',
-                    'pc_type': 'hypre',
-                    'pc_hypre_type': 'boomeramg',
-                    'pc_hypre_boomeramg_max_iter': 1,
-                    'pc_hypre_boomeramg_agg_nl': 0,
-                    'pc_hypre_boomeramg_coarsen_type': 'Falgout',
-                    'pc_hypre_boomeramg_smooth_type': 'Euclid',
-                    'pc_hypre_boomeramg_eu_bj': 1,
-                    'pc_hypre_boomeramg_interptype': 'classical',
-                    'pc_hypre_boomeramg_P_max': 0,
-                    'pc_hypre_boomeramg_agg_nl': 0,
-                    'pc_hypre_boomeramg_strong_threshold': 0.25,
-                    'pc_hypre_boomeramg_max_levels': 25,
-                    'pc_hypre_boomeramg_no_CF': False
+                    'pc_type': 'gamg',
+                    'pc_mg_cycles': 'v',
+                    'pc_gamg_reuse_interpolation': None,
+                    'pc_gamg_sym_graph': None,
+                    'mg_levels': {
+                        'ksp_type': 'chebyshev',
+                        'ksp_chebyshev_esteig': None,
+                        'ksp_max_it': 3,
+                        'pc_type': 'bjacobi',
+                        'sub_pc_type': 'ilu'
+                    }
                 }
             }
 
             if self._monitor:
                 parameters['ksp_monitor_true_residual'] = None
 
-        a_up = (ptest*ptrial
-                + self._dt_half_c2*ptest*div(utrial)
+        a_up = (ptest*ptrial + self._dt_half_c2*ptest*div(utrial)
                 - self._dt_half*div(utest)*ptrial
                 + (dot(utest, utrial)
                    + self._omega_N2*dot(utest, self._khat)*dot(utrial, self._khat)))*dx
@@ -127,8 +123,7 @@ class GravityWaveSolver(object):
         r_b = self._rb
         up = self._up
 
-        L_up = (dot(utest, r_u)
-                + self._dt_half*dot(utest, self._khat*r_b)
+        L_up = (dot(utest, r_u) + self._dt_half*dot(utest, self._khat*r_b)
                 + ptest*r_p)*dx
 
         f = self._coriolis
