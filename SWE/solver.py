@@ -93,7 +93,6 @@ class W5Problem(object):
         VD = FunctionSpace(self.mesh, "DG", self.model_degree - 1)
 
         self.function_spaces = (Vu, VD)
-        self.Vm = FunctionSpace(self.mesh, "CG", 1)
 
         # Mean depth
         self.H = Constant(H)
@@ -164,7 +163,7 @@ class W5Problem(object):
         phi = TestFunction(VD)
         Dh = 0.5*(Dn + D)
         uh = 0.5*(un + up)
-        n = FacetNormal(self.Vm.mesh())
+        n = FacetNormal(self.mesh)
         uup = 0.5*(dot(uh, n) + abs(dot(uh, n)))
 
         Deqn = (
@@ -248,8 +247,7 @@ class W5Problem(object):
         )
 
         self.FuD = action(uDlhs, self.DU) - uDrhs
-        DUproblem = LinearVariationalProblem(uDlhs, uDrhs, self.DU,
-                                             constant_jacobian=True)
+        DUproblem = LinearVariationalProblem(uDlhs, uDrhs, self.DU)
 
         if self.hybridization:
             parameters = {
@@ -299,14 +297,14 @@ class W5Problem(object):
                 },
                 'fieldsplit_1': {
                     'ksp_type': 'gmres',
-                    'ksp_max_it': 100,
+                    'ksp_max_it': 50,
                     'ksp_rtol': 1e-8,
                     'pc_type': 'gamg',
                     'pc_gamg_reuse_interpolation': None,
                     'pc_gamg_sym_graph': None,
                     'pc_mg_cycles': 'v',
                     'mg_levels': {
-                        'ksp_type': 'richardson',
+                        'ksp_type': 'chebyshev',
                         'ksp_max_it': 2,
                         'pc_type': 'bjacobi',
                         'sub_pc_type': 'ilu'
