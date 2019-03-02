@@ -32,27 +32,29 @@ class W5Problem(object):
     def __init__(self, refinement_level, R,
                  H, Dt, method="BDM",
                  hybridization=False, model_degree=2,
+                 mesh_degree=1,
+                 profile=False,
                  monitor=False):
         super(W5Problem, self).__init__()
 
         self.refinement_level = refinement_level
         self.method = method
         self.model_degree = model_degree
+        self.mesh_degree = mesh_degree
         self.hybridization = hybridization
+        self.profile = profile
         self.monitor = monitor
 
         # Mesh radius
         self.R = R
 
         # Earth-sized mesh
-        mesh_degree = 2
         if self.method == "RTCF":
             mesh = CubedSphereMesh(self.R, self.refinement_level,
-                                   degree=mesh_degree)
+                                   degree=self.mesh_degree)
         else:
-            mesh = OctahedralSphereMesh(self.R, self.refinement_level,
-                                        degree=mesh_degree,
-                                        hemisphere="both")
+            mesh = IcosahedralSphereMesh(self.R, self.refinement_level,
+                                         degree=self.mesh_degree)
 
         x = SpatialCoordinate(mesh)
         global_normal = as_vector(x)
@@ -297,13 +299,14 @@ class W5Problem(object):
                 },
                 'fieldsplit_1': {
                     'ksp_type': 'gmres',
+                    'ksp_max_it': 100,
                     'ksp_rtol': 1e-8,
                     'pc_type': 'gamg',
                     'pc_gamg_reuse_interpolation': None,
                     'pc_gamg_sym_graph': None,
                     'pc_mg_cycles': 'v',
                     'mg_levels': {
-                        'ksp_type': 'chebyshev',
+                        'ksp_type': 'richardson',
                         'ksp_max_it': 2,
                         'pc_type': 'bjacobi',
                         'sub_pc_type': 'ilu'

@@ -46,6 +46,12 @@ parser.add_argument("--dt",
                     default=1000.0,
                     help="The time-step size.")
 
+parser.add_argument("--mesh_degree",
+                    action="store",
+                    type=int,
+                    default=1,
+                    help="Degree of the mesh")
+
 parser.add_argument("--model_degree",
                     action="store",
                     type=int,
@@ -100,7 +106,7 @@ PETSc.Log.begin()
 
 
 def run_williamson5(problem_cls, Dt, refinements, method,
-                    model_degree, nsteps,
+                    model_degree, mesh_degree, nsteps,
                     hybridization, write=False, cold=False):
 
     # Radius of the Earth (m)
@@ -123,6 +129,7 @@ hybridization: %s,\n
                               method=method,
                               hybridization=hybridization,
                               model_degree=model_degree,
+                              mesh_degree=mesh_degree,
                               monitor=args.monitor)
         problem.warmup()
         return
@@ -134,6 +141,7 @@ hybridization: %s,\n
                           method=method,
                           hybridization=hybridization,
                           model_degree=model_degree,
+                          mesh_degree=mesh_degree,
                           monitor=args.monitor)
 
     cfl = problem.courant
@@ -330,6 +338,7 @@ nsteps: %s.
 W5Problem = module.W5Problem
 method = args.method
 model_degree = args.model_degree
+mesh_degree = args.mesh_degree
 refinements = args.refinements
 hybridization = args.hybridization
 Dt = args.dt
@@ -341,6 +350,7 @@ if args.profile:
                     refinements=refinements,
                     method=method,
                     model_degree=model_degree,
+                    mesh_degree=mesh_degree,
                     nsteps=args.nsteps,
                     hybridization=hybridization,
                     write=False,
@@ -353,6 +363,7 @@ if args.profile:
                     refinements=refinements,
                     method=method,
                     model_degree=model_degree,
+                    mesh_degree=mesh_degree,
                     nsteps=args.nsteps,
                     hybridization=hybridization,
                     write=False,
@@ -364,6 +375,7 @@ else:
                     refinements=refinements,
                     method=method,
                     model_degree=model_degree,
+                    mesh_degree=mesh_degree,
                     nsteps=args.nsteps,
                     hybridization=hybridization,
                     write=args.write,
