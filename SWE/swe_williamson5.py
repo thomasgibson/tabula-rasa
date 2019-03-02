@@ -60,7 +60,13 @@ parser.add_argument("--method",
 
 parser.add_argument("--profile",
                     action="store_true",
-                    help="Start profile of all methods for 100 time-steps.")
+                    help="Start profiler.")
+
+parser.add_argument("--nsteps",
+                    action="store",
+                    default=20,
+                    type=int,
+                    help="Number of steps to profile.")
 
 parser.add_argument("--refinements",
                     action="store",
@@ -136,8 +142,9 @@ hybridization: %s,\n
     PETSc.Sys.Print("""
 Dt = %s,\n
 Courant number (approximate): %s,\n
-Dx (max): %s km.
-""" % (Dt, cfl, dx_max/1000))
+Dx (max): %s km,\n
+nsteps: %s.
+""" % (Dt, cfl, dx_max/1000, nsteps))
 
     comm = problem.comm
     day = 24.*60.*60.
@@ -333,19 +340,19 @@ if args.profile:
                     refinements=refinements,
                     method=method,
                     model_degree=model_degree,
-                    nsteps=20,
+                    nsteps=args.nsteps,
                     hybridization=hybridization,
                     write=False,
                     # Do a cold run to generate code
                     cold=True)
 
-    # Now start the profile (for 100 steps)
+    # Now start the profiler
     run_williamson5(problem_cls=W5Problem,
                     Dt=Dt,
                     refinements=refinements,
                     method=method,
                     model_degree=model_degree,
-                    nsteps=20,
+                    nsteps=args.nsteps,
                     hybridization=hybridization,
                     write=False,
                     cold=False)
@@ -356,7 +363,7 @@ else:
                     refinements=refinements,
                     method=method,
                     model_degree=model_degree,
-                    nsteps=20,
+                    nsteps=args.nsteps,
                     hybridization=hybridization,
                     write=args.write,
                     cold=False)

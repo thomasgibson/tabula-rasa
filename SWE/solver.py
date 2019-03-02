@@ -295,9 +295,10 @@ class W5Problem(object):
                     'sub_pc_type': 'ilu'
                 },
                 'fieldsplit_1': {
-                    'ksp_type': 'cg',
+                    'ksp_type': 'gmres',
                     'pc_type': 'gamg',
                     'pc_gamg_reuse_interpolation': None,
+                    'pc_gamg_sym_graph': None,
                     'mg_levels': {
                         'ksp_type': 'chebyshev',
                         'ksp_max_it': 2,
