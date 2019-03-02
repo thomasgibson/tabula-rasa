@@ -277,7 +277,7 @@ class W5Problem(object):
 
         else:
             parameters = {
-                'ksp_type': 'gmres',
+                'ksp_type': 'fgmres',
                 'ksp_rtol': 1.0e-8,
                 'ksp_max_it': 500,
                 'ksp_gmres_restart': 50,
@@ -285,6 +285,8 @@ class W5Problem(object):
                 'pc_fieldsplit': {
                     'type': 'schur',
                     'schur_fact_type': 'full',
+                    # Use Stilde = A11 - A10 Diag(A00).inv A01 as the
+                    # preconditioner for the Schur-complement
                     'schur_precondition': 'selfp'
                 },
                 'fieldsplit_0': {
