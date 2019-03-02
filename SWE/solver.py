@@ -143,7 +143,7 @@ class W5Problem(object):
 
         # Coriolis expression (1/s)
         fexpr = 2*Omega*x[2]/R0
-        self.f = Function(self.Vm).interpolate(fexpr)
+        self.f = fexpr
 
         self.uexpr = uexpr
         self.Dexpr = Dexpr
@@ -262,6 +262,7 @@ class W5Problem(object):
                     'pc_type': 'gamg',
                     'pc_gamg_reuse_interpolation': None,
                     'pc_gamg_sym_graph': None,
+                    'pc_mg_cycles': 'v',
                     'ksp_rtol': 1e-8,
                     'mg_levels': {
                         'ksp_type': 'richardson',
@@ -278,7 +279,7 @@ class W5Problem(object):
         else:
             parameters = {
                 'ksp_type': 'fgmres',
-                'ksp_rtol': 1.0e-8,
+                'ksp_rtol': 1e-8,
                 'ksp_max_it': 500,
                 'ksp_gmres_restart': 50,
                 'pc_type': 'fieldsplit',
@@ -296,9 +297,11 @@ class W5Problem(object):
                 },
                 'fieldsplit_1': {
                     'ksp_type': 'gmres',
+                    'ksp_rtol': 1e-8,
                     'pc_type': 'gamg',
                     'pc_gamg_reuse_interpolation': None,
                     'pc_gamg_sym_graph': None,
+                    'pc_mg_cycles': 'v',
                     'mg_levels': {
                         'ksp_type': 'chebyshev',
                         'ksp_max_it': 2,

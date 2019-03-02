@@ -294,6 +294,7 @@ nsteps: %s.
                      "num_cells": num_cells,
                      "Dt": Dt,
                      "CFL": cfl,
+                     "nsteps": nsteps,
                      "DxMax": dx_max}
 
         if problem.hybridization:
