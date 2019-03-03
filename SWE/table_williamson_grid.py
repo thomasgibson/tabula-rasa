@@ -4,12 +4,12 @@ import pandas as pd
 from firedrake import *
 
 
-params = [("RT", 8, 62.5),
-          ("BDM", 8, 62.5)]
+params = [("RT", 7, 100.0),
+          ("BDM", 7, 100.0)]
 
-gmres_data = ["results/gmres_%s_profile_W5_ref%d_Dt%s_NS20.csv" % param
+gmres_data = ["results/gmres_%s_profile_W5_ref%d_Dt%s_NS25.csv" % param
               for param in params]
-hybrid_data = ["results/hybrid_%s_profile_W5_ref%d_Dt%s_NS20.csv" % param
+hybrid_data = ["results/hybrid_%s_profile_W5_ref%d_Dt%s_NS25.csv" % param
                for param in params]
 
 for data in gmres_data + hybrid_data:
@@ -33,7 +33,7 @@ table = r"""\begin{tabular}{ccccccc}
 # Discretization information
 # build the mesh and function spaces to get u and D dofs
 R = 6371220.0
-mesh = OctahedralSphereMesh(R, 8, degree=2, hemisphere="both")
+mesh = IcosahedralSphereMesh(R, 7, degree=1)
 RT1 = FunctionSpace(mesh, "RT", 1)
 DG0 = FunctionSpace(mesh, "DG", 0)
 BDM2 = FunctionSpace(mesh, "BDM", 2)
@@ -45,8 +45,8 @@ dDG1 = Function(DG1)
 
 table += r"""\multicolumn{7}{c}{\textbf{Discretization properties}} \\
 \multicolumn{2}{c}{\multirow{2}{*}{Mixed method}} & \multirow{2}{*}{\# cells} &
-\multirow{2}{*}{$\Delta x$} & Velocity & Depth & \multirow{2}{*}{Total}  \\
-& & &  unknowns & unknowns & \\ \hline
+\multirow{2}{*}{$\Delta x$ (km)} & Velocity & Depth & \multirow{2}{*}{Total} \\
+& & & &  unknowns & unknowns & \\ \hline
 """
 
 

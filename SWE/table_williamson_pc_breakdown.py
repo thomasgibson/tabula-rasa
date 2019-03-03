@@ -3,16 +3,16 @@ import sys
 import pandas as pd
 
 
-params = [("RT", 8, 62.5),
-          ("BDM", 8, 62.5)]
+params = [("RT", 7, 100.0),
+          ("BDM", 7, 100.0)]
 
-gmres_times = ["results/gmres_%s_profile_W5_ref%d_Dt%s_NS20.csv" % param
+gmres_times = ["results/gmres_%s_profile_W5_ref%d_Dt%s_NS25.csv" % param
                for param in params]
-hybrid_times = ["results/hybrid_%s_profile_W5_ref%d_Dt%s_NS20.csv" % param
+hybrid_times = ["results/hybrid_%s_profile_W5_ref%d_Dt%s_NS25.csv" % param
                 for param in params]
 
-rt_data = "results/gmres_RT_data_W5_ref8_Dt62.5_NS20.csv"
-bdm_data = "results/gmres_BDM_data_W5_ref8_Dt62.5_NS20.csv"
+rt_data = "results/gmres_RT_data_W5_ref7_Dt100.0_NS25.csv"
+bdm_data = "results/gmres_BDM_data_W5_ref7_Dt100.0_NS25.csv"
 
 for data in gmres_times + hybrid_times + [rt_data, bdm_data]:
     if not os.path.exists(data):
@@ -35,7 +35,7 @@ table = r"""\begin{tabular}{llcccc}
 & $t_{\text{stage}}$ (s) & \% $t_{\text{total}}$ \\ \hline
 """
 
-lformat = r"""& {stage} & {rt_time: .3f} & {rt_p: .2f} \% & {bdm_time: .3f} & {bdm_p: .2f} \% \\
+lformat = r"""& {stage} & {rt_time: .5f} & {rt_p: .2f} \% & {bdm_time: .5f} & {bdm_p: .2f} \% \\
 """
 
 # For PC GMRES, we report time per iteration
@@ -44,7 +44,7 @@ gmres_iter_bdm = df_bdm_data.OuterIters.values.sum()
 
 # NOTE: for hybridization, we report time per picard iteration
 # since there are no outer GMRES iterations.
-npicard = 4 * 20  # 4 per time-step, for 20 time-steps
+npicard = 4 * 25  # 4 per time-step, for 25 time-steps
 
 table += r"""
 \multirow{4}{*}{approx. Schur}
@@ -92,7 +92,7 @@ table += lformat.format(stage="gmres other",
 table += r"""\hline
 """
 
-table += r"""& Total & %.3f & & %.3f & \\ \hline""" % (rt_total, bdm_total)
+table += r"""& Total & %.5f & & %.5f & \\ \hline""" % (rt_total, bdm_total)
 
 hrt_break_time = hrt_df.HybridBreak.values[0]/npicard
 hrt_rhs_time = hrt_df.HybridRHS.values[0]/npicard
@@ -142,7 +142,7 @@ table += lformat.format(stage=r"Projection: $\Pi_{\text{div}}\Delta\widehat{U}$"
 table += r"""\hline
 """
 
-table += r"""& Total & %.2f & & %.2f & \\ \hline""" % (hrt_total, hbdm_total)
+table += r"""& Total & %.5f & & %.5f & \\ \hline""" % (hrt_total, hbdm_total)
 
 table += r"""
 \end{tabular}"""

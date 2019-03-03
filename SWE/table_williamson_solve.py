@@ -3,18 +3,18 @@ import sys
 import pandas as pd
 
 
-params = [("RT", 8, 62.5),
-          ("BDM", 8, 62.5)]
+params = [("RT", 7, 100.0),
+          ("BDM", 7, 100.0)]
 
-gmres_times = ["results/gmres_%s_profile_W5_ref%d_Dt%s_NS20.csv" % param
+gmres_times = ["results/gmres_%s_profile_W5_ref%d_Dt%s_NS25.csv" % param
                for param in params]
-hybrid_times = ["results/hybrid_%s_profile_W5_ref%d_Dt%s_NS20.csv" % param
+hybrid_times = ["results/hybrid_%s_profile_W5_ref%d_Dt%s_NS25.csv" % param
                 for param in params]
 
-rt_data = "results/gmres_RT_data_W5_ref8_Dt62.5_NS20.csv"
-bdm_data = "results/gmres_BDM_data_W5_ref8_Dt62.5_NS20.csv"
-hrt_data = "results/hybrid_RT_data_W5_ref8_Dt62.5_NS20.csv"
-hbdm_data = "results/hybrid_BDM_data_W5_ref8_Dt62.5_NS20.csv"
+rt_data = "results/gmres_RT_data_W5_ref7_Dt100.0_NS25.csv"
+bdm_data = "results/gmres_BDM_data_W5_ref7_Dt100.0_NS25.csv"
+hrt_data = "results/hybrid_RT_data_W5_ref7_Dt100.0_NS25.csv"
+hbdm_data = "results/hybrid_BDM_data_W5_ref7_Dt100.0_NS25.csv"
 
 for data in gmres_times + hybrid_times + [rt_data, bdm_data,
                                           hrt_data, hbdm_data]:

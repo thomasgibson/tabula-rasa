@@ -26,6 +26,7 @@ from pyop2.profiling import timed_stage
 from mpi4py import MPI
 import pandas as pd
 import sys
+import os
 
 import solver as module
 
@@ -277,6 +278,10 @@ nsteps: %s.
 
     PETSc.Log.Stage("Linear solve").pop()
     if COMM_WORLD.rank == 0:
+
+        if not os.path.exists(os.path.dirname('results/')):
+            os.makedirs(os.path.dirname('results/'))
+
         data = {"OuterIters": problem.ksp_outer_its,
                 "InnerIters": problem.ksp_inner_its,
                 "PicardIters": problem.picard_seq,
