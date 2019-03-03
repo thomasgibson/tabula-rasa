@@ -18,6 +18,7 @@ from pyop2.profiling import timed_stage
 from mpi4py import MPI
 import pandas as pd
 import sys
+import os
 
 import problem as module
 
@@ -74,7 +75,7 @@ parser.add_argument("--model_degree",
 
 parser.add_argument("--method",
                     action="store",
-                    default="RT",
+                    default="RTCF",
                     choices=["RT", "RTCF", "BDFM"],
                     help="Mixed method type.")
 
@@ -83,10 +84,6 @@ parser.add_argument("--tmax",
                     default=3600.0,
                     type=float,
                     help="Max time.")
-
-parser.add_argument("--profile",
-                    action="store_true",
-                    help="Start profile of all methods for 1 time-step.")
 
 parser.add_argument("--refinements",
                     action="store",
@@ -126,33 +123,10 @@ PETSc.Log.begin()
 
 
 def run_gravity_waves(problem_cls, Dt, cfl, refinements, nlayers, method,
-                      model_degree, nsteps,
-                      hybridization, write=False, cold=False):
+                      model_degree, hybridization, write=False):
 
     # Max height (m)
     thickness = args.H
-
-    if cold:
-        PETSc.Sys.Print("""
-Running cold initialization for the problem set:\n
-method: %s,\n
-model degree: %s,\n
-hybridization: %s,\n
-""" % (method, model_degree, bool(hybridization)))
-        problem = problem_cls(refinement_level=refinements,
-                              nlayers=nlayers,
-                              Dt=Dt,
-                              method=method,
-                              X=args.X,
-                              thickness=thickness,
-                              model_degree=model_degree,
-                              rtol=args.rtol,
-                              hybridization=hybridization,
-                              cfl=cfl,
-                              monitor=args.monitor,
-                              use_dt_from_cfl=args.use_dt_from_cfl)
-        problem.warmup()
-        return
 
     problem = problem_cls(refinement_level=refinements,
                           nlayers=nlayers,
@@ -172,10 +146,7 @@ hybridization: %s,\n
     dx_max = problem.dx_max
     dz = problem.dz
 
-    if args.profile:
-        tmax = nsteps*Dt
-    else:
-        tmax = args.tmax
+    tmax = args.tmax
 
     PETSc.Sys.Print("""
 Dt = %s,\n
@@ -306,6 +277,10 @@ tmax: %s s
     results_timings += ".csv"
 
     if COMM_WORLD.rank == 0:
+
+        if not os.path.exists(os.path.dirname('results/')):
+            os.makedirs(os.path.dirname('results/'))
+
         data = {"OuterIters": problem.ksp_outer_its,
                 "InnerIters": problem.ksp_inner_its,
                 "SimTime": problem.sim_time}
@@ -377,43 +352,12 @@ hybridization = args.hybridization
 Dt = args.dt
 cfl = args.cfl
 
-if args.profile:
-
-    run_gravity_waves(problem_cls=GWProblem,
-                      Dt=Dt,
-                      cfl=cfl,
-                      refinements=refinements,
-                      nlayers=nlayers,
-                      method=method,
-                      model_degree=model_degree,
-                      nsteps=1,
-                      hybridization=hybridization,
-                      write=False,
-                      # Do a cold run to generate code
-                      cold=True)
-
-    # Now start the profile (for 1 step)
-    run_gravity_waves(problem_cls=GWProblem,
-                      Dt=Dt,
-                      cfl=cfl,
-                      refinements=refinements,
-                      nlayers=nlayers,
-                      method=method,
-                      model_degree=model_degree,
-                      nsteps=1,
-                      hybridization=hybridization,
-                      write=False,
-                      cold=False)
-
-else:
-    run_gravity_waves(problem_cls=GWProblem,
-                      Dt=Dt,
-                      cfl=cfl,
-                      refinements=refinements,
-                      nlayers=nlayers,
-                      method=method,
-                      model_degree=model_degree,
-                      nsteps=1,
-                      hybridization=hybridization,
-                      write=args.write,
-                      cold=False)
+run_gravity_waves(problem_cls=GWProblem,
+                  Dt=Dt,
+                  cfl=cfl,
+                  refinements=refinements,
+                  nlayers=nlayers,
+                  method=method,
+                  model_degree=model_degree,
+                  hybridization=hybridization,
+                  write=args.write)

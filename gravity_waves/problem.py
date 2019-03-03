@@ -4,7 +4,6 @@ from firedrake.utils import cached_property
 from pyop2.profiling import timed_stage
 import numpy as np
 from balance_pressure import compute_balanced_pressure
-from extruded_vertical_normal import VerticalNormal
 from solver import GravityWaveSolver
 
 
@@ -69,9 +68,6 @@ class GravityWaveProblem(object):
                             layers=self.nlayers,
                             layer_height=self.thickness/self.nlayers)
         self.mesh = mesh
-
-        vert_norm = VerticalNormal(self.mesh)
-        self.khat = vert_norm.khat
 
         # Get Dx information (this is approximate).
         # We compute the area (m^2) of each cell in the mesh,
@@ -138,11 +134,12 @@ class GravityWaveProblem(object):
 
         # Space for Coriolis term
         self.CG_family = "Q" if self.method == "RTCF" else "CG"
-        self.Vm = FunctionSpace(mesh, self.CG_family, 1)
         x = SpatialCoordinate(mesh)
         fexpr = 2*self.Omega*x[2]/self.R
-        f = interpolate(fexpr, self.Vm)
-        self._fexpr = f
+        self._fexpr = fexpr
+
+        xnorm = sqrt(inner(x, x))
+        self.khat = interpolate(x/xnorm, mesh.coordinates.function_space())
 
         self._build_initial_conditions()
 
