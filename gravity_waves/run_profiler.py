@@ -155,14 +155,10 @@ nlayers = solver.nlayers
 num_cells = comm.allreduce(solver.num_cells, op=MPI.SUM)
 
 if solver.hybridization:
-    results_data = "results/hybrid_%s_data_GW_ref%d_nlayers%d_CFL%d" % (
+
+    results_timings = "results/hybrid_%s%d_GW_ref%d_nlayers%d_CFL%d" % (
         solver.method,
-        ref,
-        nlayers,
-        solver.courant
-    )
-    results_timings = "results/hybrid_%s_profile_GW_ref%d_nlayers%d_CFL%d" % (
-        solver.method,
+        solver.model_degree,
         ref,
         nlayers,
         solver.courant
@@ -195,12 +191,7 @@ if solver.hybridization:
     full_solve = (transfer + trace_solve + rhstime
                   + recon_time + projection + update_time)
 else:
-    results_data = "results/gmres_%s_data_GW_ref%d_nlayers%d_CFL%d" % (
-        solver.method,
-        ref,
-        nlayers,
-        solver.courant
-    )
+
     results_timings = "results/gmres_%s_profile_GW_ref%d_nlayers%d_CFL%d" % (
         solver.method,
         ref,
@@ -219,16 +210,12 @@ else:
 
 PETSc.Log.Stage("UP Solver").pop()
 
-results_data += ".csv"
 results_timings += ".csv"
 
 if COMM_WORLD.rank == 0:
 
     if not os.path.exists(os.path.dirname('results/')):
         os.makedirs(os.path.dirname('results/'))
-
-    data = {"OuterIters": solver.ksp_outer_its,
-            "InnerIters": solver.ksp_inner_its}
 
     _u, _p, _b = solver.state.split()
     up_dofs = (_u.dof_dset.layout_vec.getSize() +
@@ -253,7 +240,9 @@ if COMM_WORLD.rank == 0:
                  "Dt": solver.Dt,
                  "CFL": solver.courant,
                  "DxMax": solver.dx_max,
-                 "Dz": solver.dz}
+                 "Dz": solver.dz,
+                 "OuterIters": solver.ksp_outer_its[0],
+                 "InnerIters": solver.ksp_inner_its[0]}
 
     if args.hybridization:
         updates = {"HybridTraceSolve": trace_solve,
@@ -274,10 +263,6 @@ if COMM_WORLD.rank == 0:
                    "KSPother": other}
 
     time_data.update(updates)
-
-    df_data = pd.DataFrame(data)
-    df_data.to_csv(results_data, index=False,
-                   mode="w", header=True)
 
     df_time = pd.DataFrame(time_data, index=[0])
     df_time.to_csv(results_timings, index=False,
