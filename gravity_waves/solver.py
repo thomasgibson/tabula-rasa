@@ -70,7 +70,7 @@ class GravityWaveSolver(object):
                     'pc_gamg_sym_graph': None,
                     'mg_levels': {
                         'ksp_type': 'gmres',
-                        'ksp_max_it': 3,
+                        'ksp_max_it': 2,
                         'pc_type': 'bjacobi',
                         'sub_pc_type': 'ilu'
                     }
