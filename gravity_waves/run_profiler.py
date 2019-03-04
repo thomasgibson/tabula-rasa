@@ -192,8 +192,9 @@ if solver.hybridization:
                   + recon_time + projection + update_time)
 else:
 
-    results_timings = "results/gmres_%s_profile_GW_ref%d_nlayers%d_CFL%d" % (
+    results_timings = "results/gmres_%s%d_GW_ref%d_nlayers%d_CFL%d" % (
         solver.method,
+        solver.model_degree,
         ref,
         nlayers,
         solver.courant
