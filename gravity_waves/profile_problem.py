@@ -2,7 +2,6 @@ from firedrake import *
 from firedrake.utils import cached_property
 from pyop2.profiling import timed_stage
 import numpy as np
-from extruded_vertical_normal import VerticalNormal
 from solver import GravityWaveSolver
 
 
@@ -117,7 +116,6 @@ class ProfileGravityWaveSolver(object):
         self.state = Function(self.Wupb)
         self.state0 = Function(self.Wupb)
 
-        # Space for Coriolis term
         x = SpatialCoordinate(mesh)
         fexpr = 2*self.Omega*x[2]/self.R
         self._fexpr = fexpr
