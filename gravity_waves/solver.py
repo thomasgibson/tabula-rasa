@@ -1,4 +1,3 @@
-
 from firedrake import *
 from pyop2.profiling import timed_stage
 
@@ -82,6 +81,8 @@ class GravityWaveSolver(object):
                 parameters['hybridization']['ksp_monitor_true_residual'] = None
 
         else:
+            # Parameters used to demonstrate the importance of an accurate
+            # Schur-complement approximation.
             parameters = {
                 'pc_type': 'fieldsplit',
                 'pc_fieldsplit_type': 'schur',
@@ -89,30 +90,27 @@ class GravityWaveSolver(object):
                 'ksp_max_it': self._maxiter,
                 'ksp_rtol': self._rtol,
                 'pc_fieldsplit_schur_fact_type': 'FULL',
+                # Use Stilde = A11 - A10 Diag(A00).inv A01 as the
+                # preconditioner for the Schur-complement
                 'pc_fieldsplit_schur_precondition': 'selfp',
                 'fieldsplit_0': {
                     'ksp_type': 'preonly',
-                    'pc_type': 'bjacobi',
-                    'sub_pc_type': 'ilu'
+                    'pc_type': 'lu',
+                    'pc_factor_mat_solver_type': 'mumps'
                 },
+                # Operate on the Schur-complement using GMRES, but using
+                # and exact inverse of the diagonalized approximation as
+                # a preconditioner
                 'fieldsplit_1': {
-                    'ksp_type': 'preonly',
-                    'pc_type': 'gamg',
-                    'pc_mg_cycles': 'v',
-                    'pc_gamg_reuse_interpolation': None,
-                    'pc_gamg_sym_graph': None,
-                    'mg_levels': {
-                        'ksp_type': 'chebyshev',
-                        'ksp_chebyshev_esteig': None,
-                        'ksp_max_it': 3,
-                        'pc_type': 'bjacobi',
-                        'sub_pc_type': 'ilu'
-                    }
+                    'ksp_type': 'gmres',
+                    'pc_type': 'lu',
+                    'pc_factor_mat_solver_type': 'mumps'
                 }
             }
 
             if self._monitor:
                 parameters['ksp_monitor_true_residual'] = None
+                parameters['fieldsplit_1']['ksp_monitor_true_residual'] = None
 
         a_up = (ptest*ptrial + self._dt_half_c2*ptest*div(utrial)
                 - self._dt_half*div(utest)*ptrial
