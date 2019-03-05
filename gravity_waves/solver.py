@@ -61,7 +61,7 @@ class GravityWaveSolver(object):
                 'pc_type': 'python',
                 'pc_python_type': 'firedrake.HybridizationPC',
                 'hybridization': {
-                    'ksp_type': 'fgmres',
+                    'ksp_type': 'gcr',
                     'ksp_max_it': self._maxiter,
                     'ksp_rtol': self._rtol,
                     'pc_type': 'gamg',
@@ -69,8 +69,9 @@ class GravityWaveSolver(object):
                     'pc_gamg_reuse_interpolation': None,
                     'pc_gamg_sym_graph': None,
                     'mg_levels': {
-                        'ksp_type': 'gmres',
-                        'ksp_max_it': 2,
+                        'ksp_type': 'richardson',
+                        'ksp_richardson_scale': 0.55,
+                        'ksp_max_it': 3,
                         'pc_type': 'bjacobi',
                         'sub_pc_type': 'ilu'
                     }
