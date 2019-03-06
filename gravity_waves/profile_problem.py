@@ -40,7 +40,7 @@ class ProfileGravityWaveSolver(object):
         self._Omega = 7.292E-5
         self.Omega = Constant(self._Omega)
 
-        self.mesh_degree = 3
+        self.mesh_degree = 1
         if self.method == "RT" or self.method == "BDFM":
             base = IcosahedralSphereMesh(self._R,
                                          refinement_level=self.refinement_level,
