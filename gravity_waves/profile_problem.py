@@ -141,6 +141,8 @@ class ProfileGravityWaveSolver(object):
         self.gravity_wave_solver = solver
         self.ksp_inner_its = []
         self.ksp_outer_its = []
+        self.hybrid_dofs_up = []
+        self.hybrid_dofs_trace = []
 
     def _build_initial_conditions(self):
 
@@ -203,6 +205,10 @@ class ProfileGravityWaveSolver(object):
         if self.hybridization:
             ctx = outer_ksp.getPC().getPythonContext()
             inner_ksp = ctx.trace_ksp
+            broken_solution = ctx.broken_solution
+            trace_solution = ctx.trace_solution
+            self.hybrid_dofs_up.append(broken_solution.dof_dset.layout_vec.getSize())
+            self.hybrid_dofs_trace.append(trace_solution.dof_dset.layout_vec.getSize())
         else:
             ksps = outer_ksp.getPC().getFieldSplitSubKSP()
             _, inner_ksp = ksps

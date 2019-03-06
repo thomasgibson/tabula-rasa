@@ -255,7 +255,9 @@ if COMM_WORLD.rank == 0:
                    "HybridUpdate": update_time,
                    "HybridInit": inittime,
                    "HybridFullSolveTime": full_solve,
-                   "HybridKSPOther": other}
+                   "HybridKSPOther": other,
+                   "HybridUPDOFS": solver.hybrid_dofs_up[0],
+                   "HybridTraceDOFS": solver.hybrid_dofs_trace[0]}
 
     else:
         updates = {"KSPSchur": schur_time,
