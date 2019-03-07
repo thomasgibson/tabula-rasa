@@ -69,9 +69,9 @@ class GravityWaveSolver(object):
                     'pc_gamg_reuse_interpolation': None,
                     'pc_gamg_sym_graph': None,
                     'mg_levels': {
-                        'ksp_type': 'richardson',
-                        'ksp_richardson_scale': 0.55,
-                        'ksp_max_it': 3,
+                        'ksp_type': 'gmres',
+                        # 'ksp_richardson_scale': 0.55,
+                        'ksp_max_it': 2,
                         'pc_type': 'bjacobi',
                         'sub_pc_type': 'ilu'
                     }
