@@ -12,29 +12,39 @@ MARKERSIZE = 10
 LINEWIDTH = 3
 
 
-cfl_range = [2, 4, 6, 8, 10, 12, 16, 32, 64]
-lo_rtcf_data = ["results/hybrid_RTCF1_GW_ref6_nlayers85_CFL%d.csv" %
+cfl_range = [2, 4, 6, 8, 10, 12, 16, 24, 32, 64]
+
+lo_rt_data = ["results/hybrid_RT1_GW_ref6_nlayers85_CFL%d.csv" %
+              cfl for cfl in cfl_range]
+nlo_rt_data = ["results/hybrid_RT2_GW_ref4_nlayers85_CFL%d.csv" %
+               cfl for cfl in cfl_range]
+lo_rtcf_data = ["results/hybrid_RTCF1_GW_ref7_nlayers85_CFL%d.csv" %
                 cfl for cfl in cfl_range]
 nlo_rtcf_data = ["results/hybrid_RTCF2_GW_ref5_nlayers85_CFL%d.csv" %
                  cfl for cfl in cfl_range]
 nlo_bdfm_data = ["results/hybrid_BDFM2_GW_ref4_nlayers85_CFL%d.csv" %
                  cfl for cfl in cfl_range]
 
-for data in lo_rtcf_data + nlo_rtcf_data + nlo_bdfm_data:
+for data in (lo_rtcf_data + nlo_rtcf_data +
+             lo_rt_data + nlo_rt_data + nlo_bdfm_data):
     if not os.path.exists(data):
         print("Cannot find data file '%s'" % data)
         sys.exit(1)
 
 
+lo_rt_dfs = pd.concat(pd.read_csv(data) for data in lo_rt_data)
+nlo_rt_dfs = pd.concat(pd.read_csv(data) for data in nlo_rt_data)
 lo_rtcf_dfs = pd.concat(pd.read_csv(data) for data in lo_rtcf_data)
 nlo_rtcf_dfs = pd.concat(pd.read_csv(data) for data in nlo_rtcf_data)
 nlo_bdfm_dfs = pd.concat(pd.read_csv(data) for data in nlo_bdfm_data)
 
+lo_rt_groups = lo_rt_dfs.groupby(["CFL"], as_index=False)
+nlo_rt_groups = nlo_rt_dfs.groupby(["CFL"], as_index=False)
 lo_rtcf_groups = lo_rtcf_dfs.groupby(["CFL"], as_index=False)
 nlo_rtcf_groups = nlo_rtcf_dfs.groupby(["CFL"], as_index=False)
 nlo_bdfm_groups = nlo_bdfm_dfs.groupby(["CFL"], as_index=False)
 
-colors = seaborn.color_palette(n_colors=2)
+colors = seaborn.color_palette(n_colors=3)
 linestyles = ["solid", "dotted"]
 seaborn.set(style="ticks")
 
@@ -45,10 +55,27 @@ ax.yaxis.set_ticks_position("left")
 ax.set_ylabel("Krylov iterations (Trace system)", fontsize=FONTSIZE+2)
 ax.set_xlim(1, 128)
 ax.set_xscale('log')
-ax.set_ylim(0, 30)
+ax.set_ylim(0, 20)
 ax.set_xticks(cfl_range)
 ax.set_xticklabels(cfl_range)
+yticks = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+ax.set_yticks(yticks)
+ax.set_yticklabels(yticks)
 
+
+lo_rt_cfls = []
+lo_rt_iters = []
+for group in lo_rt_groups:
+    cfl, df = group
+    lo_rt_cfls.append(cfl)
+    lo_rt_iters.append(df.InnerIters.values[0])
+
+nlo_rt_cfls = []
+nlo_rt_iters = []
+for group in nlo_rt_groups:
+    cfl, df = group
+    nlo_rt_cfls.append(cfl)
+    nlo_rt_iters.append(df.InnerIters.values[0])
 
 lo_rtcf_cfls = []
 lo_rtcf_iters = []
@@ -71,6 +98,22 @@ for group in nlo_bdfm_groups:
     nlo_bdfm_cfls.append(cfl)
     nlo_bdfm_iters.append(df.InnerIters.values[0])
 
+
+ax.plot(lo_rt_cfls, lo_rt_iters,
+        label="$RT_1$",
+        color=colors[2],
+        marker="s",
+        linewidth=LINEWIDTH,
+        markersize=MARKERSIZE,
+        linestyle=linestyles[0])
+
+ax.plot(nlo_rt_cfls, nlo_rt_iters,
+        label="$RT_2$",
+        color=colors[2],
+        marker="s",
+        linewidth=LINEWIDTH,
+        markersize=MARKERSIZE,
+        linestyle=linestyles[1])
 
 ax.plot(lo_rtcf_cfls, lo_rtcf_iters,
         label="$RTCF_1$",
@@ -96,7 +139,7 @@ ax.plot(nlo_bdfm_cfls, nlo_bdfm_iters,
         marker="^",
         linewidth=LINEWIDTH,
         markersize=MARKERSIZE,
-        linestyle=linestyles[0],
+        linestyle=linestyles[1],
         clip_on=False)
 
 
@@ -116,13 +159,13 @@ xlabel = fig.text(0.5, 0,
 handles, labels = ax.get_legend_handles_labels()
 legend = fig.legend(handles, labels,
                     loc=9,
-                    bbox_to_anchor=(0.5, 1),
+                    bbox_to_anchor=(0.4, 0.875),
                     bbox_transform=fig.transFigure,
                     ncol=3,
-                    handlelength=1.5,
-                    fontsize=FONTSIZE,
+                    handlelength=2,
+                    fontsize=FONTSIZE-2,
                     numpoints=1,
-                    frameon=False)
+                    frameon=True)
 
 
 fig.savefig("hybridization_vs_cfl.pdf",
