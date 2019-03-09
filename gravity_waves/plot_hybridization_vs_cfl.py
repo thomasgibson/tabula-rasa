@@ -2,7 +2,6 @@ import os
 import sys
 import pandas as pd
 import seaborn
-import matplotlib
 
 from matplotlib import pyplot as plt
 
@@ -53,14 +52,16 @@ ax, = axes
 ax.xaxis.set_ticks_position("bottom")
 ax.yaxis.set_ticks_position("left")
 ax.set_ylabel("Krylov iterations (Trace system)", fontsize=FONTSIZE+2)
-ax.set_xlim(1, 128)
-ax.set_xscale('log')
+ax.set_xlim(0, 64)
 ax.set_ylim(0, 20)
 ax.set_xticks(cfl_range)
 ax.set_xticklabels(cfl_range)
 yticks = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
 ax.set_yticks(yticks)
 ax.set_yticklabels(yticks)
+ax.axvline(10, color='k')
+ax.axvline(2, color='k')
+ax.axvspan(2, 10, ymin=0, ymax=20, alpha=0.5, color='gray')
 
 
 lo_rt_cfls = []

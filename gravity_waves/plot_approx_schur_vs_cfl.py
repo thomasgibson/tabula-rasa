@@ -2,7 +2,6 @@ import os
 import sys
 import pandas as pd
 import seaborn
-import matplotlib
 
 from matplotlib import pyplot as plt
 
@@ -54,8 +53,7 @@ ax.xaxis.set_ticks_position("bottom")
 ax.yaxis.set_ticks_position("left")
 ax.set_ylabel("Krylov iterations (Schur complement)", fontsize=FONTSIZE+2)
 ax.set_ylim(0, 100)
-ax.set_xlim(1, 128)
-ax.set_xscale('log')
+ax.set_xlim(0, 64)
 ax.set_xticks(cfl_range)
 ax.set_xticklabels(cfl_range)
 
