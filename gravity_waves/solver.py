@@ -22,7 +22,7 @@ class GravityWaveSolver(object):
 
         self._dt_half = Constant(0.5*dt)
         self._dt_half_N2 = Constant(0.5*dt*N**2)
-        self._dt_half_c2 = Constant(0.5*dt*c**2)
+        self._dt_half_c2 = Constant(0.5*dt*(c**2))
         self._omega_N2 = Constant((0.5*dt*N)**2)
 
         self._maxiter = maxiter
@@ -47,8 +47,8 @@ class GravityWaveSolver(object):
 
     def _solver_setup(self):
 
-        utest, ptest = TestFunctions(self._Wmixed)
-        utrial, ptrial = TrialFunctions(self._Wmixed)
+        w, phi = TestFunctions(self._Wmixed)
+        u, p = TrialFunctions(self._Wmixed)
 
         bcs = [DirichletBC(self._Wmixed.sub(0), 0.0, "bottom"),
                DirichletBC(self._Wmixed.sub(0), 0.0, "top")]
@@ -112,22 +112,23 @@ class GravityWaveSolver(object):
                 parameters['ksp_monitor_true_residual'] = None
                 parameters['fieldsplit_1']['ksp_monitor_true_residual'] = None
 
-        a_up = (ptest*ptrial + self._dt_half_c2*ptest*div(utrial)
-                - self._dt_half*div(utest)*ptrial
-                + (dot(utest, utrial)
-                   + self._omega_N2*dot(utest, self._khat)*dot(utrial, self._khat)))*dx
+        f = self._coriolis
+
+        a_up = (dot(w, u) - self._dt_half*p*div(w)
+                # Coriolis term
+                + self._dt_half*dot(w, f*cross(self._khat, u))
+                # Appears after eliminating b
+                + self._omega_N2*dot(w, self._khat)*dot(u, self._khat)
+                + phi*p + self._dt_half_c2*phi*div(u))*dx
 
         r_u = self._ru
         r_p = self._rp
         r_b = self._rb
         up = self._up
 
-        L_up = (dot(utest, r_u) + self._dt_half*dot(utest, self._khat*r_b)
-                + ptest*r_p)*dx
-
-        f = self._coriolis
-        a_up += self._dt_half*dot(utest, f*cross(self._khat, utrial))*dx
-        L_up += self._dt_half*dot(utest, f*cross(self._khat, r_u))*dx
+        L_up = (dot(w, r_u) + self._dt_half*dot(w, self._khat*r_b)
+                + self._dt_half*dot(w, f*cross(self._khat, r_u))
+                + phi*r_p)*dx
 
         up_problem = LinearVariationalProblem(a_up, L_up, up, bcs=bcs)
         up_solver = LinearVariationalSolver(up_problem,
@@ -136,9 +137,12 @@ class GravityWaveSolver(object):
 
         self._up_solver = up_solver
 
-        btest = TestFunction(self._Wb)
-        L_b = dot(btest*self._khat, self._u)*dx
-        a_b = btest*TrialFunction(self._Wb)*dx
+        gamma = TestFunction(self._Wb)
+        b = TrialFunction(self._Wb)
+        
+        L_b = dot(gamma*self._khat, self._u)*dx
+        a_b = gamma*b*dx
+
         b_problem = LinearVariationalProblem(a_b, L_b, self._btmp)
         b_solver = LinearVariationalSolver(b_problem,
                                            solver_parameters={

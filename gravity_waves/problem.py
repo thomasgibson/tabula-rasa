@@ -3,7 +3,6 @@ from firedrake.petsc import PETSc
 from firedrake.utils import cached_property
 from pyop2.profiling import timed_stage
 import numpy as np
-from balance_pressure import compute_balanced_pressure
 from solver import GravityWaveSolver
 
 
@@ -195,12 +194,7 @@ class GravityWaveProblem(object):
         self.b0 = b0
 
         # Initial condition for pressure
-        p0 = Function(W3)
-
-        pref = Constant(1000.0*100.0)  # reference pressure (Pa, not hPa)
-        compute_balanced_pressure(self.W2v, self.W3,
-                                  self.khat,
-                                  self.b0, p0, p_boundary=pref)
+        p0 = Function(W3).assign(0.0)
         self.p0 = p0
 
     @cached_property
@@ -213,17 +207,19 @@ class GravityWaveProblem(object):
 
     @cached_property
     def output_file(self):
-        dirname = "results/"
+        dirname = "runs/"
         if self.hybridization:
-            dirname += "hybrid_%s%d_ref%d_CFL%s/" % (self.method,
-                                                     self.model_degree,
-                                                     self.refinement_level,
-                                                     self.courant)
+            dirname += "hybrid_%s%d_ref%d_nlayers%d_dt%s/" % (self.method,
+                                                              self.model_degree,
+                                                              self.refinement_level,
+                                                              self.nlayers,
+                                                              self.Dt)
         else:
-            dirname += "gmres_%s%d_ref%d_CFL%s/" % (self.method,
-                                                    self.model_degree,
-                                                    self.refinement_level,
-                                                    self.courant)
+            dirname += "gmres_%s%d_ref%d_nlayers%d_dt%s/" % (self.method,
+                                                             self.model_degree,
+                                                             self.refinement_level,
+                                                             self.nlayers,
+                                                             self.Dt)
         return File(dirname + "gw_" + str(self.refinement_level) + ".pvd")
 
     def write(self, dumpcount, dumpfreq):
