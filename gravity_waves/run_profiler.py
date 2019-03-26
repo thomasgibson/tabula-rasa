@@ -72,6 +72,10 @@ parser.add_argument("--monitor",
                     action="store_true",
                     help="Turn on KSP monitors")
 
+parser.add_argument("--write_data",
+                    action="store_true",
+                    help="Write data to csv files")
+
 parser.add_argument("--help",
                     action="store_true",
                     help="Show help")
@@ -267,6 +271,7 @@ if COMM_WORLD.rank == 0:
 
     time_data.update(updates)
 
-    df_time = pd.DataFrame(time_data, index=[0])
-    df_time.to_csv(results_timings, index=False,
-                   mode="w", header=True)
+    if args.write_data:
+        df_time = pd.DataFrame(time_data, index=[0])
+        df_time.to_csv(results_timings, index=False,
+                       mode="w", header=True)
