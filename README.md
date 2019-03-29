@@ -26,6 +26,8 @@ Or in parallel:
 mpiexec -n N python3 script.py
 ```
 
+For code-generation verification, see the documentation and experiment in `verification`.
+
 ### Collecting data
 
 There are three main directorys containing scripts for generating and collecting data. The folders and corresponding run scripts are:
