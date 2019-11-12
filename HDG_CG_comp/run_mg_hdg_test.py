@@ -140,7 +140,7 @@ else:
     # If reviewers want a 2D test, we can give them one.
     raise NotImplementedError("Dim %s not set up yet." % dim)
 
-
+problem_cls = module.HDGProblem
 for hdg_param in hdg_params:
 
     degree, size, rtol = hdg_param
