@@ -76,6 +76,7 @@ Quads: %s\n
     with PETSc.Log.Stage("MG Test N=%s, k=%s" % (problem.N, problem.degree)):
         solver.solve()
 
+        comm = problem.comm
         num_cells = comm.allreduce(problem.mesh.cell_set.size, op=MPI.SUM)
 
         if COMM_WORLD.rank == 0:
