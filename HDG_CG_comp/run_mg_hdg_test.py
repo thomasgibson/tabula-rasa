@@ -141,6 +141,7 @@ else:
     raise NotImplementedError("Dim %s not set up yet." % dim)
 
 problem_cls = module.HDGProblem
+quads = args.quads
 for hdg_param in hdg_params:
 
     degree, size, rtol = hdg_param
